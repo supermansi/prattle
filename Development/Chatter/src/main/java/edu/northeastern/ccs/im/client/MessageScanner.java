@@ -42,7 +42,7 @@ public class MessageScanner implements MessageListener, Iterator<Message> {
 	 * {@link Message}s to be processed by the client.
 	 */
 	private MessageScanner() {
-		messages = new ConcurrentLinkedQueue<>();
+		messages = new ConcurrentLinkedQueue<Message>();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class MessageScanner implements MessageListener, Iterator<Message> {
 	 * 
 	 * @see edu.kings.im.MessageListener#messagesReceived(java.util.Iterator)
 	 */
-	@Override
+	// @Override
 	public void messagesReceived(Iterator<Message> it) {
 		while (it.hasNext()) {
 			Message mess = it.next();
@@ -88,7 +88,7 @@ public class MessageScanner implements MessageListener, Iterator<Message> {
 	 * {@link UnsupportedOperationException}), but is required because it is
 	 * defined by the Iterator interface.
 	 */
-	@Override
+	//@Override
 	public void remove() {
 		throw new UnsupportedOperationException("Cannot remove a Message from IMScanner.");
 	}

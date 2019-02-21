@@ -69,8 +69,8 @@ public class IMConnection {
 		if ((username == null) || username.trim().equals("")) {
 			username = "TooDumbToEnterRealUsername";
 		}
-		linkListeners = new Vector<>();
-		messageListeners = new Vector<>();
+		linkListeners = new Vector<LinkListener>();
+		messageListeners = new Vector<MessageListener>();
 		userName = username;
 		hostName = host;
 		portNum = port;

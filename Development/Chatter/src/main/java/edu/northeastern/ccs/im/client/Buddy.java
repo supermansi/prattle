@@ -21,7 +21,7 @@ public class Buddy {
 	private static final ConcurrentHashMap<String, Buddy> INSTANCES;
 
 	static {
-		INSTANCES = new ConcurrentHashMap<>();
+		INSTANCES = new ConcurrentHashMap<String, Buddy>();
 	}
 
 	/**

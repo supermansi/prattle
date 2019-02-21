@@ -57,4 +57,9 @@ public class ClientTimer {
   public boolean isBehind () {
     return calendar.before(new GregorianCalendar());
   }
+
+  public GregorianCalendar getCalendar() {
+	return calendar;
+  }
+ 
 }
