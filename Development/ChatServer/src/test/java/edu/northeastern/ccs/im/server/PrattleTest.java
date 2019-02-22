@@ -1,9 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,22 +11,14 @@ import edu.northeastern.ccs.im.NetworkConnection;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.SocketAddress;
-import java.net.SocketOption;
-import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.SelectorProvider;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -38,10 +28,12 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+/**
+ * Test class for the methods in the Prattle class.
+ */
 public class PrattleTest {
   @Mock
   private ClientRunnable clientRunnable;
@@ -59,6 +51,9 @@ public class PrattleTest {
   private NetworkConnection networkConnection;
   private ConcurrentLinkedQueue<ClientRunnable> queue;
 
+  /**
+   *Method to set up for testing.
+   */
   @Before
   public void setUp() throws IOException, NoSuchFieldException, IllegalAccessException {
     serverSocketChannel = ServerSocketChannel.open();
@@ -76,6 +71,9 @@ public class PrattleTest {
     queue.add(clientRunnable);
   }
 
+  /**
+   *Test for broadcastMessage method.
+   */
   @Test
   public void testBroadcastMessageTrue() throws IOException {
     Message message = Message.makeBroadcastMessage("abcd", "hello world");
@@ -85,6 +83,9 @@ public class PrattleTest {
     serverSocketChannel.close();
   }
 
+  /**
+   *Test for broadcastMessage method failure.
+   */
   @Test
   public void testBroadcastMessageFalse() throws IOException {
     when(clientRunnable.isInitialized()).thenReturn(false);
@@ -95,6 +96,9 @@ public class PrattleTest {
     serverSocketChannel.close();
   }
 
+  /**
+   *Test for broadcasting a null message.
+   */
   @Test
   public void testBroadcastMessageNull() throws IOException {
     Prattle.broadcastMessage(null);
@@ -102,6 +106,9 @@ public class PrattleTest {
     serverSocketChannel.close();
   }
 
+  /**
+   *Test for the server close method.
+   */
   @Test
   public void testStopServer() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
     Class clazz = Prattle.class;
@@ -122,6 +129,9 @@ public class PrattleTest {
     }
   }
 
+  /**
+   *Test to create a client thread.
+   */
   @Test
   public void testCreateClientThread() throws IllegalAccessException, InvocationTargetException, IOException {
     Class<Prattle> clazz = Prattle.class;
@@ -140,6 +150,9 @@ public class PrattleTest {
     serverSocketChannel.close();
   }
 
+  /**
+   *Test for removing a client thread.
+   */
   @Test
   public void testRemoveClient() throws IOException {
     int onlineUserCount = queue.size();
@@ -151,6 +164,9 @@ public class PrattleTest {
     serverSocketChannel.close();
   }
 
+  /**
+   *Test for null socket.
+   */
   @Test
   public void testCreateClientThreadNotNullSock() throws IllegalAccessException, InvocationTargetException, IOException {
     ServerSocketChannel serverSocketChannel = mock(ServerSocketChannel.class);
@@ -172,6 +188,9 @@ public class PrattleTest {
     this.serverSocketChannel.close();
   }
 
+  /**
+   *Test for notnullsocket assertion.
+   */
   @Test
   public void testCreateClientThreadNotNullSockAssertExcept() throws IllegalAccessException, InvocationTargetException, IOException {
     ServerSocketChannel serverSocketChannel = mock(ServerSocketChannel.class);
@@ -191,10 +210,13 @@ public class PrattleTest {
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
     when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
     met.invoke(null,serverSocketChannel,executor);
-    assertEquals(getDataFromFile().contains("AssertionError"),true);
+    assertEquals(true, getDataFromFile().contains("AssertionError"));
     this.serverSocketChannel.close();
   }
 
+  /**
+   *Test for IOExeption with not null Socket.
+   */
   @Test
   public void testCreateClientThreadNotNullSockIOExcept() throws IllegalAccessException, InvocationTargetException, IOException {
     ServerSocketChannel serverSocketChannel = mock(ServerSocketChannel.class);
@@ -213,11 +235,14 @@ public class PrattleTest {
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
     when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
     met.invoke(null,serverSocketChannel,executor);
-    assertEquals(getDataFromFile().contains("IOException"),true);
+    assertEquals(true, getDataFromFile().contains("IOException"));
     this.serverSocketChannel.close();
   }
 
 
+  /**
+   *Test to read data from logger file.
+   */
   private String getDataFromFile() throws IOException {
     FileReader fr;
     File f;
