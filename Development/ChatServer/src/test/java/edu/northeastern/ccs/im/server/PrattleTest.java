@@ -61,8 +61,17 @@ public class PrattleTest {
     Prattle.broadcastMessage(null);
     serverSocketChannel.close();
   }
+
   @Test
   public void testBroadcastMessage() throws IOException {
+    Message message = Message.makeBroadcastMessage("abcd", "hello world");
+    Prattle.broadcastMessage(message);
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testBroadcastMessageFalse() throws IOException {
+    Mockito.when(clientRunnable.isInitialized()).thenReturn(false);
     Message message = Message.makeBroadcastMessage("abcd", "hello world");
     Prattle.broadcastMessage(message);
     serverSocketChannel.close();
