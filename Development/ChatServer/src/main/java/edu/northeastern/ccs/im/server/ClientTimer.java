@@ -58,8 +58,4 @@ public class ClientTimer {
     return calendar.before(new GregorianCalendar());
   }
 
-  public GregorianCalendar getCalendar() {
-	return calendar;
-  }
- 
 }
