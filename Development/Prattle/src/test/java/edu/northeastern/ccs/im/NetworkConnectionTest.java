@@ -212,11 +212,15 @@ public class NetworkConnectionTest {
     networkConnection.close();
   }
 
-  @Test(expected = AssertionError.class)
+  @Test
   public void testFailedWrite() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
-    networkConnection = new NetworkConnection(socketChannel1);
-    networkConnection.sendMessage(testMessage1);
+    networkConnection = new NetworkConnection(sockChan);
+    Field privateField = Class.forName(NetworkConnection.class.getName()).getDeclaredField("channel");
+    privateField.setAccessible(true);
+    privateField.set(networkConnection, socketChannel1);
+
+    assertEquals(false,networkConnection.sendMessage(testMessage1));
   }
 
 }
