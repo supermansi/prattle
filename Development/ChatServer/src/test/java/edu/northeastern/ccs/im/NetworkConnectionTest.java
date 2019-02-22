@@ -20,14 +20,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +33,9 @@ public class NetworkConnectionTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  /**
+   * Mock class for a Selector.
+   */
   SocketChannel sockChan;
   NetworkConnection networkConnection;
   Selector selector = new Selector() {
@@ -181,12 +181,18 @@ public class NetworkConnectionTest {
     }
   };
 
+  /**
+   * Set up for testing.
+   */
   @Before
   public void init() throws IOException {
     sockChan = mock(SocketChannel.class);
     when(sockChan.configureBlocking(false)).thenReturn(null);
   }
 
+  /**
+   * Test for the sendMessage method.
+   */
   @Test
   public void testSendMessage() {
     Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
@@ -194,23 +200,35 @@ public class NetworkConnectionTest {
     networkConnection.sendMessage(testMessage1);
   }
 
+  /**
+   * Test for the selectorClose method.
+   */
   @Test
   public void testSelectorClose() {
     networkConnection = new NetworkConnection(sockChan);
     networkConnection.close();
   }
 
+  /**
+   * Test for the getIterator method.
+   */
   @Test
   public void getIterator() {
     networkConnection = new NetworkConnection(sockChan);
     networkConnection.iterator();
   }
 
+  /**
+   * Test for the sendMessage assertionError exception.
+   */
   @Test(expected = AssertionError.class)
   public void testSendMessageException() {
     networkConnection = new NetworkConnection(socketChannel1);
   }
 
+  /**
+   * Test for the close assertionError exception.
+   */
   @Test(expected = AssertionError.class)
   public void testCloseException() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     networkConnection = new NetworkConnection(sockChan);
@@ -220,6 +238,9 @@ public class NetworkConnectionTest {
     networkConnection.close();
   }
 
+  /**
+   *Test for a failed write() call.
+   */
   @Test
   public void testFailedWrite() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
     Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
@@ -231,6 +252,9 @@ public class NetworkConnectionTest {
     assertEquals(false, networkConnection.sendMessage(testMessage1));
   }
 
+  /**
+   *Test for the readArgument method.
+   */
   @Test
   public void testReadArgument() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
@@ -253,6 +277,9 @@ public class NetworkConnectionTest {
     assertNotEquals("", met.invoke(obj, fb).toString());
   }
 
+  /**
+   *Test for the readArgument method when passed an argument with 0 length.
+   */
   @Test
   public void testReadArgumentWithZeroLength() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
@@ -275,6 +302,9 @@ public class NetworkConnectionTest {
     assertNotEquals("", met.invoke(obj, fb));
   }
 
+  /**
+   *Test for readArgument failed exception.
+   */
   @Test(expected = InvocationTargetException.class)
   public void testReadArgumentsFailedAssert() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
@@ -296,6 +326,9 @@ public class NetworkConnectionTest {
     assertNotEquals("", met.invoke(obj, fb));
   }
 
+  /**
+   *Test for performWriteAndReturn method.
+   */
   @Test
   public void testPerformWriteAndReturn() throws InvocationTargetException, IllegalAccessException {
     //Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
@@ -315,6 +348,9 @@ public class NetworkConnectionTest {
 
   }
 
+  /**
+   *Test method for Iterator's hasNext method with no message.
+   */
   @Test
   public void testHasNext() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
@@ -334,6 +370,9 @@ public class NetworkConnectionTest {
     assertEquals(false, met.invoke(obj));
   }
 
+  /**
+   *Test method for Iterator's hasNext method with message enqueued.
+   */
   @Test
   public void testHasNextWithInjectedMessage() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
@@ -361,6 +400,9 @@ public class NetworkConnectionTest {
     assertEquals(true, met.invoke(obj));
   }
 
+  /**
+   *Test for hasNext method with injected Selector.
+   */
   @Test
   public void testHasNextWithInjectedSelector() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
@@ -389,6 +431,9 @@ public class NetworkConnectionTest {
     assertEquals(false, met.invoke(obj));
   }
 
+  /**
+   *Test for has next with invocationTarget exception.
+   */
   @Test(expected = InvocationTargetException.class)
   public void testHasNextWithInjectedSelectorThrowIOException() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException, IOException {
 
@@ -421,7 +466,9 @@ public class NetworkConnectionTest {
     assertEquals(false, met.invoke(obj));
   }
 
-
+  /**
+   *Test for mocking Selector returning non-zero value.
+   */
   @Test
   public void testHasNextWithInjectedSelectorMockedReturnNonZero() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException, IOException {
 
@@ -457,8 +504,11 @@ public class NetworkConnectionTest {
     assertEquals(true, met.invoke(obj));
   }
 
+  /**
+   *Test for Selector returning non readable key.
+   */
   @Test(expected = Exception.class)
-  public void testHasNextWithInjectedSelectorMockedNonRreadableKey() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException, IOException {
+  public void testHasNextWithInjectedSelectorMockedNonReadableKey() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException, IOException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
     Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
@@ -493,12 +543,11 @@ public class NetworkConnectionTest {
   }
 
 
-
-
-
-
+  /**
+   *Test for calling next on an empty message list.
+   */
   @Test(expected = InvocationTargetException.class)
-  public void testNextOnEmptyMEssageList() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
+  public void testNextOnEmptyMessageList() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -517,6 +566,9 @@ public class NetworkConnectionTest {
     assertEquals(null, met.invoke(obj));
   }
 
+  /**
+   *Test for next with message in the list.
+   */
   @Test
   public void testNextWithInjectedMessage() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
@@ -544,6 +596,9 @@ public class NetworkConnectionTest {
     assertEquals("HLO 5 Rohan 2 --", met.invoke(obj).toString());
   }
 
+  /**
+   *Test for scanAndGetMinMessage method.
+   */
   @Test(expected = InvocationTargetException.class)
   public void testScanAndGetMinMessage() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
@@ -568,7 +623,6 @@ public class NetworkConnectionTest {
     privateField.setAccessible(true);
     privateField.set(networkConnection, messages);
     CharBuffer fb = CharBuffer.allocate(20);
-    //fb.put('a');
     fb.put(1, '1');
     fb.put(2, '1');
     fb.put(3, '1');
@@ -578,17 +632,12 @@ public class NetworkConnectionTest {
     fb.put(7, '1');
     fb.put(8, '1');
     fb.put(9, 'a');
-//    fb.put(10, '1');
-//    fb.put(11, '1');
-//    fb.put(12, '1');
-//    fb.put(13, '1');
-//    fb.put(14, '1');
-//    fb.put(15, '1');
-//    fb.put(16, '1');
-
     assertEquals(1, met.invoke(obj,0,fb).toString());
   }
 
+  /**
+   *Test for scanAndGetMinMessage method with a non zero position.
+   */
   @Test(expected = InvocationTargetException.class)
   public void testScanAndGetMinMessageInitialPosNonZero() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
@@ -626,6 +675,10 @@ public class NetworkConnectionTest {
 
     assertEquals(1, met.invoke(obj,5,fb).toString());
   }
+
+  /**
+   *Test for failed assert in scanAndGetMinMessage method.
+   */
   @Test(expected = InvocationTargetException.class)
   public void testScanAndGetMinMessageFailAssert() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
