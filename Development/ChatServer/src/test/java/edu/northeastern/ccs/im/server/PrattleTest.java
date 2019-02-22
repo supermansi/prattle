@@ -1,6 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -8,6 +10,11 @@ import static org.mockito.Mockito.when;
 
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -70,15 +77,11 @@ public class PrattleTest {
   }
 
   @Test
-  public void testBroadcastMessageNull() throws IOException {
-    Prattle.broadcastMessage(null);
-    serverSocketChannel.close();
-  }
-
-  @Test
-  public void testBroadcastMessage() throws IOException {
+  public void testBroadcastMessageTrue() throws IOException {
     Message message = Message.makeBroadcastMessage("abcd", "hello world");
     Prattle.broadcastMessage(message);
+    assertEquals(true,clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
 
@@ -87,26 +90,27 @@ public class PrattleTest {
     when(clientRunnable.isInitialized()).thenReturn(false);
     Message message = Message.makeBroadcastMessage("abcd", "hello world");
     Prattle.broadcastMessage(message);
+    assertEquals(false,clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
 
   @Test
-  public void testStopServer() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void testBroadcastMessageNull() throws IOException {
+    Prattle.broadcastMessage(null);
+    assertEquals(true,clientRunnable.isInitialized());
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testStopServer() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
     Class clazz = Prattle.class;
     Method method = clazz.getDeclaredMethod("stopServer");
     method.setAccessible(true);
     method.invoke(new PrattleThread());
-    serverSocketChannel.close();
-  }
-
-  @Test
-  public void testRemoveClient() throws IOException {
-    int onlineUserCount = queue.size();
-    Prattle.removeClient(clientRunnable);
-    onlineUserCount -= 1;
-    assertEquals(onlineUserCount, queue.size());
-    Prattle.removeClient(clientRunnable);
-    assertEquals(onlineUserCount, queue.size());
+    Field field = clazz.getDeclaredField("isReady");
+    field.setAccessible(true);
+    assertEquals(false, field.get(null));
     serverSocketChannel.close();
   }
 
@@ -119,7 +123,7 @@ public class PrattleTest {
   }
 
   @Test
-  public void testCreateClientThread() throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+  public void testCreateClientThread() throws IllegalAccessException, InvocationTargetException, IOException {
     Class<Prattle> clazz = Prattle.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -137,7 +141,18 @@ public class PrattleTest {
   }
 
   @Test
-  public void testCreateClientThreadNotNullSock() throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+  public void testRemoveClient() throws IOException {
+    int onlineUserCount = queue.size();
+    Prattle.removeClient(clientRunnable);
+    onlineUserCount -= 1;
+    assertEquals(onlineUserCount, queue.size());
+    Prattle.removeClient(clientRunnable);
+    assertEquals(onlineUserCount, queue.size());
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testCreateClientThreadNotNullSock() throws IllegalAccessException, InvocationTargetException, IOException {
     ServerSocketChannel serverSocketChannel = mock(ServerSocketChannel.class);
     SocketChannel sockChan = mock(SocketChannel.class);
     when(serverSocketChannel.accept()).thenReturn(sockChan);
@@ -158,7 +173,7 @@ public class PrattleTest {
   }
 
   @Test
-  public void testCreateClientThreadNotNullSockAssertExcept() throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+  public void testCreateClientThreadNotNullSockAssertExcept() throws IllegalAccessException, InvocationTargetException, IOException {
     ServerSocketChannel serverSocketChannel = mock(ServerSocketChannel.class);
     SocketChannel sockChan = mock(SocketChannel.class);
     doThrow(new IOException()).when(sockChan).configureBlocking(false);
@@ -176,11 +191,12 @@ public class PrattleTest {
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
     when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
     met.invoke(null,serverSocketChannel,executor);
+    assertEquals(getDataFromFile().contains("AssertionError"),true);
     this.serverSocketChannel.close();
   }
 
   @Test
-  public void testCreateClientThreadNotNullSockIOExcept() throws IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+  public void testCreateClientThreadNotNullSockIOExcept() throws IllegalAccessException, InvocationTargetException, IOException {
     ServerSocketChannel serverSocketChannel = mock(ServerSocketChannel.class);
     SocketChannel sockChan = mock(SocketChannel.class);
     doThrow(new IOException()).when(serverSocketChannel).accept();
@@ -197,6 +213,23 @@ public class PrattleTest {
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
     when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
     met.invoke(null,serverSocketChannel,executor);
+    assertEquals(getDataFromFile().contains("IOException"),true);
     this.serverSocketChannel.close();
+  }
+
+
+  private String getDataFromFile() throws IOException {
+    FileReader fr;
+    File f;
+    BufferedReader br;
+    f = new File("edu.northeastern.ccs.im.ChatLogger.log");
+    br = new BufferedReader(new FileReader(f));
+    StringBuilder result = new StringBuilder();
+    String next;
+
+    while((next = br.readLine()) != null){
+      result.append(next + "\n");
+    }
+    return result.toString();
   }
 }
