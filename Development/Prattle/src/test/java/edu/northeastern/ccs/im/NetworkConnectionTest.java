@@ -297,6 +297,25 @@ public class NetworkConnectionTest {
   }
 
   @Test
+  public void testPerformWriteAndReturn() throws InvocationTargetException, IllegalAccessException {
+    //Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+    networkConnection = new NetworkConnection(sockChan);
+    //networkConnection.sendMessage(testMessage1);
+    Class<NetworkConnection> clazz = NetworkConnection.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("performWriteAndReturn")) {
+        met = m;
+      }
+    }
+    met.setAccessible(true);
+    ByteBuffer wrapper = ByteBuffer.wrap("".getBytes());
+    assertEquals(true,met.invoke(networkConnection,wrapper));
+
+  }
+
+  @Test
   public void testHasNext() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException {
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -594,7 +613,6 @@ public class NetworkConnectionTest {
     privateField.setAccessible(true);
     privateField.set(networkConnection, messages);
     CharBuffer fb = CharBuffer.allocate(20);
-    //fb.put('a');
     fb.put(1, '1');
     fb.put(2, '1');
     fb.put(3, '1');
@@ -604,17 +622,36 @@ public class NetworkConnectionTest {
     fb.put(7, '1');
     fb.put(8, '1');
     fb.put(9, 'a');
-//    fb.put(10, '1');
-//    fb.put(11, '1');
-//    fb.put(12, '1');
-//    fb.put(13, '1');
-//    fb.put(14, '1');
-//    fb.put(15, '1');
-//    fb.put(16, '1');
+
 
     assertEquals(1, met.invoke(obj,5,fb).toString());
   }
+  @Test(expected = InvocationTargetException.class)
+  public void testScanAndGetMinMessageFailAssert() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
+    Queue<Message> messages = new ConcurrentLinkedQueue<>();
+    Message testMsg0 = Message.makeSimpleLoginMessage("Gori");
+    messages.add(testMsg0);
+    Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
+    Constructor<?> constructor = innerClass.getDeclaredConstructors()[0];
+    constructor.setAccessible(true);
+    NetworkConnection networkConnection = new NetworkConnection(sockChan);
+    Object obj = constructor.newInstance(networkConnection);
+    Method method[] = innerClass.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("scanAndGetMinMessage")) {
+        met = m;
+      }
+    }
+    met.setAccessible(true);
+    Field privateField = Class.forName(NetworkConnection.class.getName()).getDeclaredField("messages");
+    privateField.setAccessible(true);
+    privateField.set(networkConnection, messages);
+    CharBuffer fb = CharBuffer.allocate(20);
+    fb.put(1, '1');
+    assertEquals(1, met.invoke(obj,5,fb).toString());
+  }
 
 }
