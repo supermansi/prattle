@@ -119,9 +119,14 @@ public class NetworkConnection implements Iterable<Message> {
    * @return True if we successfully send this message; false otherwise.
    */
   public boolean sendMessage(Message msg) {
-    boolean result = true;
     String str = msg.toString();
     ByteBuffer wrapper = ByteBuffer.wrap(str.getBytes());
+    return performWriteAndReturn(wrapper);
+
+  }
+
+  private Boolean performWriteAndReturn(ByteBuffer wrapper) {
+    boolean result = true;
     int bytesWritten = 0;
     int attemptsRemaining = MAXIMUM_TRIES_SENDING;
     while (result && wrapper.hasRemaining() && (attemptsRemaining > 0)) {
