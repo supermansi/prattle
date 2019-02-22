@@ -109,9 +109,4 @@ public class ChatLoggerTest {
 
 
     }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testTypeNull() {
-    	ChatLogger.setMode(null);
-    }
 }
