@@ -111,8 +111,6 @@ public class ClientRunnable implements Runnable {
    * @return True if message is correct; false otherwise
    */
   private boolean messageChecks(Message msg) {
-    // Check that the message name matches.
-    //return (msg.getName() != null) && (msg.getName().compareToIgnoreCase(getName()) == 0);
     if (msg.getName() == null) {
       return false;
     }
@@ -204,20 +202,13 @@ public class ClientRunnable implements Runnable {
    * @see Thread#run()
    */
   public void run() {
-    // The client must be initialized before we can do anything else
     if (!initialized) {
       checkForInitialization();
     } else {
       handleIncomingMessages();
       handleOutgoingMessages();
     }
-    // Finally, check if this client have been inactive for too long and,
-    // when they have, terminate the client.
     setTerminateIfTimerIsBehind(timer);
-//    if (timer.isBehind()) {
-//      ChatLogger.error("Timing out or forcing off a user " + name);
-//      terminate = true;
-//    }
     if (terminate) {
       terminateClient();
     }

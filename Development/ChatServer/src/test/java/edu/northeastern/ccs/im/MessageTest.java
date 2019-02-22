@@ -1,17 +1,16 @@
 package edu.northeastern.ccs.im;
 
-import edu.northeastern.ccs.im.server.ClientRunnable;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.nio.channels.SocketChannel;
-import java.rmi.MarshalException;
-import java.util.Iterator;
-
 import static org.junit.Assert.*;
 
+/**
+ * Test class for the methods in the Message class.
+ */
 public class MessageTest {
 
+    /**
+     * Test to instantiate a quit message.
+     */
     @Test
     public void makeQuitMessage() {
 
@@ -21,18 +20,27 @@ public class MessageTest {
         assertEquals("user",q.getName());
     }
 
+    /**
+     * Test to instantiate a broadcast message.
+     */
     @Test
     public void makeBroadcastMessage() {
         Message b = Message.makeBroadcastMessage("user", "Hello World.");
         assertEquals("BCT 4 user 12 Hello World.", b.toString());
     }
 
+    /**
+     * Test to instantiate a hello message.
+     */
     @Test
     public void makeHelloMessage() {
         Message h = Message.makeHelloMessage("user");
         assertEquals("HLO 2 -- 4 user", h.toString());
     }
 
+    /**
+     * Test making different message types with the makeMessage method.
+     */
     @Test
     public void makeMessage() {
         Message m1 = Message.makeMessage("BYE", "user", "goodbye");
@@ -48,24 +56,36 @@ public class MessageTest {
 
     }
 
+    /**
+     * Test to instantiate a login message.
+     */
     @Test
     public void makeSimpleLoginMessage() {
         Message lm = Message.makeSimpleLoginMessage("New User");
         assertEquals("HLO 8 New User 2 --", lm.toString());
     }
 
+    /**
+     * Test for the getName method.
+     */
     @Test
     public void getName() {
         Message userM = Message.makeMessage("BCT", "user", "hello");
         assertEquals("user", userM.getName());
     }
 
+    /**
+     * Test for the getText method.
+     */
     @Test
     public void getText() {
         Message text = Message.makeMessage("BCT", "user1", "Hello World.");
         assertEquals("Hello World.", text.getText());
     }
 
+    /**
+     * Test for the isBroadcastMessage method.
+     */
     @Test
     public void isBroadcastMessage() {
         Message bm = Message.makeMessage("BCT", "user", "hello");
@@ -74,6 +94,9 @@ public class MessageTest {
         assertEquals(false, im.isBroadcastMessage());
     }
 
+    /**
+     * Test for the isInitialization method.
+     */
     @Test
     public void isInitialization() {
         Message bm = Message.makeMessage("BCT", "user", "hello");
@@ -82,6 +105,9 @@ public class MessageTest {
         assertEquals(false, bm.isInitialization());
     }
 
+    /**
+     * Test for the terminate method.
+     */
     @Test
     public void terminate() {
         Message qm = Message.makeMessage("BYE", "user", "hello");
@@ -90,6 +116,9 @@ public class MessageTest {
         assertEquals(false, im.terminate());
     }
 
+    /**
+     * Test for the toString method.
+     */
     @Test
     public void toStringTest() {
         Message qmnn = Message.makeMessage("BYE", "user", "goodbye");

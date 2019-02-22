@@ -8,8 +8,14 @@ import java.lang.reflect.Modifier;
 
 import org.junit.Test;
 
+/**
+ * Test class for the methods in the ServerConstants class.
+ */
 public class ServerConstantsTest {
-	
+
+	/**
+	 * Test for the private constructor.
+	 */
 	@Test
 	public void testConstructorIsPrivate() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 	  Constructor<ServerConstants> constructor = ServerConstants.class.getDeclaredConstructor();
