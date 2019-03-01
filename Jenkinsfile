@@ -26,10 +26,10 @@ pipeline {
 
              stage('Build') {
                steps {
-                 echo "Building Chatter"
-                 sh 'mvn -f Development/Chatter/pom.xml install'
-                 echo "Building Prattle"
-                 sh 'mvn -f Development/Prattle/pom.xml compile'
+                 //echo "Building Chatter"
+                 //sh 'mvn -f Development/Chatter/pom.xml install'
+                 echo "Building ChatServer"
+                 sh 'mvn -f Development/ChatServer/pom.xml compile'
                }
    } // build
    stage('SonarQube') {
@@ -40,8 +40,8 @@ pipeline {
      }
      steps {
       withSonarQubeEnv('SonarQube') {
-        sh 'mvn -f Development/Prattle/pom.xml clean install'
-        sh 'mvn -f Development/Prattle/pom.xml sonar:sonar -Dsonar.projectKey=${jobBaseName} -Dsonar.projectName=${jobBaseName}'
+        sh 'mvn -f Development/ChatServer/pom.xml clean install'
+        sh 'mvn -f Development/ChatServer/pom.xml sonar:sonar -Dsonar.projectKey=${jobBaseName} -Dsonar.projectName=${jobBaseName}'
       }
 
       sh 'sleep 30'
@@ -66,14 +66,14 @@ stage('Master Branch Tasks') {
  }
  agent any
  steps {
-   echo "Building Prattle"
-   sh 'mvn -f Development/Prattle/pom.xml package -Dmaven.test.skip=true'          
+   echo "Building ChatServer"
+   sh 'mvn -f Development/ChatServer/pom.xml package -Dmaven.test.skip=true'          
 
    script {
     def json = readJSON file:'config.json'
     sh 'cd ${WORKSPACE}'
     sh "chmod 400 ${json.server[0].PEM}"
-    sh "scp -oStrictHostKeyChecking=no -i ${json.server[0].PEM} Development/Prattle/target/${json.server[0].JARNAME} ${json.server[0].user}@${json.server[0].DNS}:${json.server[0].directory}"
+     sh "scp -oStrictHostKeyChecking=no -i ${json.server[0].PEM} Development/ChatServer/target/${json.server[0].JARNAME} ${json.server[0].user}@${json.server[0].DNS}:${json.server[0].directory}"
     sh "ssh -oStrictHostKeyChecking=no -i ${json.server[0].PEM} ${json.server[0].user}@${json.server[0].DNS}  pkill java &"
     sh "ssh -oStrictHostKeyChecking=no -i ${json.server[0].PEM} ${json.server[0].user}@${json.server[0].DNS}  nohup java -jar ${json.server[0].directory}/${json.server[0].JARNAME} >nohup.out 2>&1 &"
                  } //script
@@ -82,14 +82,12 @@ stage('Master Branch Tasks') {
 } // STAGES
 
 
- //post {      
-
-  //SLACK IS CURRENTLY COMMENTED OUT, you will have to add your custom integration. 
-  //   success {
-  //          slackSend (baseUrl: "https://nu-cs5500.slack.com/services/hooks/jenkins-ci/", token: "gO2JO0o8DG11Syjwl6UDDAQy", channel: "#cs5500-team-XXX-SP19", color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME}")
-  //          }
-  // failure {  
-  //       slackSend (baseUrl: "https://nu-cs5500.slack.com/services/hooks/jenkins-ci/", token: "gO2JO0o8DG11Syjwl6UDDAQy", channel: "#cs5500-team-XXX-SP19", color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME}")
-  //        }
-  //  }
+ post {      
+     success {
+            slackSend (baseUrl: "https://nu-cs5500.slack.com/services/hooks/jenkins-ci/", token: "nowx6jN6PMbjH9Ol5JVTGY1R", channel: "#team-213-sp19", color: '#00FF00', message: "SUCCESSFUL: Job '${env.JOB_NAME}")
+            }
+   failure {  
+         slackSend (baseUrl: "https://nu-cs5500.slack.com/services/hooks/jenkins-ci/", token: "nowx6jN6PMbjH9Ol5JVTGY1R", channel: "#team-213-sp19", color: '#FF0000', message: "FAILED: Job '${env.JOB_NAME}")
+         }
+   }
 } //pipeline

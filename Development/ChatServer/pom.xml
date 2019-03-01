@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>CS5500</groupId>
-	<artifactId>Chatter</artifactId>
+	<artifactId>Prattle</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<properties>
@@ -133,19 +133,18 @@
 	</profiles>
 
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.3.1</version>
-			<scope>test</scope>
+    		<groupId>org.mockito</groupId>
+    		<artifactId>mockito-core</artifactId>
+    		<version>2.24.5</version>
+    		<scope>test</scope>
 		</dependency>
-		<dependency>
+  		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency> 
 	</dependencies>
 
 </project>
