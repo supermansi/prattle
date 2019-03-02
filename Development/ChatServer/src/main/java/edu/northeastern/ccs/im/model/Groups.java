@@ -1,6 +1,6 @@
 package edu.northeastern.ccs.im.model;
 
-public class Group {
+public class Groups {
 	
 	private int grpID;
 	private String grpName;
