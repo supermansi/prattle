@@ -144,12 +144,22 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
+<<<<<<< HEAD
 		</dependency> 
 		<dependency>
    			<groupId>mysql</groupId>
    			<artifactId>mysql-connector-java</artifactId>
    			<version>8.0.15</version>
 		</dependency>
+=======
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.15</version>
+		</dependency>
+
+>>>>>>> d3a713140f2dbeeeb3e947d7737c0377b110df62
 	</dependencies>
 
 </project>
