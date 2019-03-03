@@ -6,6 +6,10 @@ public class Groups {
 	private String grpName;
 	private int adminID;
 	
+	public Groups(String grpName, int adminID) {
+		this.grpName = grpName;
+		this.adminID = adminID;
+	}
 	public int getGrpID() {
 		return grpID;
 	}
