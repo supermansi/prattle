@@ -6,6 +6,10 @@ public class GroupToUserMap {
 	private int userID;
 	private int groupID;
 	
+	public GroupToUserMap(int userID, int groupID) {
+		this.userID = userID;
+		this.groupID = groupID;
+	}
 	public int getId() {
 		return id;
 	}
