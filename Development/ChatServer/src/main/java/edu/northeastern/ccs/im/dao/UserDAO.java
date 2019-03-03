@@ -64,7 +64,7 @@ public class UserDAO {
         String email = resultSet.getString("email");
         String password = resultSet.getString("password");
 
-        user = new User(username,userFN,userLN,email,password);
+        user = new User(username, userFN, userLN, email, password);
       } else {
         throw new SQLException("User not found.");
       }
@@ -73,6 +73,83 @@ public class UserDAO {
       if (resultSet != null) {
         resultSet.close();
       }
+    }
+  }
+
+  public boolean isUserExists(String user_name, String emailID) throws SQLException {
+    String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND EMAIL = ?;";
+    ResultSet resultSet = null;
+    Connection connection;
+    PreparedStatement preparedStatement;
+    try {
+      connection = connectionManager.getConnection();
+      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, user_name);
+      preparedStatement.setString(2, emailID);
+      resultSet = preparedStatement.executeQuery();
+      User user;
+      if (resultSet.next()) {
+        String username = resultSet.getString("username");
+        String userFN = resultSet.getString("userFN");
+        String userLN = resultSet.getString("userLN");
+        String email = resultSet.getString("email");
+        String password = resultSet.getString("password");
+
+        user = new User(username, userFN, userLN, email, password);
+        return true;
+      } else {
+        return false;
+      }
+    } finally {
+      if (resultSet != null) {
+        resultSet.close();
+      }
+    }
+  }
+
+  public boolean validateUser(String user_name, String pass_word) throws SQLException {
+    String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND PASSWORD = ?;";
+    ResultSet resultSet = null;
+    Connection connection;
+    PreparedStatement preparedStatement;
+    try {
+      connection = connectionManager.getConnection();
+      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, user_name);
+      preparedStatement.setString(2, pass_word);
+      resultSet = preparedStatement.executeQuery();
+      User user;
+      if (resultSet.next()) {
+        String username = resultSet.getString("username");
+        String userFN = resultSet.getString("userFN");
+        String userLN = resultSet.getString("userLN");
+        String email = resultSet.getString("email");
+        String password = resultSet.getString("password");
+        user = new User(username, userFN, userLN, email, password);
+        return true;
+      } else {
+        return false;
+      }
+    } finally {
+      if (resultSet != null) {
+        resultSet.close();
+      }
+    }
+  }
+
+  public void deleteUser(String user_name, String emailID, String pass_word) throws SQLException {
+    String insertUser = "DELETE FROM USER WHERE USERNAME = ? AND EMAIL = ? AND PASSWORD = ?;";
+    Connection connection;
+    PreparedStatement preparedStatement;
+    try {
+      connection = connectionManager.getConnection();
+      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, user_name);
+      preparedStatement.setString(2, emailID);
+      preparedStatement.setString(3, pass_word);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new SQLException("FAILED! User could not be deleted.");
     }
   }
 }

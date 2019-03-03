@@ -28,4 +28,34 @@ public class UserDAOTest {
   public void testGetUserByUserName() throws SQLException {
     assertEquals(user.getUsername(),userDAO.getUserByUsername("Karl").getUsername());
   }
+
+  @Test
+  public void testIsUserExistsTrue() throws SQLException {
+    assertEquals(true,userDAO.isUserExists("Karl","abc@gmail.com"));
+  }
+
+  @Test
+  public void testIsUserExistsFalse() throws SQLException {
+    assertEquals(false,userDAO.isUserExists("ABCD","abc123@gmail.com"));
+  }
+
+  @Test
+  public void testValidateUserTrue() throws SQLException {
+    assertEquals(true,userDAO.validateUser("Karl","1234"));
+  }
+
+  @Test
+  public void testValidateUserFalse() throws SQLException {
+    assertEquals(false,userDAO.validateUser("Karl","abcd"));
+  }
+
+  @Test
+  public void testDeleteUserTrue() throws SQLException {
+    userDAO.deleteUser("Kyle","kyle@gmail.com","kyle");
+  }
+
+  @Test
+  public void testDeleteUserFalse() throws SQLException {
+    userDAO.deleteUser("aaa","aaa@gmail.com","aaa");
+  }
 }
