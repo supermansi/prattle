@@ -40,18 +40,9 @@ public class GroupDAO {
 				throw new SQLException("Group ID could not be generated.");
 			}
 			group.setGrpID(groupID);
-			
 			insertStmt2.setInt(1, group.getGrpID());
 			insertStmt2.setInt(2, group.getAdminID());
 			insertStmt2.executeUpdate();
-			resultSet = insertStmt2.getGeneratedKeys();
-			int groupUserMapID;
-			if(resultSet.next()) {
-				groupUserMapID = resultSet.getInt(1);
-			}
-			else {
-				throw new SQLException("Group to User Map ID could not be generated.");
-			}			
 			return group;
 		}finally {
 		      if (resultSet != null) {
@@ -60,6 +51,33 @@ public class GroupDAO {
 		      if(connection != null) {
 		    	  connection.close();
 		      }
+		      if(insertStmt1 != null) {
+		    	  insertStmt1.close();
+		      }
+		      if(insertStmt2 != null) {
+		    	  insertStmt2.close();
+		      }
+		}
+	}
+	
+	public void deleteGroupByID(int groupID) throws SQLException {
+		String deleteGroup = "DELETE FROM GROUPS WHERE grpID=?;";
+		Connection connection = null;
+		PreparedStatement statement = null;
+		try {
+			connection = connectionManager.getConnection();
+			statement = connection.prepareStatement(deleteGroup);
+			statement.setInt(1, groupID);
+			statement.executeUpdate();
+		} catch(SQLException e) {
+			throw new SQLException("Group could not be deleted.");
+		} finally {
+			if (connection != null) {
+				connection.close();
+			}
+			if(statement != null) {
+				statement.close();
+			}
 		}
 	}
 
