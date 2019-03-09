@@ -92,15 +92,29 @@ public class ClientRunnable implements Runnable {
     if (messageIter.hasNext()) {
       // If a message exists, try to use it to initialize the connection
       Message msg = messageIter.next();
-      if (setUserName(msg.getName())) {
-        // Update the time until we terminate this client due to inactivity.
-        timer.updateAfterInitialization();
-        // Set that the client is initialized.
-        initialized = true;
-      } else {
-        initialized = false;
+      if(msg.isInitialization()){ //todo terminate inactivity
+        if(validateUser(msg.getName(),msg.getText())){
+          if (setUserName(msg.getName())) {
+            // Update the time until we terminate this client due to inactivity.
+            timer.updateAfterInitialization();
+            // Set that the client is initialized.
+            initialized = true;
+            enqueueMessage(Message.makeAckMessage("Server","Successfully loggedin"));
+          } else {
+            initialized = false;
+          }
+        }else{
+          sendMessage(Message.makeNackMessage("Server","Invalid username or password"));
+          initialized = false;
+        }
+      }else{
+        this.terminateClient();
       }
     }
+  }
+
+  private boolean validateUser(String name, String text) {
+    return false;
   }
 
   /**
