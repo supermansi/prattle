@@ -11,9 +11,11 @@ import edu.northeastern.ccs.im.model.Groups;
 public class GroupDAO {
 	
 	protected ConnectionManager connectionManager;
+	private GroupToUserDAO groupToUserDAO;
 	
 	public GroupDAO() {
 		connectionManager = new ConnectionManager();
+		groupToUserDAO = new GroupToUserDAO();
 	}
 	
 	public Groups createGroup(Groups group) throws SQLException {
@@ -79,6 +81,10 @@ public class GroupDAO {
 				statement.close();
 			}
 		}
+	}
+	
+	public boolean checkGroupExists(int groupID) throws SQLException {
+		String checkGroup = "SELECT * FROM Groups WHERE groupID=?;";
 	}
 
 }
