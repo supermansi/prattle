@@ -92,7 +92,7 @@ public class ClientRunnable implements Runnable {
     if (messageIter.hasNext()) {
       // If a message exists, try to use it to initialize the connection
       Message msg = messageIter.next();
-      if(msg.isInitialization()){ //todo terminate inactivity for client
+      if(msg.isInitialization()){ //todo terminate inactivity for client.
         if(validateUser(msg.getName(),msg.getText())){
           if (setUserName(msg.getName())) {
             // Update the time until we terminate this client due to inactivity.
