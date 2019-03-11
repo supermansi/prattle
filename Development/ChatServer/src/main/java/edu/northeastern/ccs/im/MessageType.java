@@ -2,46 +2,54 @@ package edu.northeastern.ccs.im;
 
 /**
  * Enumeration for the different types of messages.
- * 
- * @author Maria Jump
  *
+ * @author Maria Jump
  */
 public enum MessageType {
-	/**
-	 * Message sent by the user attempting to login using a specified username.
-	 */
-	HELLO("HLO"),
-	/**
-	 * Message sent by the user to start the logging out process and sent by the
-	 * server once the logout process completes.
-	 */
-	QUIT("BYE"),
-	/** Message whose contents is broadcast to all connected users. */
-	BROADCAST("BCT"),
+  /**
+   * Message sent by the user attempting to login using a specified username.
+   */
+  HELLO("HLO"),
+  /**
+   * Message sent by the user to start the logging out process and sent by the server once the
+   * logout process completes.
+   */
+  QUIT("BYE"),
+  /**
+   * Message whose contents is broadcast to all connected users.
+   */
+  BROADCAST("BCT"),
 
-	ACKNOWLEDGEMENT("ACK"),
+  ACKNOWLEDGEMENT("ACK"),
 
-	NO_ACKNOWLEDGEMENT("NAK");
+  NO_ACKNOWLEDGEMENT("NAK"),
 
-	/** Store the short name of this message type. */
-	private String abbreviation;
+  /**
+   * Message sent for registeration
+   */
+  REGISTRATION("REG");
 
-	/**
-	 * Define the message type and specify its short name.
-	 * 
-	 * @param abbrev Short name of this message type, as a String.
-	 */
-	private MessageType(String abbrev) {
-		abbreviation = abbrev;
-	}
+  /**
+   * Store the short name of this message type.
+   */
+  private String abbreviation;
 
-	/**
-	 * Return a representation of this Message as a String.
-	 * 
-	 * @return Three letter abbreviation for this type of message.
-	 */
-	@Override
-	public String toString() {
-		return abbreviation;
-	}
+  /**
+   * Define the message type and specify its short name.
+   *
+   * @param abbrev Short name of this message type, as a String.
+   */
+  private MessageType(String abbrev) {
+    abbreviation = abbrev;
+  }
+
+  /**
+   * Return a representation of this Message as a String.
+   *
+   * @return Three letter abbreviation for this type of message.
+   */
+  @Override
+  public String toString() {
+    return abbreviation;
+  }
 }
