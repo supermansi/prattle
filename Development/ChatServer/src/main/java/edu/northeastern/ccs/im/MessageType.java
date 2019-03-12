@@ -27,7 +27,17 @@ public enum MessageType {
   /**
    * Message sent for registeration
    */
-  REGISTRATION("REG");
+  REGISTRATION("REG"),
+
+  /**
+   * Private Messages sent .
+   */
+  PRIVATE("PVT"),
+
+  /**
+   * Messages sent to a group.
+   */
+  GROUP("GRP");
 
   /**
    * Store the short name of this message type.
