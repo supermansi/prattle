@@ -185,8 +185,35 @@ public class GroupDAO {
 		}
 	}
 	
+	public Groups getGroupByGroupID(int groupID) throws SQLException {
+		String insertGroup = "SELECT * FROM GROUPS WHERE GRPNAME = ?;";
+		ResultSet resultSet = null;
+		Connection connection;
+		PreparedStatement preparedStatement;
+		try {
+			connection = connectionManager.getConnection();
+			preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
+			preparedStatement.setInt(1, groupID);
+			resultSet = preparedStatement.executeQuery();
+			Groups group;
+			if (resultSet.next()) {
+				int grpID = resultSet.getInt("grpID");
+				String grpName = resultSet.getString("grpName");
+				int adminID = resultSet.getInt("adminID");
+				group = new Groups(grpID,grpName,adminID);
+				return group;
+			} else {
+				throw new SQLException("Group not found.");
+			}
+		} finally {
+			if (resultSet != null) {
+				resultSet.close();
+			}
+		}
+	}
+	
 	public List<String> getAllUsersInGroup(String groupName) throws SQLException{
-		List<String> users = new ArrayList<String>();
+		List<String> users = new ArrayList<>();
 		int groupID = getGroupByGroupName(groupName).getGrpID();
 		String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
 		ResultSet resultSet = null;
@@ -195,11 +222,11 @@ public class GroupDAO {
 		try {
 			connection = connectionManager.getConnection();
 			preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);
-			preparedStatement.setString(1, groupName);
+			preparedStatement.setInt(1, groupID);
 			resultSet = preparedStatement.executeQuery();
 			while (resultSet.next()) {
-				int userID = resultSet.getInt(userID);
-				users.add(userDAO.getUserByUserID(userID));
+				int userID = resultSet.getInt("userID");
+				users.add(userDAO.getUserByUserID(userID).getUsername());
 			}
 		} finally {
 			if (resultSet != null) {

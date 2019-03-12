@@ -86,6 +86,37 @@ public class UserDAO {
     }
   }
 
+  public User getUserByUserID(int user_ID) throws SQLException {
+    String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
+    ResultSet resultSet = null;
+    Connection connection;
+    PreparedStatement preparedStatement;
+    try {
+      connection = connectionManager.getConnection();
+      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, user_ID);
+      resultSet = preparedStatement.executeQuery();
+      User user;
+      if (resultSet.next()) {
+        int userID = resultSet.getInt("userID");
+        String username = resultSet.getString("username");
+        String userFN = resultSet.getString("userFN");
+        String userLN = resultSet.getString("userLN");
+        String email = resultSet.getString("email");
+        String password = resultSet.getString("password");
+
+        user = new User(userID, username, userFN, userLN, email, password);
+      } else {
+        throw new SQLException("User not found.");
+      }
+      return user;
+    } finally {
+      if (resultSet != null) {
+        resultSet.close();
+      }
+    }
+  }
+
   public boolean isUserExists(String user_name) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     ResultSet resultSet = null;

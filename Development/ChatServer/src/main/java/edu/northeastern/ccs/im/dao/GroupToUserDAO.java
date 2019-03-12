@@ -7,7 +7,7 @@ import java.sql.SQLException;
 
 public class GroupToUserDAO {
 	
-	protected ConnectionManager connectionManager;
+	protected static ConnectionManager connectionManager;
 	private static GroupToUserDAO instance = null;
 	private GroupDAO groupDAO;
 	private UserDAO userDAO;
@@ -18,7 +18,7 @@ public class GroupToUserDAO {
 		userDAO = UserDAO.getInstance();
 	}
 	
-	public GroupToUserDAO getInstance() {
+	public static GroupToUserDAO getInstance() {
 		if(instance == null) {
 			instance = new GroupToUserDAO();
 		}

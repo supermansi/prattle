@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
@@ -46,6 +47,11 @@ public class GroupServices {
 		User user = userDAO.getUserByUsername(userName);
 		Groups group = groupDAO.getGroupByGroupName(groupName);
 		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
+	}
+	
+	public List<String> getAllUsersInGroup(String groupName) throws SQLException {
+		groupDAO.checkGroupExists(groupName);
+		return groupDAO.getAllUsersInGroup(groupName);
 	}
 
 }
