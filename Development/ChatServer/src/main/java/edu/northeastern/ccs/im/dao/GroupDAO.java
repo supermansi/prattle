@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
@@ -181,5 +183,29 @@ public class GroupDAO {
 				resultSet.close();
 			}
 		}
+	}
+	
+	public List<String> getAllUsersInGroup(String groupName) throws SQLException{
+		List<String> users = new ArrayList<String>();
+		int groupID = getGroupByGroupName(groupName).getGrpID();
+		String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
+		ResultSet resultSet = null;
+		Connection connection;
+		PreparedStatement preparedStatement;
+		try {
+			connection = connectionManager.getConnection();
+			preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);
+			preparedStatement.setString(1, groupName);
+			resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				int userID = resultSet.getInt(userID);
+				users.add(userDAO.getUserByUserID(userID));
+			}
+		} finally {
+			if (resultSet != null) {
+				resultSet.close();
+			}
+		}
+		return users;
 	}
 }
