@@ -17,6 +17,16 @@ public class User {
 		this.email = email;
 		this.password = password;
 	}
+
+	public User(int userID, String username, String userFN, String userLN, String email, String password) {
+		super();
+		this.userID = userID;
+		this.username = username;
+		this.userFN = userFN;
+		this.userLN = userLN;
+		this.email = email;
+		this.password = password;
+	}
 	public int getUserID() {
 		return userID;
 	}

@@ -17,7 +17,7 @@ public class GroupServices {
 	public GroupServices() {
 		groupDAO = groupDAO.getInstance();
 		groupUserDAO = groupUserDAO.getInstance();
-		userDAO = new UserDAO();
+		userDAO = userDAO.getInstance();
 	}
 	
 	public void createGroup(String groupName, String adminUsername) throws SQLException {

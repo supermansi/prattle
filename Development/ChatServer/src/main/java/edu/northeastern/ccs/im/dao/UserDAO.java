@@ -10,10 +10,19 @@ import edu.northeastern.ccs.im.model.User;
 
 public class UserDAO {
 
-  protected ConnectionManager connectionManager;
+  protected static ConnectionManager connectionManager;
+  private static UserDAO userDAO;
 
-  public UserDAO() {
-    connectionManager = new ConnectionManager();
+  public static UserDAO getInstance() {
+    if(userDAO == null) {
+      connectionManager = new ConnectionManager();
+      userDAO = new UserDAO();
+    }
+    return userDAO;
+  }
+
+  private UserDAO() {
+    //empty private constructor for singleton
   }
 
   public User createUser(User user) throws SQLException {
@@ -58,13 +67,14 @@ public class UserDAO {
       resultSet = preparedStatement.executeQuery();
       User user;
       if (resultSet.next()) {
+        int userID = resultSet.getInt("userID");
         String username = resultSet.getString("username");
         String userFN = resultSet.getString("userFN");
         String userLN = resultSet.getString("userLN");
         String email = resultSet.getString("email");
         String password = resultSet.getString("password");
 
-        user = new User(username, userFN, userLN, email, password);
+        user = new User(userID, username, userFN, userLN, email, password);
       } else {
         throw new SQLException("User not found.");
       }
@@ -76,8 +86,8 @@ public class UserDAO {
     }
   }
 
-  public boolean isUserExists(String user_name, String emailID) throws SQLException {
-    String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND EMAIL = ?;";
+  public boolean isUserExists(String user_name) throws SQLException {
+    String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     ResultSet resultSet = null;
     Connection connection;
     PreparedStatement preparedStatement;
@@ -85,17 +95,8 @@ public class UserDAO {
       connection = connectionManager.getConnection();
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, user_name);
-      preparedStatement.setString(2, emailID);
       resultSet = preparedStatement.executeQuery();
-      User user;
       if (resultSet.next()) {
-        String username = resultSet.getString("username");
-        String userFN = resultSet.getString("userFN");
-        String userLN = resultSet.getString("userLN");
-        String email = resultSet.getString("email");
-        String password = resultSet.getString("password");
-
-        user = new User(username, userFN, userLN, email, password);
         return true;
       } else {
         return false;
@@ -118,14 +119,7 @@ public class UserDAO {
       preparedStatement.setString(1, user_name);
       preparedStatement.setString(2, pass_word);
       resultSet = preparedStatement.executeQuery();
-      User user;
       if (resultSet.next()) {
-        String username = resultSet.getString("username");
-        String userFN = resultSet.getString("userFN");
-        String userLN = resultSet.getString("userLN");
-        String email = resultSet.getString("email");
-        String password = resultSet.getString("password");
-        user = new User(username, userFN, userLN, email, password);
         return true;
       } else {
         return false;

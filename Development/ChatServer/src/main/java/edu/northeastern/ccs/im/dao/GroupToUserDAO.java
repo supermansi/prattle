@@ -15,7 +15,7 @@ public class GroupToUserDAO {
 	private GroupToUserDAO() {
 		connectionManager = new ConnectionManager();
 		groupDAO = GroupDAO.getInstance();
-		userDAO = new UserDAO();
+		userDAO = UserDAO.getInstance();
 	}
 	
 	public GroupToUserDAO getInstance() {

@@ -1,18 +1,28 @@
 package edu.northeastern.ccs.im.services;
 
+import java.sql.SQLException;
+
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.model.User;
 
 public class UserServices {
 	
-	private UserDAO userDAO = new UserDAO();
+	private UserDAO userDAO = UserDAO.getInstance();
 	
-	public boolean login(String username, String password) {
-		return  true;
+	public boolean login(String username, String password) throws SQLException {
+		return userDAO.validateUser(username,password);
 	}
 	
 	public boolean register(String username, String password, String userFN,
-						String userLN, String email) {
-		return true;
+						String userLN, String email) throws SQLException {
+		if(userDAO.isUserExists(username)) {
+			return false; // user exists
+		}
+		else {
+			User registerUser = new User(username, userFN, userLN, email, password);
+			userDAO.createUser(registerUser);
+			return true; // user does not exist and is created
+		}
 	}
 	
 

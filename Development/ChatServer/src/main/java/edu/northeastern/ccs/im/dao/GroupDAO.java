@@ -19,7 +19,7 @@ public class GroupDAO {
 	private GroupDAO() {
 		connectionManager = new ConnectionManager();
 		groupToUserDAO = groupToUserDAO.getInstance();
-		userDAO = new UserDAO();
+		userDAO = userDAO.getInstance();
 	}
 	public static GroupDAO getInstance() {
 		if(instance == null) {
@@ -154,5 +154,32 @@ public class GroupDAO {
 	      }
 	    }
 	    return false;
+	}
+
+	public Groups getGroupByGroupName(String groupName) throws SQLException {
+		String insertGroup = "SELECT * FROM GROUPS WHERE GRPNAME = ?;";
+		ResultSet resultSet = null;
+		Connection connection;
+		PreparedStatement preparedStatement;
+		try {
+			connection = connectionManager.getConnection();
+			preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
+			preparedStatement.setString(1, groupName);
+			resultSet = preparedStatement.executeQuery();
+			Groups group;
+			if (resultSet.next()) {
+				int grpID = resultSet.getInt("grpID");
+				String grpName = resultSet.getString("grpName");
+				int adminID = resultSet.getInt("adminID");
+				group = new Groups(grpID,grpName,adminID);
+				return group;
+			} else {
+				throw new SQLException("Group not found.");
+			}
+		} finally {
+			if (resultSet != null) {
+				resultSet.close();
+			}
+		}
 	}
 }

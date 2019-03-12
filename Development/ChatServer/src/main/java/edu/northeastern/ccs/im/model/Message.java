@@ -1,6 +1,6 @@
 package edu.northeastern.ccs.im.model;
 
-import java.sql.Time;
+import java.sql.Timestamp;
 
 public class Message {
 	
@@ -8,7 +8,7 @@ public class Message {
 	private String msgType;
 	private int senderID;
 	private String message;
-	private Time timestamp;
+	private Timestamp timestamp;
 	
 	public int getMsgID() {
 		return msgID;
@@ -38,10 +38,10 @@ public class Message {
 		this.message = message;
 	}
 	
-	public Time getTimestamp() {
+	public Timestamp getTimestamp() {
 		return timestamp;
 	}
-	public void setTimestamp(Time timestamp) {
+	public void setTimestamp(Timestamp timestamp) {
 		this.timestamp = timestamp;
 	}
 
