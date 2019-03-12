@@ -15,7 +15,7 @@ public class UserDAOTest {
   User user;
   @Before
   public void setUp() {
-    userDAO = new UserDAO();
+    userDAO = UserDAO.getInstance();
     user = new User("Karl","Karl","Frisk", "abc@gmail.com","1234");
   }
 
@@ -31,12 +31,12 @@ public class UserDAOTest {
 
   @Test
   public void testIsUserExistsTrue() throws SQLException {
-    assertEquals(true,userDAO.isUserExists("Karl","abc@gmail.com"));
+    assertEquals(true,userDAO.isUserExists("Karl"));
   }
 
   @Test
   public void testIsUserExistsFalse() throws SQLException {
-    assertEquals(false,userDAO.isUserExists("ABCD","abc123@gmail.com"));
+    assertEquals(false,userDAO.isUserExists("ABCD"));
   }
 
   @Test
@@ -47,6 +47,12 @@ public class UserDAOTest {
   @Test
   public void testValidateUserFalse() throws SQLException {
     assertEquals(false,userDAO.validateUser("Karl","abcd"));
+  }
+
+
+  @Test
+  public void testValidateUserFalse2() throws SQLException {
+    assertEquals(false,userDAO.validateUser("blah","blah"));
   }
 
   @Test

@@ -14,7 +14,7 @@ public class GroupToUserDAO {
 	public GroupToUserDAO() {
 		connectionManager = new ConnectionManager();
 		groupDAO = GroupDAO.getInstance();
-		userDAO = new UserDAO();
+		userDAO = UserDAO.getInstance();
 	}
 	
 	public void addUserToGroup(int userID, int groupID) throws SQLException{
