@@ -8,9 +8,13 @@ import java.sql.SQLException;
 public class GroupToUserDAO {
 	
 	protected ConnectionManager connectionManager;
+	private GroupDAO groupDAO;
+	private UserDAO userDAO;
 	
 	public GroupToUserDAO() {
 		connectionManager = new ConnectionManager();
+		groupDAO = GroupDAO.getInstance();
+		userDAO = new UserDAO();
 	}
 	
 	public void addUserToGroup(int userID, int groupID) throws SQLException{
@@ -18,11 +22,16 @@ public class GroupToUserDAO {
 		Connection connection;
 		PreparedStatement statement;
 		try {
-			connection = connectionManager.getConnection();
-			statement = connection.prepareStatement(insertUserToGroupMap);
-			statement.setInt(1,  userID);
-			statement.setInt(2, groupID);
-			statement.executeUpdate();
+			if(groupDAO.checkGroupExists(groupID) ) {
+				connection = connectionManager.getConnection();
+				statement = connection.prepareStatement(insertUserToGroupMap);
+				statement.setInt(1,  userID);
+				statement.setInt(2, groupID);
+				statement.executeUpdate();
+			}
+			else {
+				throw new SQLException("Group does not exist!");
+			}
 		} catch(SQLException e) {
 			throw new SQLException(e);
 		}
@@ -65,7 +74,7 @@ public class GroupToUserDAO {
 			}
 		}
 	}
-	
+
 	public void deleteUserFromAllGroups(int userID) throws SQLException {
 		String deleteUser = "DELETE FROM GroupToUserMap WHERE userID=?;";
 		Connection connection;

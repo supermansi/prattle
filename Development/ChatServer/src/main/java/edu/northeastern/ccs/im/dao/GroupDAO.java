@@ -13,9 +13,16 @@ public class GroupDAO {
 	protected ConnectionManager connectionManager;
 	private GroupToUserDAO groupToUserDAO;
 	
-	public GroupDAO() {
+	private static GroupDAO instance = null;
+	private GroupDAO() {
 		connectionManager = new ConnectionManager();
 		groupToUserDAO = new GroupToUserDAO();
+	}
+	public static GroupDAO getInstance() {
+		if(instance == null) {
+			instance = new GroupDAO();
+		}
+		return instance;
 	}
 	
 	public Groups createGroup(Groups group) throws SQLException {
@@ -84,7 +91,23 @@ public class GroupDAO {
 	}
 	
 	public boolean checkGroupExists(int groupID) throws SQLException {
+		boolean exists = false;
 		String checkGroup = "SELECT * FROM Groups WHERE groupID=?;";
+		Connection connection;
+		PreparedStatement statement;
+		ResultSet result;
+		try {
+			connection = connectionManager.getConnection();
+			statement = connection.prepareStatement(checkGroup);
+			statement.setInt(1, groupID);
+			result = statement.executeQuery();
+			if(result.next()) {
+				exists = true;
+			}
+		} catch(SQLException e) {
+			throw new SQLException(e);
+		}
+		return exists;
 	}
 
 }
