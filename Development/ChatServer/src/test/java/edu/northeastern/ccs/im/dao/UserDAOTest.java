@@ -13,10 +13,13 @@ public class UserDAOTest {
 
   UserDAO userDAO;
   User user;
+  User user1;
   @Before
   public void setUp() {
     userDAO = UserDAO.getInstance();
     user = new User("Karl","Karl","Frisk", "abc@gmail.com","1234");
+
+    user1 = new User(2,"Karl","Karl","Frisk", "abc@gmail.com","1234");
   }
 
   @Test
@@ -63,5 +66,10 @@ public class UserDAOTest {
   @Test
   public void testDeleteUserFalse() throws SQLException {
     userDAO.deleteUser("aaa","aaa@gmail.com","aaa");
+  }
+
+  @Test
+  public void testGetUserByUserID() throws SQLException {
+    assertEquals(userDAO.getUserByUserID(2).getUsername(),user1.getUsername());
   }
 }

@@ -14,7 +14,7 @@ public class GroupToUserMapDAOTest {
 	
 	@Before
 	public void setUp() {
-		groupToUserDAO = new GroupToUserDAO();
+		groupToUserDAO = GroupToUserDAO.getInstance();
 	}
 	
 	@Test
