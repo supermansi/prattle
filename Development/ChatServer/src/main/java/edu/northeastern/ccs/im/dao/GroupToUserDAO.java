@@ -8,13 +8,21 @@ import java.sql.SQLException;
 public class GroupToUserDAO {
 	
 	protected ConnectionManager connectionManager;
+	private static GroupToUserDAO instance = null;
 	private GroupDAO groupDAO;
 	private UserDAO userDAO;
 	
-	public GroupToUserDAO() {
+	private GroupToUserDAO() {
 		connectionManager = new ConnectionManager();
 		groupDAO = GroupDAO.getInstance();
 		userDAO = new UserDAO();
+	}
+	
+	public GroupToUserDAO getInstance() {
+		if(instance == null) {
+			instance = new GroupToUserDAO();
+		}
+		return instance;
 	}
 	
 	public void addUserToGroup(int userID, int groupID) throws SQLException{

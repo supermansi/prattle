@@ -7,16 +7,19 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import edu.northeastern.ccs.im.model.Groups;
+import edu.northeastern.ccs.im.model.User;
 
 public class GroupDAO {
 	
 	protected ConnectionManager connectionManager;
 	private GroupToUserDAO groupToUserDAO;
+	private UserDAO userDAO;
 	
 	private static GroupDAO instance = null;
 	private GroupDAO() {
 		connectionManager = new ConnectionManager();
-		groupToUserDAO = new GroupToUserDAO();
+		groupToUserDAO = groupToUserDAO.getInstance();
+		userDAO = new UserDAO();
 	}
 	public static GroupDAO getInstance() {
 		if(instance == null) {
@@ -90,6 +93,26 @@ public class GroupDAO {
 		}
 	}
 	
+	public boolean checkGroupExists(String groupName) throws SQLException {
+		boolean exists = false;
+		String checkGroup = "SELECT * FROM Groups WHERE grpName=?;";
+		Connection connection;
+		PreparedStatement statement;
+		ResultSet result;
+		try {
+			connection = connectionManager.getConnection();
+			statement = connection.prepareStatement(checkGroup);
+			statement.setString(1, groupName);
+			result = statement.executeQuery();
+			if(result.next()) {
+				exists = true;
+			}
+		} catch(SQLException e) {
+			throw new SQLException(e);
+		}
+		return exists;
+	}
+
 	public boolean checkGroupExists(int groupID) throws SQLException {
 		boolean exists = false;
 		String checkGroup = "SELECT * FROM Groups WHERE groupID=?;";
@@ -109,5 +132,27 @@ public class GroupDAO {
 		}
 		return exists;
 	}
-
+	
+	public boolean validateGroupAdmin(String groupName, String userName) throws SQLException {
+		User admin = userDAO.getUserByUsername(userName);
+		String validate = "SELET * FROM Groups WHERE grpName=? AND adminID=?;";
+		ResultSet resultSet = null;
+	    Connection connection;
+	    PreparedStatement preparedStatement;
+	    try {
+	      connection = connectionManager.getConnection();
+	      preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
+	      preparedStatement.setString(1, groupName);
+	      preparedStatement.setInt(2, admin.getUserID());
+	      resultSet = preparedStatement.executeQuery();
+	      if (resultSet.next()) {
+	        return true;
+	      } 
+	    } finally {
+	      if (resultSet != null) {
+	        resultSet.close();
+	      }
+	    }
+	    return false;
+	}
 }
