@@ -67,13 +67,14 @@ public class UserDAO {
       resultSet = preparedStatement.executeQuery();
       User user;
       if (resultSet.next()) {
+        int userID = resultSet.getInt("userID");
         String username = resultSet.getString("username");
         String userFN = resultSet.getString("userFN");
         String userLN = resultSet.getString("userLN");
         String email = resultSet.getString("email");
         String password = resultSet.getString("password");
 
-        user = new User(username, userFN, userLN, email, password);
+        user = new User(userID, username, userFN, userLN, email, password);
       } else {
         throw new SQLException("User not found.");
       }
