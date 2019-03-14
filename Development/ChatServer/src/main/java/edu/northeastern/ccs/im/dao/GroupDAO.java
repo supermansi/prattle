@@ -116,7 +116,7 @@ public class GroupDAO {
 
 	public boolean checkGroupExists(int groupID) throws SQLException {
 		boolean exists = false;
-		String checkGroup = "SELECT * FROM Groups WHERE groupID=?;";
+		String checkGroup = "SELECT * FROM Groups WHERE grpID=?;";
 		Connection connection;
 		PreparedStatement statement;
 		ResultSet result;
@@ -136,7 +136,7 @@ public class GroupDAO {
 	
 	public boolean validateGroupAdmin(String groupName, String userName) throws SQLException {
 		User admin = userDAO.getUserByUsername(userName);
-		String validate = "SELET * FROM Groups WHERE grpName=? AND adminID=?;";
+		String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
 		ResultSet resultSet = null;
 	    Connection connection;
 	    PreparedStatement preparedStatement;
@@ -158,7 +158,7 @@ public class GroupDAO {
 	}
 
 	public Groups getGroupByGroupName(String groupName) throws SQLException {
-		String insertGroup = "SELECT * FROM GROUPS WHERE GRPNAME = ?;";
+		String insertGroup = "SELECT * FROM GROUPS WHERE grpName = ?;";
 		ResultSet resultSet = null;
 		Connection connection;
 		PreparedStatement preparedStatement;
