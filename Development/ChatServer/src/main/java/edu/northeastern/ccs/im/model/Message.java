@@ -28,6 +28,9 @@ public class Message {
 		this.message = message;
 		this.timestamp = timestamp;
 	}
+	public Message() {
+		// Auto-generated constructor stub
+	}
 	public int getMsgID() {
 		return msgID;
 	}
