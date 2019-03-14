@@ -132,13 +132,11 @@ public class UserDAO {
     }
   }
 
-  public void deleteUser(String userName, String emailID, String pw) {
+  public void deleteUser(String userName) {
     String insertUser = "DELETE FROM USER WHERE USERNAME = ? AND EMAIL = ? AND PASSWORD = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, userName);
-      preparedStatement.setString(2, emailID);
-      preparedStatement.setString(3, pw);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
