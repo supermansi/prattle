@@ -13,7 +13,21 @@ public class Message {
 	public enum MsgType {
 		PVT, GRP, BCT;
 	}
-	
+		
+	public Message(int msgID, MsgType msgType, int senderID, String message, Timestamp timestamp) {
+		super();
+		this.msgID = msgID;
+		this.msgType = msgType;
+		this.senderID = senderID;
+		this.message = message;
+		this.timestamp = timestamp;
+	}
+	public Message(MsgType msgType, int senderID, String message, Timestamp timestamp) {
+		this.msgType = msgType;
+		this.senderID = senderID;
+		this.message = message;
+		this.timestamp = timestamp;
+	}
 	public int getMsgID() {
 		return msgID;
 	}

@@ -18,7 +18,7 @@ public class GroupsDAOTest {
 	@Before
 	public void setUp() {
 		groupDAO = GroupDAO.getInstance();
-		group = new Groups("Group 1", 2);
+		group = new Groups("Group 12", 2);
 	}
 	
 	@After

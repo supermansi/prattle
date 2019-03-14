@@ -29,45 +29,33 @@ public class GroupDAO {
 
 		return instance;
 	}
-
-	public Groups createGroup(Groups group) throws SQLException {
-		String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
-		String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
-		try (Connection connection = connectionManager.getConnection();
-				PreparedStatement insertStmt1 = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
-				PreparedStatement insertStmt2 = connection.prepareStatement(insertGroupToUserMap, Statement.RETURN_GENERATED_KEYS);) {
-			insertStmt1.setString(1, group.getGrpName());
-			insertStmt1.setInt(2, group.getAdminID());
-			insertStmt1.executeUpdate();
-			try (ResultSet resultSet = insertStmt1.getGeneratedKeys();) {
-				int groupID;
-				if (resultSet.next()) {
-					groupID = resultSet.getInt(1);
-				} 
-				else {
-					throw new DatabaseConnectionException("User ID could not be generated.");
-				}
-			}
-			group.setGrpID(groupID);
-			insertStmt2.setInt(1, group.getGrpID());
-			insertStmt2.setInt(2, group.getAdminID());
-			insertStmt2.executeUpdate();
-			return group;
-		}finally {
-		      if (resultSet != null) {
-		          resultSet.close();
-		      }
-		      if(connection != null) {
-		    	  connection.close();
-		      }
-		      if(insertStmt1 != null) {
-		    	  insertStmt1.close();
-		      }
-		      if(insertStmt2 != null) {
-		    	  insertStmt2.close();
-		      } cat
-		}
-	}
+	
+	public Groups createGroup (Groups group) {
+		   String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
+		   String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
+		   try (Connection connection = connectionManager.getConnection();
+		        PreparedStatement insertStmt1 = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
+		        PreparedStatement insertStmt2 = connection.prepareStatement(insertGroupToUserMap, Statement.RETURN_GENERATED_KEYS);) {
+		     insertStmt1.setString(1, group.getGrpName());
+		     insertStmt1.setInt(2, group.getAdminID());
+		     insertStmt1.executeUpdate();
+		     try(ResultSet resultSet = insertStmt1.getGeneratedKeys();) {
+		       int groupID;
+		       if (resultSet.next()) {
+		         groupID = resultSet.getInt(1);
+		       } else {
+		         throw new DatabaseConnectionException("Group ID could not be generated.");
+		       }
+		       group.setGrpID(groupID);
+		       insertStmt2.setInt(1, group.getGrpID());
+		       insertStmt2.setInt(2, group.getAdminID());
+		       insertStmt2.executeUpdate();
+		     }
+		     return group;
+		   } catch (SQLException e) {
+		     throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+		   }
+		 }
 	
 	public void deleteGroupByID(int groupID) throws SQLException {
 		String deleteGroup = "DELETE FROM GROUPS WHERE grpID=?;";
