@@ -65,17 +65,14 @@ public class GroupDAO {
 		      }
 		      if(insertStmt2 != null) {
 		    	  insertStmt2.close();
-		      }
+		      } cat
 		}
 	}
 	
 	public void deleteGroupByID(int groupID) throws SQLException {
 		String deleteGroup = "DELETE FROM GROUPS WHERE grpID=?;";
-		Connection connection = null;
-		PreparedStatement statement = null;
-		try {
-			connection = connectionManager.getConnection();
-			statement = connection.prepareStatement(deleteGroup);
+		try (Connection connection = connectionManager.getConnection();
+				PreparedStatement statement = connection.prepareStatement(deleteGroup);) {
 			statement.setInt(1, groupID);
 			statement.executeUpdate();
 		} catch(SQLException e) {
