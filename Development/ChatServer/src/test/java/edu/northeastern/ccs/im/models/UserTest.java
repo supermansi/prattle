@@ -2,6 +2,8 @@ package edu.northeastern.ccs.im.models;
 
 import static org.junit.Assert.assertEquals;
 
+import java.sql.Timestamp;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -75,6 +77,13 @@ public class UserTest {
 	public void testSetPassword() {
 		user.setPassword("0987mnbv");
 		assertEquals("0987mnbv", user.getPassword());
+	}
+	
+	@Test
+	public void testLastSeen() {
+		Timestamp time = new Timestamp(System.currentTimeMillis());
+		user.setLastSeen(time);
+		assertEquals(time, user.getLastSeen());
 	}
 	
 }

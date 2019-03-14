@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
@@ -65,8 +66,9 @@ public class UserDAO {
           String userLN = resultSet.getString("userLN");
           String email = resultSet.getString("email");
           String password = resultSet.getString("password");
-
+          Timestamp lastSeen = resultSet.getTimestamp("lastSeen");
           user = new User(userID, username, userFN, userLN, email, password);
+          user.setLastSeen(lastSeen);
         } else {
           throw new DatabaseConnectionException("User not found.");
         }
@@ -189,5 +191,17 @@ public class UserDAO {
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
+  }
+  
+  public void updateLastSeen(String userName, Timestamp lastSeen) {
+	    String updateLastSeen = "UPDATE User SET lastSeen=? WHERE username=?;";
+	    try (Connection connection = connectionManager.getConnection();
+	         PreparedStatement preparedStatement = connection.prepareStatement(updateLastSeen, Statement.RETURN_GENERATED_KEYS);) {
+	      preparedStatement.setTimestamp(1, lastSeen);
+	      preparedStatement.setString(2,userName);
+	      preparedStatement.executeUpdate();
+	    } catch (SQLException e) {
+	      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+	    }
   }
 }

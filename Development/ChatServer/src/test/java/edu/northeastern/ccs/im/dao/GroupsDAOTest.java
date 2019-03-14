@@ -1,8 +1,6 @@
 package edu.northeastern.ccs.im.dao;
 
-import static org.junit.Assert.assertTrue;
-
-import java.sql.SQLException;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.After;
 import org.junit.Before;
@@ -22,23 +20,49 @@ public class GroupsDAOTest {
 	}
 	
 	@After
-	public void destroy() throws SQLException {
+	public void destroy() {
 		groupDAO.deleteGroupByID(group.getGrpID());
 	}
 
 	@Test
-	public void testCreateGroup() throws SQLException {
+	public void testCreateGroup() {
 		groupDAO.createGroup(group);
 	}
 
 	@Test
-	public void testDeleteGroup() throws SQLException {
+	public void testDeleteGroup() {
 		groupDAO.deleteGroupByID(group.getGrpID());
 	}
 	
 	@Test
-	public void testGroupExists() throws SQLException {
-		assertTrue(groupDAO.checkGroupExists(group.getGrpID()));
+	public void testGroupExistsID() {
+		groupDAO.checkGroupExists(group.getGrpID());
+		assertEquals("Group 12", group.getGrpName());
+	}
+	
+	@Test
+	public void testGroupExistsName() {
+		groupDAO.checkGroupExists("Group 12");
+		assertEquals("Group 12", group.getGrpName());
 	}
 
+	@Test
+	public void testValidateAdmin() {
+		groupDAO.validateGroupAdmin("Group 12", UserDAO.getInstance().getUserByUserID(2).getUsername());
+	}
+	
+	@Test
+	public void testGroupByName() {
+		groupDAO.createGroup(group);
+		Groups group1 = groupDAO.getGroupByGroupName("Group 12");
+		assertEquals(2, group1.getAdminID());
+	}
+	
+	@Test
+	public void testGroupByID() {
+		groupDAO.createGroup(group);
+		group = groupDAO.getGroupByGroupName(group.getGrpName());
+		assertEquals(group.getGrpID(), groupDAO.getGroupByGroupID(group.getGrpID()).getGrpID());
+	}
+	
 }
