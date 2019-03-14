@@ -92,22 +92,31 @@ public class ClientRunnable implements Runnable {
     if (messageIter.hasNext()) {
       // If a message exists, try to use it to initialize the connection
       Message msg = messageIter.next();
-      if(msg.isInitialization()){ //todo terminate inactivity for client..
-        if(validateUser(msg.getName(),msg.getText())){
-          if (setUserName(msg.getName())) {
-            // Update the time until we terminate this client due to inactivity.
-            timer.updateAfterInitialization();
-            // Set that the client is initialized.
-            initialized = true;
-            enqueueMessage(Message.makeAckMessage("Server","Successfully loggedin"));
-          } else {
-            initialized = false;
-          }
+      if (msg.isRegistration()) {
+        if(msg.getName()!=null /*&& register()*/){
+          setUserName(msg.getName());
+          timer.updateAfterInitialization();
+          // Set that the client is initialized.
+          initialized = true;
+          enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "User successfully registered"));
         }else{
-          sendMessage(Message.makeNackMessage("Server","Invalid username or password"));
+          initialized = false;
+          sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
+                  "already exists."));
+        }
+
+      } else if (msg.isInitialization()) { //todo terminate inactivity for client..
+        if (validateUser(msg.getName(), msg.getText()) && setUserName(msg.getName())) {
+          // Update the time until we terminate this client due to inactivity.
+          timer.updateAfterInitialization();
+          // Set that the client is initialized.
+          initialized = true;
+          enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
+        } else {
+          sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
           initialized = false;
         }
-      }else{
+      } else {
         this.terminateClient();
       }
     }

@@ -202,4 +202,8 @@ public class Message {
     }
     return result;
   }
+
+  public boolean isRegistration() {
+    return (msgType == MessageType.REGISTRATION);
+  }
 }

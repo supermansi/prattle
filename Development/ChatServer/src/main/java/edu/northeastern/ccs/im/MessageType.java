@@ -25,7 +25,7 @@ public enum MessageType {
   NO_ACKNOWLEDGEMENT("NAK"),
 
   /**
-   * Message sent for registeration
+   * Message sent for registration
    */
   REGISTRATION("REG"),
 
