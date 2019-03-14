@@ -1,6 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
@@ -94,20 +96,22 @@ public class ClientRunnable implements Runnable {
       // If a message exists, try to use it to initialize the connection
       Message msg = messageIter.next();
       if (msg.isRegistration()) {
-        if(msg.getName()!=null /*&& register()*/){
+        List<String> regInfo = preProcessRegistrationInformation(msg.getText());
+        if (msg.getName() != null && UserServices.register(regInfo.get(0),regInfo.get(1),
+                regInfo.get(2),regInfo.get(3),regInfo.get(4))) {
           setUserName(msg.getName());
           timer.updateAfterInitialization();
           // Set that the client is initialized.
           initialized = true;
           enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "User successfully registered"));
-        }else{
+        } else {
           initialized = false;
           sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
                   "already exists."));
         }
 
       } else if (msg.isInitialization()) { //todo terminate inactivity for client..
-        if (UserServices.login(msg.getName(),msg.getText()) && setUserName(msg.getName())) {
+        if (UserServices.login(msg.getName(), msg.getText()) && setUserName(msg.getName())) {
           // Update the time until we terminate this client due to inactivity.
           timer.updateAfterInitialization();
           // Set that the client is initialized.
@@ -123,9 +127,10 @@ public class ClientRunnable implements Runnable {
     }
   }
 
-  private boolean validateUser(String name, String text) {
-    return false;
+  private List<String> preProcessRegistrationInformation(String text) {
+    return Arrays.asList(text.split(" "));
   }
+
 
   /**
    * Check if the message is properly formed. At the moment, this means checking that the identifier
@@ -269,10 +274,10 @@ public class ClientRunnable implements Runnable {
           if (msg.isBroadcastMessage()) {
             // Check for our "special messages"
             Prattle.broadcastMessage(msg);
-          }else if(msg.isPrivateMessage()){
-            //To do
-          }else if(msg.isGroupMessage()){
-            //to Do
+          } else if (msg.isPrivateMessage()) {
+            Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
+          } else if (msg.isGroupMessage()) {
+            //Prattle.sendGroupMessage();
           }
         } else {
           Message sendMsg;
@@ -282,6 +287,10 @@ public class ClientRunnable implements Runnable {
         }
       }
     }
+  }
+
+  private String getReceiverName(String text) {
+    return text.split(" ")[1];
   }
 
   /**

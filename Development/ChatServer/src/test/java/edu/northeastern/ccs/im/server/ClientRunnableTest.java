@@ -50,7 +50,7 @@ public class ClientRunnableTest {
     @Test
     public void testGetUserId() {
         List<Message> nameList = new ArrayList();
-        Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+        Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
         Message testMsg1 = Message.makeBroadcastMessage("Rohan", "Test");
         nameList.add(testMsg0);
         nameList.add(testMsg1);
@@ -109,13 +109,13 @@ public class ClientRunnableTest {
     public void testTerminateMessage() {
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         List<Message> nameList = new ArrayList();
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
         Message testMessage2 = Message.makeQuitMessage("Rohan");
         nameList.add(testMessage1);
         nameList.add(testMessage2);
         GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
 
-        Message tm1 = Message.makeSimpleLoginMessage("Rohan");
+        Message tm1 = Message.makeSimpleLoginMessage("Rohan","123");
         clientRunnable.enqueueMessage(tm1);
         when(connection.sendMessage(any())).thenReturn(true);
         when(connection.iterator()).thenReturn(itr);
@@ -136,13 +136,13 @@ public class ClientRunnableTest {
     public void testDualHelloMessage() {
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         List<Message> nameList = new ArrayList();
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
-        Message testMessage2 = Message.makeSimpleLoginMessage("Rohan");
+        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message testMessage2 = Message.makeSimpleLoginMessage("Rohan","123");
         nameList.add(testMessage1);
         nameList.add(testMessage2);
         GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
 
-        Message tm1 = Message.makeSimpleLoginMessage("Rohan");
+        Message tm1 = Message.makeSimpleLoginMessage("Rohan","123");
         clientRunnable.enqueueMessage(tm1);
         when(connection.sendMessage(any())).thenReturn(true);
         when(connection.iterator()).thenReturn(itr);
@@ -164,7 +164,7 @@ public class ClientRunnableTest {
         Message testMessage1 = Message.makeBroadcastMessage("Rohan", "Random1");
         Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
         List<Message> nameList = new ArrayList();
-        Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+        Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
         Message testMsg1 = Message.makeBroadcastMessage("Rohan", "Test");
         nameList.add(testMsg0);
         nameList.add(testMsg1);
@@ -208,7 +208,7 @@ public class ClientRunnableTest {
     public void testRunForDifferentNames() {
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         //when(connection.sendMessage(testMsg)).thenReturn(true);
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
         Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
         Message testMessage3 = Message.makeBroadcastMessage("Josh", "Random2");
         List<Message> nameList = new ArrayList();
@@ -236,7 +236,7 @@ public class ClientRunnableTest {
     public void testRunForNullMessageName() {
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         List<Message> nameList = new ArrayList();
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
         Message testMessage2 = Message.makeBroadcastMessage(null, "Random");
         nameList.add(testMessage1);
         nameList.add(testMessage2);
@@ -260,7 +260,7 @@ public class ClientRunnableTest {
         when(connection.sendMessage(any())).thenReturn(true);
 
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
         Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
         List<Message> nameList = new ArrayList();
         nameList.add(testMessage1);
