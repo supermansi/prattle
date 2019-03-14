@@ -29,7 +29,7 @@ public class MessageDAO {
 	    //empty private constructor for singleton
 	  }
 	  
-	  public void createMessage(Message message) {
+	  public Message createMessage(Message message) {
 		    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
 		    try (Connection connection = connectionManager.getConnection();
 		         PreparedStatement preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);) {
@@ -46,6 +46,7 @@ public class MessageDAO {
 		          throw new DatabaseConnectionException("MessageID could not be generated.");
 		        }
 		        message.setMsgID(msgID);
+		        return message;
 		      }
 		    } catch (SQLException e) {
 		      throw new DatabaseConnectionException(e.getMessage()+"\n"+e.getStackTrace());

@@ -16,7 +16,6 @@ public class UserDAOTest {
   public void setUp() {
     userDAO = UserDAO.getInstance();
     user = new User("Karl","Karl","Frisk", "abc@gmail.com","1234");
-
     user1 = new User(2,"Karl","Karl","Frisk", "abc@gmail.com","1234");
   }
 
@@ -68,7 +67,8 @@ public class UserDAOTest {
 
   @Test
   public void testGetUserByUserID() {
-    assertEquals(userDAO.getUserByUserID(2).getUsername(),user1.getUsername());
+	  user = userDAO.createUser(user);
+    assertEquals(user.getUsername(), userDAO.getUserByUserID(user.getUserID()).getUsername());
   }
 
   @Test
