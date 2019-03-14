@@ -7,8 +7,6 @@ import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.*;
 
-import java.sql.Timestamp;
-
 public class UserDAOTest {
 
   UserDAO userDAO;
@@ -100,10 +98,10 @@ public class UserDAOTest {
     assertEquals("a", userDAO.getUserByUsername("r").getEmail());
   }
   
-//  @Test
-//  public void testUpdateLastSeen() {
-//	  Timestamp time = new Timestamp(System.currentTimeMillis());
-//	  userDAO.updateLastSeen("admin", time);
-//	  assertEquals(time, userDAO.getUserByUsername("admin").getLastSeen());
-//  }
+  @Test
+  public void testUpdateLastSeen() {
+	  String time = Long.toString(System.currentTimeMillis());
+	  userDAO.updateLastSeen("admin", time);
+	  assertEquals(time, userDAO.getUserByUsername("admin").getLastSeen());
+  }
 }
