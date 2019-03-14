@@ -5,6 +5,7 @@ import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
 import edu.northeastern.ccs.im.dao.MessageToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.model.Message;
 
 public class MessageServices {
 	
@@ -26,5 +27,15 @@ public class MessageServices {
 		messageUserDAO = MessageToUserDAO.getInstance();
 	}
 	
+	public boolean addMessage(String msgType, String sender, String receiver, String message) {
+		if(userDAO.isUserExists(sender)) {
+			if(userDAO.isUserExists(receiver)) {
+				int senderID = userDAO.getUserByUsername(sender).getUserID();
+				Message sendMessage = new Message(Message.MsgType.valueOf(msgType), senderID, message, Long.toString(System.currentTimeMillis()));
+				return true;
+			}
+		}
+		return false;
+	}
 	
 }

@@ -18,7 +18,7 @@ public class MessageToUserDAOTest {
   @Before
   public void setUp() {
     messageToUserDAO = MessageToUserDAO.getInstance();
-    message = new Message(2, Message.MsgType.PVT, 52, "test message",new Timestamp(System.currentTimeMillis()));
+    message = new Message(2, Message.MsgType.PVT, 52, "test message", Long.toString(System.currentTimeMillis()));
   }
 
   @Test

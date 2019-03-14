@@ -36,7 +36,7 @@ public class MessageDAO {
 		      preparedStatement.setString(1, message.getMsgType().name());
 		      preparedStatement.setInt(2, message.getSenderID());
 		      preparedStatement.setString(3, message.getMessage());
-		      preparedStatement.setTimestamp(4, message.getTimestamp());
+		      preparedStatement.setString(4, message.getTimestamp());
 		      preparedStatement.executeUpdate();
 		      try (ResultSet resultSet = preparedStatement.getGeneratedKeys();) {
 		        int msgID;
@@ -66,7 +66,7 @@ public class MessageDAO {
 		        Message.MsgType msgType = Message.MsgType.valueOf(resultSet.getString("msgType"));
 		        int senderID = resultSet.getInt("senderID");
 		        String context = resultSet.getString("message");
-		        Timestamp timestamp = resultSet.getTimestamp("timestamp");
+		        String timestamp = resultSet.getString("timestamp");
 		        message = new Message(msgID, msgType, senderID, context, timestamp);
 		        }
 		        else {
