@@ -1,14 +1,18 @@
 package edu.northeastern.ccs.im.model;
 
-import java.sql.Time;
+import java.sql.Timestamp;
 
 public class Message {
 	
 	private int msgID;
-	private String msgType;
+	private MsgType msgType;
 	private int senderID;
 	private String message;
-	private Time timestamp;
+	private Timestamp timestamp;
+
+	public enum MsgType {
+		PVT, GRP, BCT;
+	}
 	
 	public int getMsgID() {
 		return msgID;
@@ -17,10 +21,10 @@ public class Message {
 		this.msgID = msgID;
 	}
 	
-	public String getMsgType() {
+	public MsgType getMsgType() {
 		return msgType;
 	}
-	public void setMsgType(String msgType) {
+	public void setMsgType(MsgType msgType) {
 		this.msgType = msgType;
 	}
 	
@@ -38,10 +42,10 @@ public class Message {
 		this.message = message;
 	}
 	
-	public Time getTimestamp() {
+	public Timestamp getTimestamp() {
 		return timestamp;
 	}
-	public void setTimestamp(Time timestamp) {
+	public void setTimestamp(Timestamp timestamp) {
 		this.timestamp = timestamp;
 	}
 

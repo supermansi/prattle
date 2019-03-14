@@ -7,14 +7,22 @@ import java.sql.SQLException;
 
 public class GroupToUserDAO {
 	
-	protected ConnectionManager connectionManager;
+	protected static ConnectionManager connectionManager;
+	private static GroupToUserDAO instance = null;
 	private GroupDAO groupDAO;
 	private UserDAO userDAO;
 	
-	public GroupToUserDAO() {
+	private GroupToUserDAO() {
 		connectionManager = new ConnectionManager();
 		groupDAO = GroupDAO.getInstance();
-		userDAO = new UserDAO();
+		userDAO = UserDAO.getInstance();
+	}
+	
+	public static GroupToUserDAO getInstance() {
+		if(instance == null) {
+			instance = new GroupToUserDAO();
+		}
+		return instance;
 	}
 	
 	public void addUserToGroup(int userID, int groupID) throws SQLException{
