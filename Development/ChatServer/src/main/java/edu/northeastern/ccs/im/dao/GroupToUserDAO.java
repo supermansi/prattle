@@ -57,13 +57,10 @@ public class GroupToUserDAO {
 			statement.setInt(1, userID);
 			statement.setInt(2, groupID);
 			result = statement.executeQuery();
-			if(result.next()) {
-				exists = true;
-			}
+			return result.next();
 		} catch(SQLException e) {
 			throw new SQLException(e);
 		}
-		return exists;
 	}
 	
 	public void deleteUserFromGroup(int userID, int groupID) throws SQLException {

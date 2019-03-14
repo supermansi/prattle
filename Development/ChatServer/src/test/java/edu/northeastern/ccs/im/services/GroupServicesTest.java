@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class GroupServicesTest {
 	
-	GroupServices groupServices = new GroupServices();
+	GroupServices groupServices;
 	
 	@Test
 	public void testCreateGroup() throws SQLException {
