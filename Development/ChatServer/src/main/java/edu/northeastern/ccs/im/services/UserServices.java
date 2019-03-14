@@ -7,13 +7,17 @@ import edu.northeastern.ccs.im.model.User;
 
 public class UserServices {
 	
-	private UserDAO userDAO = UserDAO.getInstance();
+	private static UserDAO userDAO = UserDAO.getInstance();
+
+	private UserServices() {
+		//empty private constructor
+	}
 	
-	public boolean login(String username, String password) throws SQLException {
+	public static boolean login(String username, String password) throws SQLException {
 		return userDAO.validateUser(username,password);
 	}
 	
-	public boolean register(String username, String password, String userFN,
+	public static boolean register(String username, String password, String userFN,
 						String userLN, String email) throws SQLException {
 		if(userDAO.isUserExists(username)) {
 			return false; // user exists

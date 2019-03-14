@@ -25,6 +25,7 @@ public class GroupDAO {
 		if(instance == null) {
 			instance = new GroupDAO();
 		}
+
 		return instance;
 	}
 	
