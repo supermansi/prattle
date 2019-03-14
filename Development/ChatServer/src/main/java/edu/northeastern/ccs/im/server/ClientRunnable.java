@@ -8,6 +8,7 @@ import java.util.concurrent.ScheduledFuture;
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.services.UserServices;
 
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
@@ -92,15 +93,38 @@ public class ClientRunnable implements Runnable {
     if (messageIter.hasNext()) {
       // If a message exists, try to use it to initialize the connection
       Message msg = messageIter.next();
-      if (setUserName(msg.getName())) {
-        // Update the time until we terminate this client due to inactivity.
-        timer.updateAfterInitialization();
-        // Set that the client is initialized.
-        initialized = true;
+      if (msg.isRegistration()) {
+        if(msg.getName()!=null /*&& register()*/){
+          setUserName(msg.getName());
+          timer.updateAfterInitialization();
+          // Set that the client is initialized.
+          initialized = true;
+          enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "User successfully registered"));
+        }else{
+          initialized = false;
+          sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
+                  "already exists."));
+        }
+
+      } else if (msg.isInitialization()) { //todo terminate inactivity for client..
+        if (UserServices.login(msg.getName(),msg.getText()) && setUserName(msg.getName())) {
+          // Update the time until we terminate this client due to inactivity.
+          timer.updateAfterInitialization();
+          // Set that the client is initialized.
+          initialized = true;
+          enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
+        } else {
+          sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
+          initialized = false;
+        }
       } else {
-        initialized = false;
+        this.terminateClient();
       }
     }
+  }
+
+  private boolean validateUser(String name, String text) {
+    return false;
   }
 
   /**
@@ -245,6 +269,10 @@ public class ClientRunnable implements Runnable {
           if (msg.isBroadcastMessage()) {
             // Check for our "special messages"
             Prattle.broadcastMessage(msg);
+          }else if(msg.isPrivateMessage()){
+            //To do
+          }else if(msg.isGroupMessage()){
+            //to Do
           }
         } else {
           Message sendMsg;

@@ -47,7 +47,7 @@ public class UserDAO {
       }
       return user;
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage()+"\n"+e.getStackTrace());
     }
   }
 
