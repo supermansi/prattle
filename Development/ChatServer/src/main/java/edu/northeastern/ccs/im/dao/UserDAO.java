@@ -119,6 +119,19 @@ public class UserDAO {
     }
   }
 
+  public boolean isUserExists(int userId) {
+    String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setInt(1, userId);
+      try(ResultSet resultSet = preparedStatement.executeQuery();) {
+        return resultSet.next();
+      }
+    }  catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
   public boolean validateUser(String userName, String pw) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND PASSWORD = ?;";
     try (Connection connection = connectionManager.getConnection();

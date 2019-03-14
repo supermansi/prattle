@@ -44,6 +44,16 @@ public class UserDAOTest {
   }
 
   @Test
+  public void testIsUserExistsByIdTrue() {
+    assertEquals(true, userDAO.isUserExists(2));
+  }
+
+  @Test
+  public void testIsUserExistsByIdFalse() {
+    assertEquals(false, userDAO.isUserExists(22));
+  }
+
+  @Test
   public void testValidateUserTrue() {
     assertEquals(true,userDAO.validateUser("Karl","1234"));
   }
