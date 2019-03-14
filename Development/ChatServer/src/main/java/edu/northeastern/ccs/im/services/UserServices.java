@@ -29,5 +29,19 @@ public class UserServices {
 		}
 	}
 
+	public static void updateFN(String username, String updatedFirstName) {
+		userDAO.updateFirstName(username,updatedFirstName);
+	}
+	
+	public static void updateLN(String username, String updatedLastName) {
+		userDAO.updateLastName(username,updatedLastName);
+	}
 
+	public static void updatePassword(String username, String updatedPassword) {
+		userDAO.updatePassword(username,updatedPassword);
+	}
+
+	public static void updateEmail(String username, String updatedEmail) {
+		userDAO.updateEmail(username,updatedEmail);
+	}
 }

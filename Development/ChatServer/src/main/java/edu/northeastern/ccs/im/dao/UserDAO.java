@@ -144,4 +144,52 @@ public class UserDAO {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
+
+  public void updateFirstName(String userName, String updatedFirstName) {
+    String insertUser = "UPDATE USER SET USERFN = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedFirstName);
+      preparedStatement.setString(2,userName);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void updateLastName(String userName, String updatedLastName) {
+    String insertUser = "UPDATE USER SET USERLN = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedLastName);
+      preparedStatement.setString(2,userName);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void updatePassword(String userName, String updatedPassword) {
+    String insertUser = "UPDATE USER SET PASSWORD = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedPassword);
+      preparedStatement.setString(2,userName);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void updateEmail(String userName, String updatedEmail) {
+    String insertUser = "UPDATE USER SET EMAIL = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedEmail);
+      preparedStatement.setString(2,userName);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
 }
