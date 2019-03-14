@@ -114,16 +114,28 @@ public class Message {
       result = makeAckMessage(srcName, text);
     } else if (handle.compareTo(MessageType.NO_ACKNOWLEDGEMENT.toString()) == 0) {
       result = makeNackMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.PRIVATE.toString()) == 0) {
+      result = makePrivateMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GROUP.toString()) == 0) {
+      result = makeGroupMessage(srcName, text);
     }
     return result;
   }
 
+  private static Message makeGroupMessage(String srcName, String text) {
+    return new Message((MessageType.GROUP), srcName, text);
+  }
+
+  private static Message makePrivateMessage(String srcName, String text) {
+    return new Message((MessageType.PRIVATE), srcName, text);
+  }
+
   public static Message makeNackMessage(String srcName, String text) {
-    return new Message(MessageType.NO_ACKNOWLEDGEMENT,srcName,text);
+    return new Message(MessageType.NO_ACKNOWLEDGEMENT, srcName, text);
   }
 
   public static Message makeAckMessage(String srcName, String text) {
-    return new Message(MessageType.ACKNOWLEDGEMENT,srcName,text);
+    return new Message(MessageType.ACKNOWLEDGEMENT, srcName, text);
   }
 
   /**
@@ -205,5 +217,13 @@ public class Message {
 
   public boolean isRegistration() {
     return (msgType == MessageType.REGISTRATION);
+  }
+
+  public boolean isPrivateMessage() {
+    return (msgType == MessageType.PRIVATE);
+  }
+
+  public boolean isGroupMessage() {
+    return (msgType == MessageType.GROUP);
   }
 }
