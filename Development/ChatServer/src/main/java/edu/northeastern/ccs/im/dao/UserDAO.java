@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
 public class UserDAO {
@@ -13,45 +14,40 @@ public class UserDAO {
   protected static ConnectionManager connectionManager;
   private static UserDAO userDAO;
 
+  private UserDAO() {
+    //empty private constructor for singleton
+  }
+
   public static UserDAO getInstance() {
-    if(userDAO == null) {
+    if (userDAO == null) {
       connectionManager = new ConnectionManager();
       userDAO = new UserDAO();
     }
     return userDAO;
   }
 
-  private UserDAO() {
-    //empty private constructor for singleton
-  }
-
-  public User createUser(User user) throws SQLException {
+  public User createUser(User user){
     String insertUser = "INSERT INTO USER(USERNAME, PASSWORD, USERFN, USERLN, EMAIL) VALUES(?,?,?,?,?);";
-    ResultSet resultSet = null;
-    Connection connection;
-    PreparedStatement preparedStatement;
-    try {
-      connection = connectionManager.getConnection();
-      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, user.getUsername());
       preparedStatement.setString(2, user.getPassword());
       preparedStatement.setString(3, user.getUserFN());
       preparedStatement.setString(4, user.getUserLN());
       preparedStatement.setString(5, user.getEmail());
       preparedStatement.executeUpdate();
-      resultSet = preparedStatement.getGeneratedKeys();
-      int userID;
-      if (resultSet.next()) {
-        userID = resultSet.getInt(1);
-      } else {
-        throw new SQLException("User ID could not be generated.");
+      try(ResultSet resultSet = preparedStatement.getGeneratedKeys();){
+        int userID;
+        if (resultSet.next()) {
+          userID = resultSet.getInt(1);
+        } else {
+          throw new DatabaseConnectionException("User ID could not be generated.");
+        }
+        user.setUserID(userID);
       }
-      user.setUserID(userID);
       return user;
-    } finally {
-      if (resultSet != null) {
-        resultSet.close();
-      }
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage()+"\n"+e.getStackTrace());
     }
   }
 

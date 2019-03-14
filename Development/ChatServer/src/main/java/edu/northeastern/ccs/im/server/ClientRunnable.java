@@ -8,6 +8,7 @@ import java.util.concurrent.ScheduledFuture;
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.services.UserServices;
 
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
@@ -106,7 +107,7 @@ public class ClientRunnable implements Runnable {
         }
 
       } else if (msg.isInitialization()) { //todo terminate inactivity for client..
-        if (validateUser(msg.getName(), msg.getText()) && setUserName(msg.getName())) {
+        if (UserServices.login(msg.getName(),msg.getText()) && setUserName(msg.getName())) {
           // Update the time until we terminate this client due to inactivity.
           timer.updateAfterInitialization();
           // Set that the client is initialized.
