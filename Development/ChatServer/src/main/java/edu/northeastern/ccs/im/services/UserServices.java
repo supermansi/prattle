@@ -27,6 +27,15 @@ public class UserServices {
 		}
 	}
 
+	public static void deleteUser(String username) {
+		if(userDAO.isUserExists(username)) {
+			userDAO.deleteUser(username);
+		}
+		else {
+			throw new IllegalArgumentException("User cannot be deleted because user does not exist.");
+		}
+	}
+
 	public static void updateFN(String username, String updatedFirstName) {
 		userDAO.updateFirstName(username,updatedFirstName);
 	}

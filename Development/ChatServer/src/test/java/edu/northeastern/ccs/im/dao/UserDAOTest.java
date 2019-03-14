@@ -3,6 +3,7 @@ package edu.northeastern.ccs.im.dao;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.*;
@@ -40,6 +41,16 @@ public class UserDAOTest {
   }
 
   @Test
+  public void testIsUserExistsByIdTrue() {
+    assertEquals(true, userDAO.isUserExists(2));
+  }
+
+  @Test
+  public void testIsUserExistsByIdFalse() {
+    assertEquals(false, userDAO.isUserExists(22));
+  }
+
+  @Test
   public void testValidateUserTrue() {
     assertEquals(true,userDAO.validateUser("Karl","1234"));
   }
@@ -57,12 +68,15 @@ public class UserDAOTest {
 
   @Test
   public void testDeleteUserTrue() {
-    userDAO.deleteUser("Kyle","kyle@gmail.com","kyle");
+    assertEquals(true, userDAO.isUserExists("Kyle"));
+    userDAO.deleteUser("Kyle");
+    assertEquals(false, userDAO.isUserExists("Kyle"));
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testDeleteUserFalse() {
-    userDAO.deleteUser("aaa","aaa@gmail.com","aaa");
+    assertEquals(false, userDAO.isUserExists("aaa"));
+    userDAO.deleteUser("aaa");
   }
 
   @Test
