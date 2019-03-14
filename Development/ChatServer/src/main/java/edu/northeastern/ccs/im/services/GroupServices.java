@@ -35,7 +35,7 @@ public class GroupServices {
 		groupDAO.validateGroupAdmin(groupName, adminName);
 		User user = userDAO.getUserByUsername(userName);
 		Groups group = groupDAO.getGroupByGroupName(groupName);
-		if(! groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID()))
+		if(!groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID()))
 			groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
 	}
 	
