@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.model;
 
+import java.sql.Timestamp;
+
 public class User {
 	
 	private int userID;
@@ -8,6 +10,7 @@ public class User {
 	private String userLN;
 	private String email;
 	private String password;
+	private Timestamp lastSeen;
 	
 	public User(String username, String userFN, String userLN, String email, String password) {
 		super();
@@ -67,6 +70,13 @@ public class User {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Timestamp getLastSeen() {
+		return lastSeen;
+	}
+	public void setLastSeen(Timestamp lastSeen) {
+		this.lastSeen = lastSeen;
 	}
 
 }

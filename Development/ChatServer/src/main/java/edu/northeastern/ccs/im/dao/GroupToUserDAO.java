@@ -23,26 +23,30 @@ public class GroupToUserDAO {
 
   public static GroupToUserDAO getInstance() {
     if (instance == null) {
-        connectionManager = new ConnectionManager();
-        groupDAO = GroupDAO.getInstance();
-        userDAO = UserDAO.getInstance();
-      instance = new GroupToUserDAO();
+	    connectionManager = new ConnectionManager();
+	    groupDAO = GroupDAO.getInstance();
+	    userDAO = UserDAO.getInstance();
+	    instance = new GroupToUserDAO();
     }
     return instance;
   }
 
   public void addUserToGroup(int userID, int groupID) {
     String insertUserToGroupMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?,?);";
-
+    // Check if group exists and user exists
     if (groupDAO.checkGroupExists(groupID)) {
-      try (Connection connection = connectionManager.getConnection();
-           PreparedStatement statement = connection.prepareStatement(insertUserToGroupMap);) {
-        statement.setInt(1, userID);
-        statement.setInt(2, groupID);
-        statement.executeUpdate();
-      } catch (SQLException e) {
-        throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
-      }
+    	if(userDAO.isUserExists(userDAO.getUserByUserID(userID).getUsername())) {
+	      try (Connection connection = connectionManager.getConnection();
+	           PreparedStatement statement = connection.prepareStatement(insertUserToGroupMap);) {
+	        statement.setInt(1, userID);
+	        statement.setInt(2, groupID);
+	        statement.executeUpdate();
+	      } catch (SQLException e) {
+	        throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+	      }
+    	}else {     
+    		throw new DatabaseConnectionException("User does not exist!");
+    	}
     } else {
       throw new DatabaseConnectionException("Group does not exist!");
     }
@@ -105,5 +109,4 @@ public class GroupToUserDAO {
 	      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
 	    }
 	  }
-
 }
