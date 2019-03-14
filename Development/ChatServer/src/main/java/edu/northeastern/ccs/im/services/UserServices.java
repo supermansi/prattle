@@ -1,7 +1,5 @@
 package edu.northeastern.ccs.im.services;
 
-import java.sql.SQLException;
-
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
@@ -18,7 +16,7 @@ public class UserServices {
 	}
 
 	public static boolean register(String username, String password, String userFN,
-																 String userLN, String email) {
+									 String userLN, String email) {
 		if(userDAO.isUserExists(username)) {
 			return false; // user exists
 		}
@@ -52,5 +50,10 @@ public class UserServices {
 
 	public static void updateEmail(String username, String updatedEmail) {
 		userDAO.updateEmail(username,updatedEmail);
+	}
+	
+	public static void updateLastSeen(String username, Long time) {
+		String lastSeen = Long.toString(time);
+		userDAO.updateLastSeen(username, lastSeen);
 	}
 }

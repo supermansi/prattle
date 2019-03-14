@@ -81,7 +81,7 @@ public class UserTest {
 	
 	@Test
 	public void testLastSeen() {
-		Timestamp time = new Timestamp(System.currentTimeMillis());
+		String time = Long.toString(System.currentTimeMillis());
 		user.setLastSeen(time);
 		assertEquals(time, user.getLastSeen());
 	}
