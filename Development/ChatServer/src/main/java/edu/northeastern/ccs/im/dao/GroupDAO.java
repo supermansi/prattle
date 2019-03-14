@@ -14,205 +14,163 @@ import edu.northeastern.ccs.im.model.User;
 
 public class GroupDAO {
 	
-	protected ConnectionManager connectionManager;
-	private UserDAO userDAO;
-	
-	private static GroupDAO instance = null;
-	private GroupDAO() {
-		connectionManager = new ConnectionManager();
-		userDAO = userDAO.getInstance();
-	}
-	public static GroupDAO getInstance() {
-		if(instance == null) {
-			instance = new GroupDAO();
-		}
+  protected ConnectionManager connectionManager;
+  private UserDAO userDAO;
 
-		return instance;
-	}
-	
-	public Groups createGroup (Groups group) {
-		   String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
-		   String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
-		   try (Connection connection = connectionManager.getConnection();
-		        PreparedStatement insertStmt1 = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
-		        PreparedStatement insertStmt2 = connection.prepareStatement(insertGroupToUserMap, Statement.RETURN_GENERATED_KEYS);) {
-		     insertStmt1.setString(1, group.getGrpName());
-		     insertStmt1.setInt(2, group.getAdminID());
-		     insertStmt1.executeUpdate();
-		     try(ResultSet resultSet = insertStmt1.getGeneratedKeys();) {
-		       int groupID;
-		       if (resultSet.next()) {
-		         groupID = resultSet.getInt(1);
-		       } else {
-		         throw new DatabaseConnectionException("Group ID could not be generated.");
-		       }
-		       group.setGrpID(groupID);
-		       insertStmt2.setInt(1, group.getGrpID());
-		       insertStmt2.setInt(2, group.getAdminID());
-		       insertStmt2.executeUpdate();
-		     }
-		     return group;
-		   } catch (SQLException e) {
-		     throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
-		   }
-		 }
-	
-	public void deleteGroupByID(int groupID) throws SQLException {
-		String deleteGroup = "DELETE FROM GROUPS WHERE grpID=?;";
-		try (Connection connection = connectionManager.getConnection();
-				PreparedStatement statement = connection.prepareStatement(deleteGroup);) {
-			statement.setInt(1, groupID);
-			statement.executeUpdate();
-		} catch(SQLException e) {
-			throw new SQLException("Group could not be deleted.");
-		} finally {
-			if (connection != null) {
-				connection.close();
-			}
-			if(statement != null) {
-				statement.close();
-			}
-		}
-	}
-	
-	public boolean checkGroupExists(String groupName) throws SQLException {
-		boolean exists = false;
-		String checkGroup = "SELECT * FROM Groups WHERE grpName=?;";
-		Connection connection;
-		PreparedStatement statement;
-		ResultSet result;
-		try {
-			connection = connectionManager.getConnection();
-			statement = connection.prepareStatement(checkGroup);
-			statement.setString(1, groupName);
-			result = statement.executeQuery();
-			if(result.next()) {
-				exists = true;
-			}
-		} catch(SQLException e) {
-			throw new SQLException(e);
-		}
-		return exists;
-	}
+  private static GroupDAO instance = null;
 
-	public boolean checkGroupExists(int groupID) throws SQLException {
-		boolean exists = false;
-		String checkGroup = "SELECT * FROM Groups WHERE grpID=?;";
-		Connection connection;
-		PreparedStatement statement;
-		ResultSet result;
-		try {
-			connection = connectionManager.getConnection();
-			statement = connection.prepareStatement(checkGroup);
-			statement.setInt(1, groupID);
-			result = statement.executeQuery();
-			if(result.next()) {
-				exists = true;
-			}
-		} catch(SQLException e) {
-			throw new SQLException(e);
-		}
-		return exists;
-	}
-	
-	public boolean validateGroupAdmin(String groupName, String userName) throws SQLException {
-		User admin = userDAO.getUserByUsername(userName);
-		String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
-		ResultSet resultSet = null;
-	    Connection connection;
-	    PreparedStatement preparedStatement;
-	    try {
-	      connection = connectionManager.getConnection();
-	      preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
-	      preparedStatement.setString(1, groupName);
-	      preparedStatement.setInt(2, admin.getUserID());
-	      resultSet = preparedStatement.executeQuery();
-	      if (resultSet.next()) {
-	        return true;
-	      } 
-	    } finally {
-	      if (resultSet != null) {
-	        resultSet.close();
-	      }
-	    }
-	    return false;
-	}
+  private GroupDAO() {
+    connectionManager = new ConnectionManager();
+    userDAO = userDAO.getInstance();
+  }
 
-	public Groups getGroupByGroupName(String groupName) throws SQLException {
-		String insertGroup = "SELECT * FROM GROUPS WHERE grpName = ?;";
-		ResultSet resultSet = null;
-		Connection connection;
-		PreparedStatement preparedStatement;
-		try {
-			connection = connectionManager.getConnection();
-			preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
-			preparedStatement.setString(1, groupName);
-			resultSet = preparedStatement.executeQuery();
-			Groups group;
-			if (resultSet.next()) {
-				int grpID = resultSet.getInt("grpID");
-				String grpName = resultSet.getString("grpName");
-				int adminID = resultSet.getInt("adminID");
-				group = new Groups(grpID,grpName,adminID);
-				return group;
-			} else {
-				throw new SQLException("Group not found.");
-			}
-		} finally {
-			if (resultSet != null) {
-				resultSet.close();
-			}
-		}
-	}
-	
-	public Groups getGroupByGroupID(int groupID) throws SQLException {
-		String insertGroup = "SELECT * FROM GROUPS WHERE GRPNAME = ?;";
-		ResultSet resultSet = null;
-		Connection connection;
-		PreparedStatement preparedStatement;
-		try {
-			connection = connectionManager.getConnection();
-			preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
-			preparedStatement.setInt(1, groupID);
-			resultSet = preparedStatement.executeQuery();
-			Groups group;
-			if (resultSet.next()) {
-				int grpID = resultSet.getInt("grpID");
-				String grpName = resultSet.getString("grpName");
-				int adminID = resultSet.getInt("adminID");
-				group = new Groups(grpID,grpName,adminID);
-				return group;
-			} else {
-				throw new SQLException("Group not found.");
-			}
-		} finally {
-			if (resultSet != null) {
-				resultSet.close();
-			}
-		}
-	}
-	
-	public List<String> getAllUsersInGroup(String groupName) throws SQLException{
-		List<String> users = new ArrayList<>();
-		int groupID = getGroupByGroupName(groupName).getGrpID();
-		String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
-		ResultSet resultSet = null;
-		Connection connection;
-		PreparedStatement preparedStatement;
-		try {
-			connection = connectionManager.getConnection();
-			preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);
-			preparedStatement.setInt(1, groupID);
-			resultSet = preparedStatement.executeQuery();
-			while (resultSet.next()) {
-				int userID = resultSet.getInt("userID");
-				users.add(userDAO.getUserByUserID(userID).getUsername());
-			}
-		} finally {
-			if (resultSet != null) {
-				resultSet.close();
-			}
-		}
-		return users;
-	}
+  public static GroupDAO getInstance() {
+    if (instance == null) {
+      instance = new GroupDAO();
+    }
+
+    return instance;
+  }
+
+  public Groups createGroup(Groups group) {
+    String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
+    String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement insertStmt1 = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
+         PreparedStatement insertStmt2 = connection.prepareStatement(insertGroupToUserMap, Statement.RETURN_GENERATED_KEYS);) {
+      insertStmt1.setString(1, group.getGrpName());
+      insertStmt1.setInt(2, group.getAdminID());
+      insertStmt1.executeUpdate();
+      try (ResultSet resultSet = insertStmt1.getGeneratedKeys();) {
+        int groupID;
+        if (resultSet.next()) {
+          groupID = resultSet.getInt(1);
+        } else {
+          throw new DatabaseConnectionException("Group ID could not be generated.");
+        }
+        group.setGrpID(groupID);
+        insertStmt2.setInt(1, group.getGrpID());
+        insertStmt2.setInt(2, group.getAdminID());
+        insertStmt2.executeUpdate();
+      }
+      return group;
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void deleteGroupByID(int groupID) {
+    String deleteGroup = "DELETE FROM GROUPS WHERE grpID=?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement statement = connection.prepareStatement(deleteGroup);) {
+      statement.setInt(1, groupID);
+      statement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public boolean checkGroupExists(String groupName) {
+    String checkGroup = "SELECT * FROM Groups WHERE grpName=?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement statement = connection.prepareStatement(checkGroup);) {
+      statement.setString(1, groupName);
+      try (ResultSet result = statement.executeQuery();) {
+        return result.next();
+      }
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public boolean checkGroupExists(int groupID) {
+    String checkGroup = "SELECT * FROM Groups WHERE grpID=?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement statement = connection.prepareStatement(checkGroup);) {
+      statement.setInt(1, groupID);
+      try (ResultSet result = statement.executeQuery();) {
+        return result.next();
+      }
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public boolean validateGroupAdmin(String groupName, String userName) {
+    User admin = userDAO.getUserByUsername(userName);
+    String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, groupName);
+      preparedStatement.setInt(2, admin.getUserID());
+      try (ResultSet result = preparedStatement.executeQuery();) {
+        return result.next();
+      }
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public Groups getGroupByGroupName(String groupName) {
+    String insertGroup = "SELECT * FROM GROUPS WHERE grpName = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, groupName);
+      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+        Groups group;
+        if (resultSet.next()) {
+          int grpID = resultSet.getInt("grpID");
+          String grpName = resultSet.getString("grpName");
+          int adminID = resultSet.getInt("adminID");
+          group = new Groups(grpID, grpName, adminID);
+          return group;
+        } else {
+          throw new DatabaseConnectionException("Group not found.");
+        }
+      }
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public Groups getGroupByGroupID(int groupID) {
+    String insertGroup = "SELECT * FROM GROUPS WHERE GRPNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setInt(1, groupID);
+      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+        Groups group;
+        if (resultSet.next()) {
+          int grpID = resultSet.getInt("grpID");
+          String grpName = resultSet.getString("grpName");
+          int adminID = resultSet.getInt("adminID");
+          group = new Groups(grpID, grpName, adminID);
+          return group;
+        } else {
+          throw new DatabaseConnectionException("Group not found.");
+        }
+      }
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public List<String> getAllUsersInGroup(String groupName) {
+    List<String> users = new ArrayList<>();
+    int groupID = getGroupByGroupName(groupName).getGrpID();
+    String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setInt(1, groupID);
+      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+        while (resultSet.next()) {
+          int userID = resultSet.getInt("userID");
+          users.add(userDAO.getUserByUserID(userID).getUsername());
+        }
+      }
+      return users;
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
 }

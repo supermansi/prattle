@@ -80,7 +80,7 @@ public class MessageDAO {
 	  
 	  public List<Message> getMessagesBySender(int senderID) {
 		  List<Message> messages = new ArrayList<>();
-		  String listMessages = "SELECT * FROM Messages WHERE senderID=?;";
+		  String listMessages = "SELECT * FROM Message WHERE senderID=?;";
 		try (Connection connection = connectionManager.getConnection();
 		         PreparedStatement preparedStatement = connection.prepareStatement(listMessages, Statement.RETURN_GENERATED_KEYS);) {
 		      preparedStatement.setInt(1, senderID);

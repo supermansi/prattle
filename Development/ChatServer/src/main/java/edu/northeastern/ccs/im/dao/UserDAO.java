@@ -47,15 +47,15 @@ public class UserDAO {
       }
       return user;
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage()+"\n"+e.getStackTrace());
     }
   }
 
-  public User getUserByUsername(String user_name) {
+  public User getUserByUsername(String userName) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
-      preparedStatement.setString(1, user_name);
+      preparedStatement.setString(1, userName);
       User user;
       try(ResultSet resultSet = preparedStatement.executeQuery();) {
         if (resultSet.next()) {
@@ -77,11 +77,11 @@ public class UserDAO {
     }
   }
 
-  public User getUserByUserID(int user_ID) {
+  public User getUserByUserID(int userId) {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
-      preparedStatement.setInt(1, user_ID);
+      preparedStatement.setInt(1, userId);
       User user;
       try(ResultSet resultSet = preparedStatement.executeQuery();) {
         if (resultSet.next()) {
@@ -104,49 +104,89 @@ public class UserDAO {
     }
   }
 
-  public boolean isUserExists(String user_name) {
+  public boolean isUserExists(String userName) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
-      preparedStatement.setString(1, user_name);
+      preparedStatement.setString(1, userName);
       try(ResultSet resultSet = preparedStatement.executeQuery();) {
-        if (resultSet.next()) {
-          return true;
-        } else {
-          return false;
-        }
+        return resultSet.next();
       }
     }  catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
-  public boolean validateUser(String user_name, String pass_word) {
+  public boolean validateUser(String userName, String pw) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND PASSWORD = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
-      preparedStatement.setString(1, user_name);
-      preparedStatement.setString(2, pass_word);
+      preparedStatement.setString(1, userName);
+      preparedStatement.setString(2, pw);
 
       try(ResultSet resultSet = preparedStatement.executeQuery();) {
-        if (resultSet.next()) {
-          return true;
-        } else {
-          return false;
-        }
+        return resultSet.next();
       }
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
-  public void deleteUser(String user_name, String emailID, String pass_word) throws SQLException {
+  public void deleteUser(String userName, String emailID, String pw) {
     String insertUser = "DELETE FROM USER WHERE USERNAME = ? AND EMAIL = ? AND PASSWORD = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
-      preparedStatement.setString(1, user_name);
+      preparedStatement.setString(1, userName);
       preparedStatement.setString(2, emailID);
-      preparedStatement.setString(3, pass_word);
+      preparedStatement.setString(3, pw);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void updateFirstName(String userName, String updatedFirstName) {
+    String insertUser = "UPDATE USER SET USERFN = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedFirstName);
+      preparedStatement.setString(2,userName);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void updateLastName(String userName, String updatedLastName) {
+    String insertUser = "UPDATE USER SET USERLN = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedLastName);
+      preparedStatement.setString(2,userName);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void updatePassword(String userName, String updatedPassword) {
+    String insertUser = "UPDATE USER SET PASSWORD = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedPassword);
+      preparedStatement.setString(2,userName);
+      preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  public void updateEmail(String userName, String updatedEmail) {
+    String insertUser = "UPDATE USER SET EMAIL = ? WHERE USERNAME = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setString(1, updatedEmail);
+      preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
