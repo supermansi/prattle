@@ -51,9 +51,9 @@ public class GroupServices {
 		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
 	}
 
-	public List<String> getAllUsersInGroup(String groupName) {
+	public static List<String> getAllUsersInGroup(String groupName) {
 		groupDAO.checkGroupExists(groupName);
-		return groupDAO.getAllUsersInGroup(groupName);
+		return groupUserDAO.getAllUsersInGroup(groupName);
 	}
 
 }

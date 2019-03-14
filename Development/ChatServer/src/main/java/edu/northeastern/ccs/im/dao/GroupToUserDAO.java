@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 
@@ -11,17 +14,18 @@ public class GroupToUserDAO {
 
   protected static ConnectionManager connectionManager;
   private static GroupToUserDAO instance = null;
-  private GroupDAO groupDAO;
-  private UserDAO userDAO;
+  private static GroupDAO groupDAO;
+  private static UserDAO userDAO;
 
   private GroupToUserDAO() {
-    connectionManager = new ConnectionManager();
-    groupDAO = GroupDAO.getInstance();
-    userDAO = UserDAO.getInstance();
+	  // empty constructor for singleton
   }
 
   public static GroupToUserDAO getInstance() {
     if (instance == null) {
+        connectionManager = new ConnectionManager();
+        groupDAO = GroupDAO.getInstance();
+        userDAO = UserDAO.getInstance();
       instance = new GroupToUserDAO();
     }
     return instance;
@@ -82,5 +86,24 @@ public class GroupToUserDAO {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
+  
+  public List<String> getAllUsersInGroup(String groupName) {
+	    List<String> users = new ArrayList<>();
+	    int groupID = groupDAO.getGroupByGroupName(groupName).getGrpID();
+	    String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
+	    try (Connection connection = connectionManager.getConnection();
+	         PreparedStatement preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);) {
+	      preparedStatement.setInt(1, groupID);
+	      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+	        while (resultSet.next()) {
+	          int userID = resultSet.getInt("userID");
+	          users.add(userDAO.getUserByUserID(userID).getUsername());
+	        }
+	      }
+	      return users;
+	    } catch (SQLException e) {
+	      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+	    }
+	  }
 
 }
