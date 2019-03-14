@@ -5,10 +5,14 @@ import java.sql.Timestamp;
 public class Message {
 	
 	private int msgID;
-	private String msgType;
+	private MsgType msgType;
 	private int senderID;
 	private String message;
 	private Timestamp timestamp;
+
+	public enum MsgType {
+		PVT, GRP, BCT;
+	}
 	
 	public int getMsgID() {
 		return msgID;
@@ -17,10 +21,10 @@ public class Message {
 		this.msgID = msgID;
 	}
 	
-	public String getMsgType() {
+	public MsgType getMsgType() {
 		return msgType;
 	}
-	public void setMsgType(String msgType) {
+	public void setMsgType(MsgType msgType) {
 		this.msgType = msgType;
 	}
 	

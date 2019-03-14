@@ -12,19 +12,18 @@ import edu.northeastern.ccs.im.model.User;
 public class GroupDAO {
 	
 	protected ConnectionManager connectionManager;
-	private GroupToUserDAO groupToUserDAO;
 	private UserDAO userDAO;
 	
 	private static GroupDAO instance = null;
 	private GroupDAO() {
 		connectionManager = new ConnectionManager();
-		groupToUserDAO = groupToUserDAO.getInstance();
 		userDAO = userDAO.getInstance();
 	}
 	public static GroupDAO getInstance() {
 		if(instance == null) {
 			instance = new GroupDAO();
 		}
+
 		return instance;
 	}
 	
