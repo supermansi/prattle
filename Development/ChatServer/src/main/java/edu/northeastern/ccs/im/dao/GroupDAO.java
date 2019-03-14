@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
@@ -28,29 +29,24 @@ public class GroupDAO {
 
 		return instance;
 	}
-	
+
 	public Groups createGroup(Groups group) throws SQLException {
 		String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
 		String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
-	    ResultSet resultSet = null;
-		Connection connection = null;
-		PreparedStatement insertStmt1 = null;
-		PreparedStatement insertStmt2 = null;
-		try {
-			connection = connectionManager.getConnection();
-			insertStmt1 = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
-			insertStmt2 = connection.prepareStatement(insertGroupToUserMap, Statement.RETURN_GENERATED_KEYS);
-			
+		try (Connection connection = connectionManager.getConnection();
+				PreparedStatement insertStmt1 = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
+				PreparedStatement insertStmt2 = connection.prepareStatement(insertGroupToUserMap, Statement.RETURN_GENERATED_KEYS);) {
 			insertStmt1.setString(1, group.getGrpName());
 			insertStmt1.setInt(2, group.getAdminID());
 			insertStmt1.executeUpdate();
-			resultSet = insertStmt1.getGeneratedKeys();
-			int groupID;
-			if (resultSet.next()) {
-				groupID = resultSet.getInt(1);
-			} 
-			else {
-				throw new SQLException("Group ID could not be generated.");
+			try (ResultSet resultSet = insertStmt1.getGeneratedKeys();) {
+				int groupID;
+				if (resultSet.next()) {
+					groupID = resultSet.getInt(1);
+				} 
+				else {
+					throw new DatabaseConnectionException("User ID could not be generated.");
+				}
 			}
 			group.setGrpID(groupID);
 			insertStmt2.setInt(1, group.getGrpID());

@@ -52,7 +52,7 @@ public class GroupServices {
 		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
 	}
 	
-	public List<String> getAllUsersInGroup(String groupName) throws SQLException {
+	public static List<String> getAllUsersInGroup(String groupName) throws SQLException {
 		groupDAO.checkGroupExists(groupName);
 		return groupDAO.getAllUsersInGroup(groupName);
 	}

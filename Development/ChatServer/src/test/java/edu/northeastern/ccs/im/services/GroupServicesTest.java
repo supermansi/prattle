@@ -1,20 +1,40 @@
 package edu.northeastern.ccs.im.services;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
 public class GroupServicesTest {
 	
-	GroupServices groupServices = new GroupServices();
+	GroupServices groupServices;
 	
 	@Test
 	public void testCreateGroup() throws SQLException {
-		groupServices.createGroup("group1", "Karl");
+		GroupServices.createGroup("group1", "Karl");
 	}
 	
 	@Test
 	public void testAddUserToGroup() throws SQLException {
-		groupServices.addUserToGroup("group1", "Karl", "Abc");
+		GroupServices.addUserToGroup("group1", "Karl", "Abc");
+	}
+
+	@Test
+	public void testValidateUserInGroup() throws SQLException {
+		GroupServices.validateUserExistsInGroup("Abc", "group1");
+	}
+	
+	@Test
+	public void testRemoveUserFromGroup() throws SQLException {
+		GroupServices.removeUserFromGroup("group1", "Karl", "Abc");
+	}
+	
+	@Test
+	public void testGetAllUsers() throws SQLException {
+		List<String> test = new ArrayList<>();
+		assertEquals(test, GroupServices.getAllUsersInGroup("group1"));
 	}
 }
