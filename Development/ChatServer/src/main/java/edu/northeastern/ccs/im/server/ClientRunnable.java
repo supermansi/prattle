@@ -97,7 +97,8 @@ public class ClientRunnable implements Runnable {
       Message msg = messageIter.next();
       if (msg.isRegistration()) {
         List<String> regInfo = preProcessRegistrationInformation(msg.getText());
-        if (msg.getName() != null /*&& register()*/) {
+        if (msg.getName() != null && UserServices.register(regInfo.get(0),regInfo.get(1),
+                regInfo.get(2),regInfo.get(3),regInfo.get(4))) {
           setUserName(msg.getName());
           timer.updateAfterInitialization();
           // Set that the client is initialized.

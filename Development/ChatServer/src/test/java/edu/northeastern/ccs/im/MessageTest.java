@@ -61,8 +61,8 @@ public class MessageTest {
      */
     @Test
     public void makeSimpleLoginMessage() {
-        Message lm = Message.makeSimpleLoginMessage("New User");
-        assertEquals("HLO 8 New User 2 --", lm.toString());
+        Message lm = Message.makeSimpleLoginMessage("New User","Hello");
+        assertEquals("HLO 8 New User 5 Hello", lm.toString());
     }
 
     /**

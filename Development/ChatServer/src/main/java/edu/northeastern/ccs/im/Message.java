@@ -107,7 +107,7 @@ public class Message {
     if (handle.compareTo(MessageType.QUIT.toString()) == 0) {
       result = makeQuitMessage(srcName);
     } else if (handle.compareTo(MessageType.HELLO.toString()) == 0) {
-      result = makeSimpleLoginMessage(srcName);
+      result = makeSimpleLoginMessage(srcName,text);
     } else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
       result = makeBroadcastMessage(srcName, text);
     } else if (handle.compareTo(MessageType.ACKNOWLEDGEMENT.toString()) == 0) {
@@ -118,8 +118,14 @@ public class Message {
       result = makePrivateMessage(srcName, text);
     } else if (handle.compareTo(MessageType.GROUP.toString()) == 0) {
       result = makeGroupMessage(srcName, text);
+    }else if (handle.compareTo(MessageType.REGISTRATION.toString()) == 0) {
+      result = makeRegisterationMessage(srcName, text);
     }
     return result;
+  }
+
+  private static Message makeRegisterationMessage(String srcName, String text) {
+    return new Message((MessageType.REGISTRATION), srcName, text);
   }
 
   private static Message makeGroupMessage(String srcName, String text) {
@@ -144,8 +150,8 @@ public class Message {
    * @param myName Name of the user who has just logged in.
    * @return Instance of Message specifying a new friend has just logged in.
    */
-  public static Message makeSimpleLoginMessage(String myName) {
-    return new Message(MessageType.HELLO, myName);
+  public static Message makeSimpleLoginMessage(String myName,String text) {
+    return new Message(MessageType.HELLO, myName,text);
   }
 
   /**
