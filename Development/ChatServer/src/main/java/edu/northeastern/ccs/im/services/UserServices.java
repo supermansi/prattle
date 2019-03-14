@@ -6,19 +6,19 @@ import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
 public class UserServices {
-	
+
 	private static UserDAO userDAO = UserDAO.getInstance();
 
 	private UserServices() {
 		//empty private constructor
 	}
-	
-	public static boolean login(String username, String password) throws SQLException {
+
+	public static boolean login(String username, String password) {
 		return userDAO.validateUser(username,password);
 	}
-	
+
 	public static boolean register(String username, String password, String userFN,
-						String userLN, String email) throws SQLException {
+																 String userLN, String email) {
 		if(userDAO.isUserExists(username)) {
 			return false; // user exists
 		}
@@ -28,6 +28,6 @@ public class UserServices {
 			return true; // user does not exist and is created
 		}
 	}
-	
+
 
 }
