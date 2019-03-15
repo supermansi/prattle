@@ -4,8 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.google.protobuf.Extension.MessageType;
-
 import edu.northeastern.ccs.im.model.Message;
 
 public class MessageServiceTest {

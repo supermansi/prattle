@@ -55,5 +55,14 @@ public class GroupServices {
 		groupDAO.checkGroupExists(groupName);
 		return groupUserDAO.getAllUsersInGroup(groupName);
 	}
-
+	
+	public static boolean deleteGroup(String grpName, String adminName) {
+		if(groupDAO.checkGroupExists(groupDAO.getGroupByGroupName(grpName).getGrpID())) {
+			if(userDAO.isUserExists(userDAO.getUserByUsername(adminName).getUserID())) {
+				groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName(grpName).getGrpID());
+				return true;
+			}
+		}
+		return false;
+	}
 }
