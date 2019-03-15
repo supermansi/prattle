@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.Test;
 
-public class GroupToUserMapDAOTest {
+public class GroupToUserDAOTest {
 	
 	GroupToUserDAO groupToUserDAO;
 	
@@ -21,7 +21,6 @@ public class GroupToUserMapDAOTest {
 	public void testAddUser() throws SQLException {
 		groupToUserDAO.addUserToGroup(1, 2);
 	}
-	
 	
 	@Test
 	public void testCheckIfUserInGroup() throws SQLException {

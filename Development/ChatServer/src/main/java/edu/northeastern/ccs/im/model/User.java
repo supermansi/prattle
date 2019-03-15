@@ -8,6 +8,7 @@ public class User {
 	private String userLN;
 	private String email;
 	private String password;
+	private String lastSeen;
 	
 	public User(String username, String userFN, String userLN, String email, String password) {
 		super();
@@ -67,6 +68,13 @@ public class User {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public String getLastSeen() {
+		return lastSeen;
+	}
+	public void setLastSeen(String lastSeen) {
+		this.lastSeen = lastSeen;
 	}
 
 }

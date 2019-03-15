@@ -3,6 +3,7 @@ package edu.northeastern.ccs.im.dao;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.*;
@@ -12,17 +13,27 @@ public class UserDAOTest {
   UserDAO userDAO;
   User user;
   User user1;
+  User createUser;
   @Before
   public void setUp() {
     userDAO = UserDAO.getInstance();
     user = new User("Karl","Karl","Frisk", "abc@gmail.com","1234");
-
     user1 = new User(2,"Karl","Karl","Frisk", "abc@gmail.com","1234");
+
+    createUser = new User("Adi","Adi","K", "adi@gmail.com","1234");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testCreateUserFail() {
+    assertEquals("Adi",userDAO.createUser(createUser).getUsername());
+    userDAO.createUser(createUser);
+    userDAO.deleteUser("Adi");
   }
 
   @Test
   public void testCreateUser() {
-    userDAO.createUser(user);
+    assertEquals("Adi",userDAO.createUser(createUser).getUsername());
+    userDAO.deleteUser("Adi");
   }
 
   @Test
@@ -38,6 +49,16 @@ public class UserDAOTest {
   @Test
   public void testIsUserExistsFalse() {
     assertEquals(false,userDAO.isUserExists("ABCD"));
+  }
+
+  @Test
+  public void testIsUserExistsByIdTrue() {
+    assertEquals(true, userDAO.isUserExists(2));
+  }
+
+  @Test
+  public void testIsUserExistsByIdFalse() {
+    assertEquals(false, userDAO.isUserExists(22));
   }
 
   @Test
@@ -58,17 +79,21 @@ public class UserDAOTest {
 
   @Test
   public void testDeleteUserTrue() {
-    userDAO.deleteUser("Kyle","kyle@gmail.com","kyle");
+    assertEquals(true, userDAO.isUserExists("Kyle"));
+    userDAO.deleteUser("Kyle");
+    assertEquals(false, userDAO.isUserExists("Kyle"));
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testDeleteUserFalse() {
-    userDAO.deleteUser("aaa","aaa@gmail.com","aaa");
+    assertEquals(false, userDAO.isUserExists("aaa"));
+    userDAO.deleteUser("aaa");
   }
 
   @Test
   public void testGetUserByUserID() {
-    assertEquals(userDAO.getUserByUserID(2).getUsername(),user1.getUsername());
+	  user = userDAO.createUser(user);
+    assertEquals(user.getUsername(), userDAO.getUserByUserID(user.getUserID()).getUsername());
   }
 
   @Test
@@ -96,5 +121,12 @@ public class UserDAOTest {
   public void testUpdateEmail() {
     userDAO.updateEmail("r","a");
     assertEquals("a", userDAO.getUserByUsername("r").getEmail());
+  }
+  
+  @Test
+  public void testUpdateLastSeen() {
+	  String time = Long.toString(System.currentTimeMillis());
+	  userDAO.updateLastSeen("admin", time);
+	  assertEquals(time, userDAO.getUserByUsername("admin").getLastSeen());
   }
 }
