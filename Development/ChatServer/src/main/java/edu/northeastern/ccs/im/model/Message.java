@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.model;
 
+/**
+ * This class represents a model object for a message.
+ */
 public class Message {
 	
 	private int msgID;
@@ -12,6 +15,15 @@ public class Message {
 		PVT, GRP, BCT;
 	}
 
+	/**
+	 * Constructor for a message model object.
+	 *
+	 * @param msgID int representing the message ID
+	 * @param msgType MsgType for the message
+	 * @param senderID int representing the sender ID
+	 * @param message string representing the text of the message
+	 * @param timestamp string representing the time the message was sent
+	 */
 	public Message(int msgID, MsgType msgType, int senderID, String message, String timestamp) {
 		super();
 		this.msgID = msgID;

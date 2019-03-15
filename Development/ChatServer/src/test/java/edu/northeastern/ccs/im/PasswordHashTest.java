@@ -4,9 +4,14 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * Test class for the PasswordHash class.
+ */
 public class PasswordHashTest {
 
-
+    /**
+     * Tests for the hashPassword method.
+     */
     @Test
     public void testOne(){
         String test1 = "Hello";
