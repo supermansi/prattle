@@ -21,12 +21,12 @@ import edu.northeastern.ccs.im.model.User;
 public class MessageServiceTest {
 
   MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
-  Message message;
   UserDAO userDAO;
   User user;
   User user1;
   MessageDAO messageDAO;
   Groups groupMSD;
+  Groups groupMSDOther;
   GroupDAO groupDAO;
 
   @Before
@@ -46,49 +46,54 @@ public class MessageServiceTest {
     userDAO.createUser(user1);
     messageDAO = MessageDAO.getInstance();
     groupMSD = new Groups("groupMSD1", userDAO.getUserByUsername(user.getUsername()).getUserID());
+    groupMSDOther = new Groups("groupMSD2", userDAO.getUserByUsername(user.getUsername()).getUserID());
     groupDAO.createGroup(groupMSD);
   }
 
+  @After
+  public void cleanUp() {
+    if (userDAO.isUserExists(user.getUsername())) {
+      userDAO.deleteUser(user.getUsername());
+    }
+    if (userDAO.isUserExists(user1.getUsername())) {
+      userDAO.deleteUser(user1.getUsername());
+    }
+    if (groupDAO.checkGroupExists("groupMSD1")) {
+      groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName("groupMSD1").getGrpID());
+    }
+  }
 
   @Test
   public void testSend() {
-    assertTrue(MessageServices.addMessage(Message.MsgType.PVT, "r", "j", "Hii"));
+    assertTrue(MessageServices.addMessage(Message.MsgType.PVT, user.getUsername(), user1.getUsername(), "Hii"));
   }
 
   @Test
   public void testAddMsgsPVT() {
-    MessageServices.addMessage(Message.MsgType.PVT, user.getUsername(), user1.getUsername(), "Hello There");
-    if (userDAO.isUserExists(user.getUsername())) {
-      userDAO.deleteUser(user.getUsername());
-    }
-    if (userDAO.isUserExists(user1.getUsername())) {
-      userDAO.deleteUser(user1.getUsername());
-    }
+    assertEquals(true, MessageServices.addMessage(Message.MsgType.PVT, user.getUsername(), user1.getUsername(), "Hello There"));
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testAddMsgInvalid() {
-    MessageServices.addMessage(Message.MsgType.BCT,user.getUsername(),user1.getUsername(),"Hi");
-    if (userDAO.isUserExists(user.getUsername())) {
-      userDAO.deleteUser(user.getUsername());
-    }
-    if (userDAO.isUserExists(user1.getUsername())) {
-      userDAO.deleteUser(user1.getUsername());
-    }
+    assertEquals(false, MessageServices.addMessage(Message.MsgType.BCT, user.getUsername(), user1.getUsername(), "Hi"));
   }
 
   @Test
   public void testAddMsgsGRP() {
-    MessageServices.addMessage(Message.MsgType.GRP, user.getUsername(), user1.getUsername(), "Hello There Group");
-    if (userDAO.isUserExists(user.getUsername())) {
-      userDAO.deleteUser(user.getUsername());
+    if (!GroupServices.validateUserExistsInGroup(user1.getUsername(), groupMSD.getGrpName())) {
+      GroupServices.addUserToGroup(groupMSD.getGrpName(), user.getUsername(), user1.getUsername());
     }
-    if (userDAO.isUserExists(user1.getUsername())) {
-      userDAO.deleteUser(user1.getUsername());
-    }
-    if(groupDAO.checkGroupExists("groupMSD1")) {
-      groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName("groupMSD1").getGrpID());
-    }
+    assertEquals(true, MessageServices.addMessage(Message.MsgType.GRP, user.getUsername(), groupMSD.getGrpName(), "Hello There Group"));
+  }
+
+  @Test
+  public void testAddMsgsToNonExistingReceiverPVT() {
+    assertEquals(false, MessageServices.addMessage(Message.MsgType.PVT, user.getUsername(), "Maegen", "Hello There blah"));
+  }
+
+  @Test
+  public void testAddMsgsToNonExistingReceiverGRP() {
+    assertEquals(false, MessageServices.addMessage(Message.MsgType.GRP, user.getUsername(), groupMSDOther.getGrpName(), "Hello There Group blah"));
   }
 
   @Test
