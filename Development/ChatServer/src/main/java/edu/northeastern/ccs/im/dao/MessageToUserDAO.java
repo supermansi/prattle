@@ -63,4 +63,27 @@ public class MessageToUserDAO {
 		      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
 		    }
   	}
+
+  public List<String> retrieveUserMsg(String sender, String receiver) {
+    String selectQuery = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";
+    List<String> chat = new ArrayList<>();
+    try(Connection connection = connectionManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(selectQuery);) {
+        statement.setInt(1,userDAO.getUserByUsername(sender).getUserID());
+        statement.setInt(2,userDAO.getUserByUsername(receiver).getUserID());
+        statement.setInt(3,userDAO.getUserByUsername(receiver).getUserID());
+        statement.setInt(4,userDAO.getUserByUsername(sender).getUserID());
+      try (ResultSet resultSet = statement.executeQuery();) {
+        while (resultSet.next()) {
+          int senderId = resultSet.getInt("senderID");
+          String msg = resultSet.getString("message");
+//          String ts = resultSet.getString("timestamp");
+          chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
+        }
+      }
+      return chat;
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
 }

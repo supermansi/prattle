@@ -13,16 +13,27 @@ public class UserDAOTest {
   UserDAO userDAO;
   User user;
   User user1;
+  User createUser;
   @Before
   public void setUp() {
     userDAO = UserDAO.getInstance();
     user = new User("Karl","Karl","Frisk", "abc@gmail.com","1234");
     user1 = new User(2,"Karl","Karl","Frisk", "abc@gmail.com","1234");
+
+    createUser = new User("Adi","Adi","K", "adi@gmail.com","1234");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testCreateUserFail() {
+    assertEquals("Adi",userDAO.createUser(createUser).getUsername());
+    userDAO.createUser(createUser);
+    userDAO.deleteUser("Adi");
   }
 
   @Test
   public void testCreateUser() {
-    userDAO.createUser(user);
+    assertEquals("Adi",userDAO.createUser(createUser).getUsername());
+    userDAO.deleteUser("Adi");
   }
 
   @Test
