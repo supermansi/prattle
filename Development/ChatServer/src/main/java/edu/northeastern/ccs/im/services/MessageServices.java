@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
+import java.util.List;
+
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
@@ -52,5 +54,8 @@ public class MessageServices {
 		}
 		return false;
 	}
-	
+
+	public static List<String> retrieveUserMessages(String sender, String receiver) {
+		return messageUserDAO.retrieveUserMsg(sender,receiver);
+	}
 }
