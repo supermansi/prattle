@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -303,6 +304,25 @@ public class ClientRunnableTest {
         Mockito.verify(connection).close();
     }
 
+    @Test
+    public void testPrivate() {
+        when(connection.iterator()).thenReturn(new Iterator<Message>() {
+            @Override
+            public boolean hasNext() {
+                return true;
+            }
+
+            @Override
+            public Message next() {
+                return Message.makePrivateMessage("R", "/pvt a hello");
+            }
+        });
+        clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
+        clientRunnable.run();
+        clientRunnable.terminateClient();
+        Mockito.verify(connection).close();
+    }
+
     /**
      * Test for the timerIsBehind method.
      */
@@ -355,6 +375,26 @@ public class ClientRunnableTest {
         ClientRunnable clientRunnable = new ClientRunnable(connection);
         met.setAccessible(true);
         Message msg = Message.makeRetrieveUserMessage("r","/retrieveUSR MSD");
+        met.invoke(clientRunnable,msg);
+    }
+
+    @Test
+    public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        clientRunnable.setName("test");
+        Class<ClientRunnable> clazz = ClientRunnable.class;
+        Method method[] = clazz.getDeclaredMethods();
+        Method met = null;
+        for (Method m : method) {
+            if (m.getName().contains("processMessage")) {
+                met = m;
+            }
+        }
+//        Field cr = clazz.getDeclaredField("name");
+//        cr.setAccessible(true);
+//        cr.set(clientRunnable,"test");
+//        //ClientRunnable clientRunnable = new ClientRunnable(connection);
+        met.setAccessible(true);
+        Message msg = Message.makePrivateMessage("test", "/pvt r hello world");
         met.invoke(clientRunnable,msg);
     }
     /**
