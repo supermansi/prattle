@@ -55,7 +55,9 @@ public enum MessageType {
 
   RETRIEVE_USER("RTU"),
 
-  RETRIEVE_GROUP("RTG");
+  RETRIEVE_GROUP("RTG"),
+
+  ADD_USER_TO_GRP("AUG");
 
   /**
    * Store the short name of this message type.

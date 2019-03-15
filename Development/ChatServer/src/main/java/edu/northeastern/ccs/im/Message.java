@@ -138,6 +138,8 @@ public class Message {
         result = makeRetrieveUserMessage(srcName, text);
     } else if (handle.compareTo(MessageType.RETRIEVE_GROUP.toString()) == 0){
         result = makeRetrieveGroupMessage(srcName, text);
+    }else if (handle.compareTo(MessageType.ADD_USER_TO_GRP.toString()) == 0){
+      result = makeAddUserToGroupMessage(srcName, text);
     }
     return result;
   }
@@ -197,6 +199,10 @@ public class Message {
     public static Message makeRetrieveGroupMessage(String srcName, String text){
         return new Message(MessageType.RETRIEVE_GROUP, srcName, text);
     }
+
+  public static Message makeAddUserToGroupMessage(String srcName, String text){
+    return new Message(MessageType.ADD_USER_TO_GRP, srcName, text);
+  }
 
   /**
    * Create a new message for the early stages when the user logs in without all the special stuff.
@@ -284,11 +290,13 @@ public class Message {
 
   public boolean isDeleteGroup() {return (msgType == MessageType.DELETE_GROUP); }
 
-  public boolean isRemoveUser() {return (msgType == MessageType.DELETE_GROUP); }
+  public boolean isRemoveUser() {return (msgType == MessageType.REMOVE_USER); }
 
   public boolean isRetrieveUser() {return (msgType == MessageType.RETRIEVE_USER); }
 
   public boolean isRetrieveGroup() {return (msgType == MessageType.RETRIEVE_GROUP); }
+
+  public boolean isAddUserToGroup() {return (msgType == MessageType.ADD_USER_TO_GRP); }
 
 
     /**

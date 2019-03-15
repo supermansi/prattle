@@ -9,6 +9,7 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.jws.soap.SOAPBinding;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message.MsgType;
 
 import edu.northeastern.ccs.im.ChatLogger;
@@ -327,6 +328,20 @@ public class ClientRunnable implements Runnable {
       } else if (msg.isUpdatePassword()) {
         UserServices.updatePassword(msg.getName(), msg.getText());
         sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
+      }else if(msg.isRemoveUser()){
+        try{
+          GroupServices.removeUserFromGroup(getReceiverName(msg.getText()),msg.getName(),msg.getText().split(" ")[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
+        }catch (DatabaseConnectionException e){
+          sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
+        }
+      }else if(msg.isAddUserToGroup()){
+        try{
+          GroupServices.addUserToGroup(getReceiverName(msg.getText()),msg.getName(),msg.getText().split(" ")[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
+        }catch (DatabaseConnectionException e){
+          sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
+        }
       }
     }
     else {
