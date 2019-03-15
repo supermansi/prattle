@@ -3,7 +3,6 @@ package edu.northeastern.ccs.im.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import org.junit.Test;
