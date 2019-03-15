@@ -8,7 +8,7 @@ import java.util.Properties;
 import edu.northeastern.ccs.im.ChatLogger;
 
 
-public class ConnectionManager {
+public class ConnectionManager implements IConnectionManager {
 	
 	private static final String USER = "b9771ba524a91a";
 

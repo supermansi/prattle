@@ -14,13 +14,13 @@ import static org.junit.Assert.*;
 
 public class UserDAOTest {
 
+  protected static ConnectionManager connectionManager;
+  private static String HOSTNAME;
   UserDAO userDAO;
   User user;
   User user1;
   User createUser;
   User nullUser;
-  protected static ConnectionManager connectionManager;
-  private static String HOSTNAME;
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -33,11 +33,7 @@ public class UserDAOTest {
     Class clazz = UserDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");
     connectionManager.setAccessible(true);
-    connectionManager.set(userDAO,null);
-//    hostname.setAccessible(true);
-//    hostname.set(null,"ABC.ABC.D");
-
-
+    connectionManager.set(userDAO, new ConnectionTest());
   }
 
   @After
@@ -180,8 +176,10 @@ public class UserDAOTest {
   }
 }
 
-class Connection {
- public static void getConnection() throws SQLException {
-   throw new SQLException("Connection failed");
- }
+class ConnectionTest implements IConnectionManager {
+
+  @Override
+  public java.sql.Connection getConnection() throws SQLException {
+    throw new SQLException("Connection failed");
+  }
 }
