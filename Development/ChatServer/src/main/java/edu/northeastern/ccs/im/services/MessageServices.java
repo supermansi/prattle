@@ -58,4 +58,8 @@ public class MessageServices {
 	public static List<String> retrieveUserMessages(String sender, String receiver) {
 		return messageUserDAO.retrieveUserMsg(sender,receiver);
 	}
+	
+	public static List<String> retrieveGroupMessages(String groupName) {
+		return messageUserDAO.getMessagesFromGroup(groupName);
+	}
 }
