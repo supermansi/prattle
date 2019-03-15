@@ -45,7 +45,7 @@ public class MessageTest {
 	
 	@Test
 	public void testTimestamp() {
-		Timestamp time = new Timestamp(System.currentTimeMillis());
+		String time = new Timestamp(System.currentTimeMillis()).toString();
 		message.setTimestamp(time);
 		assertEquals(time, message.getTimestamp());
 	}

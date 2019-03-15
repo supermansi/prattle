@@ -92,7 +92,8 @@ public class UserDAOTest {
 
   @Test
   public void testGetUserByUserID() {
-    assertEquals(userDAO.getUserByUserID(2).getUsername(),user1.getUsername());
+	  user = userDAO.createUser(user);
+    assertEquals(user.getUsername(), userDAO.getUserByUserID(user.getUserID()).getUsername());
   }
 
   @Test
