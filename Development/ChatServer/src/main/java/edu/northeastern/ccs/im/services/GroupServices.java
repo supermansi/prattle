@@ -57,7 +57,7 @@ public class GroupServices {
 	
 	public static boolean deleteGroup(String grpName, String adminName) {
 		if(groupDAO.checkGroupExists(groupDAO.getGroupByGroupName(grpName).getGrpID()) &&
-				userDAO.isUserExists(userDAO.getUserByUsername(adminName).getUserID())) {
+				userDAO.isUserExists(adminName)) {
 				groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName(grpName).getGrpID());
 				return true;
 		}
