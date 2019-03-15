@@ -300,7 +300,7 @@ public class ClientRunnable implements Runnable {
             } else if (msg.isPrivateMessage()) {
                 String receiverId = getReceiverName(msg.getText());
                 Prattle.sendPrivateMessage(msg, receiverId);
-                MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText())
+                MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
             } else if (msg.isGroupMessage()) {
                 String receiverId = getReceiverName(msg.getText());
                 Prattle.sendGroupMessage(msg, receiverId);
@@ -309,7 +309,7 @@ public class ClientRunnable implements Runnable {
                 GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
                 sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
             } else if (msg.isDeleteGroup()) {
-                GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName()); //to do
+                GroupServices.deleteGroup(getReceiverName(msg.getText()), msg.getName()); //to do
                 sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
             } else if (msg.isRetrieveGroup()) {
                 retrieveGroupMessagesForGroup(msg);

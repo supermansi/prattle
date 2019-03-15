@@ -72,6 +72,7 @@ public class Message {
     return new Message(MessageType.QUIT, myName, null);
   }
 
+
   /**
    * Create a new message broadcasting an announcement to the world.
    *
@@ -144,7 +145,7 @@ public class Message {
     return result;
   }
 
-  private static Message makeRegisterationMessage(String srcName, String text) {
+  public static Message makeRegisterationMessage(String srcName, String text) {
     return new Message((MessageType.REGISTRATION), srcName, text);
   }
 

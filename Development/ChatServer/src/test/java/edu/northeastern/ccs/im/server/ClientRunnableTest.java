@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +18,8 @@ import java.util.concurrent.ScheduledFuture;
 
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.services.UserServices;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotSame;
@@ -42,6 +45,26 @@ public class ClientRunnableTest {
     public void init() {
         connection = mock(NetworkConnection.class);
         clientRunnable = new ClientRunnable(connection);
+
+    }
+
+    public void delete(){
+        UserDAO.getInstance().deleteUser("t");
+    }
+
+    private void register() {
+        when(connection.sendMessage(any())).thenReturn(true);
+
+        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+        Message testMessage1 = Message.makeRegisterationMessage("t","t t t t t");;
+        List<Message> nameList = new ArrayList();
+        nameList.add(testMessage1);
+
+        clientRunnable.enqueueMessage(testMessage1);
+
+        GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
+        when(connection.iterator()).thenReturn(itr);
+        clientRunnable.run();
     }
 
 
@@ -389,14 +412,46 @@ public class ClientRunnableTest {
                 met = m;
             }
         }
-//        Field cr = clazz.getDeclaredField("name");
-//        cr.setAccessible(true);
-//        cr.set(clientRunnable,"test");
-//        //ClientRunnable clientRunnable = new ClientRunnable(connection);
+
         met.setAccessible(true);
         Message msg = Message.makePrivateMessage("test", "/pvt r hello world");
         met.invoke(clientRunnable,msg);
     }
+
+    @Test
+    public void testRegisteration(){
+        register();
+        delete();
+    }
+
+    @Test
+    public void testDuplicateRegisteration(){
+        when(connection.sendMessage(any())).thenReturn(true);
+
+        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+        Message testMessage1 = Message.makeRegisterationMessage("a","r r r r r");;
+        List<Message> nameList = new ArrayList();
+        nameList.add(testMessage1);
+
+        clientRunnable.enqueueMessage(testMessage1);
+
+        GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
+        when(connection.iterator()).thenReturn(itr);
+        clientRunnable.run();
+    }
+
+    @Test
+    public void testFailedLogin(){
+        Message testMessage1 = Message.makeSimpleLoginMessage("y","z");;
+        List<Message> nameList = new ArrayList();
+        nameList.add(testMessage1);
+        GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
+
+        when(connection.iterator()).thenReturn(itr);
+        clientRunnable.run();
+    }
+
+
     /**
      * Message Iterator for use in testing the ClientRunnable class.
      */
