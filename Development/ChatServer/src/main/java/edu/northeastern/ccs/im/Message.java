@@ -120,6 +120,24 @@ public class Message {
       result = makeGroupMessage(srcName, text);
     }else if (handle.compareTo(MessageType.REGISTRATION.toString()) == 0) {
       result = makeRegisterationMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.UPDATE_FN.toString()) == 0){
+        result = makeUpdateFirstNameMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.UPDATE_LN.toString()) == 0){
+        result = makeUpdateLastNameMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.UPDATE_PW.toString()) == 0){
+        result = makeUpdatePasswordMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.UPDATE_EM.toString()) == 0){
+        result = makeUpdateEmailMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.CREATE_GROUP.toString()) == 0){
+        result = createGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.DELETE_GROUP.toString()) == 0){
+        result = deleteGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.REMOVE_USER.toString()) == 0){
+        result = makeRemoveUserMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.RETRIEVE_USER.toString()) == 0){
+        result = makeRetrieveUserMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.RETRIEVE_GROUP.toString()) == 0){
+        result = makeRetrieveGroupMessage(srcName, text);
     }
     return result;
   }
@@ -143,6 +161,42 @@ public class Message {
   public static Message makeAckMessage(String srcName, String text) {
     return new Message(MessageType.ACKNOWLEDGEMENT, srcName, text);
   }
+
+    public static Message makeUpdateFirstNameMessage(String srcName, String text){
+        return new Message(MessageType.UPDATE_FN, srcName, text);
+    }
+
+    public static Message makeUpdateLastNameMessage(String srcName, String text){
+        return new Message(MessageType.UPDATE_LN, srcName, text);
+    }
+
+    public static Message makeUpdatePasswordMessage(String srcName, String text){
+        return new Message(MessageType.UPDATE_PW, srcName, text);
+    }
+
+    public static Message makeUpdateEmailMessage(String srcName, String text){
+        return new Message(MessageType.UPDATE_EM, srcName, text);
+    }
+
+    public static Message createGroupMessage(String srcName, String text){
+        return new Message(MessageType.CREATE_GROUP, srcName,text);
+    }
+
+    public static Message deleteGroupMessage(String srcName, String text){
+        return new Message(MessageType.DELETE_GROUP, srcName,text);
+    }
+
+    public static Message makeRemoveUserMessage(String srcName, String text){
+        return new Message(MessageType.REMOVE_USER, srcName, text);
+    }
+
+    public static Message makeRetrieveUserMessage(String srcName, String text){
+        return new Message(MessageType.RETRIEVE_USER, srcName, text);
+    }
+
+    public static Message makeRetrieveGroupMessage(String srcName, String text){
+        return new Message(MessageType.RETRIEVE_GROUP, srcName, text);
+    }
 
   /**
    * Create a new message for the early stages when the user logs in without all the special stuff.
@@ -200,6 +254,44 @@ public class Message {
   }
 
   /**
+   * Determine if this message is a private message.
+   *
+   * @return True if the message is a private message; false otherwise
+   */
+  public boolean isPrivateMessage() { return (msgType == MessageType.PRIVATE); }
+
+  /**
+   * Determine if this message is a group message.
+   *
+   * @return True if the message is a group message; false otherwise
+   */
+
+  public boolean isGroupMessage() { return (msgType == MessageType.GROUP); }
+
+  public boolean isRegistration() {
+        return (msgType == MessageType.REGISTRATION);
+    }
+
+  public boolean isUpdateFirstName() {return (msgType == MessageType.UPDATE_FN); }
+
+  public boolean isUpdateLastName() {return (msgType == MessageType.UPDATE_LN); }
+
+  public boolean isUpdatePassword() {return (msgType == MessageType.UPDATE_PW); }
+
+  public boolean isUpdateEmail() {return (msgType == MessageType.UPDATE_EM); }
+
+  public boolean isCreateGroup() {return (msgType == MessageType.CREATE_GROUP); }
+
+  public boolean isDeleteGroup() {return (msgType == MessageType.DELETE_GROUP); }
+
+  public boolean isRemoveUser() {return (msgType == MessageType.DELETE_GROUP); }
+
+  public boolean isRetrieveUser() {return (msgType == MessageType.RETRIEVE_USER); }
+
+  public boolean isRetrieveGroup() {return (msgType == MessageType.RETRIEVE_GROUP); }
+
+
+    /**
    * Representation of this message as a String. This begins with the message handle and then
    * contains the length (as an integer) and the value of the next two arguments.
    *
@@ -221,15 +313,4 @@ public class Message {
     return result;
   }
 
-  public boolean isRegistration() {
-    return (msgType == MessageType.REGISTRATION);
-  }
-
-  public boolean isPrivateMessage() {
-    return (msgType == MessageType.PRIVATE);
-  }
-
-  public boolean isGroupMessage() {
-    return (msgType == MessageType.GROUP);
-  }
 }
