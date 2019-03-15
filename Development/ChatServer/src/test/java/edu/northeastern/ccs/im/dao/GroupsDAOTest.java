@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +30,7 @@ public class GroupsDAOTest {
 		group = new Groups("GroupTest", 2);
 		groupDAO.createGroup(group);
 	}
-
+	
 	@Test
 	public void testDeleteGroup() {
 		groupDAO.deleteGroupByID(group.getGrpID());
@@ -66,4 +67,14 @@ public class GroupsDAOTest {
 		assertEquals(group.getGrpID(), groupDAO.getGroupByGroupID(group.getGrpID()).getGrpID());
 	}
 	
+	@Test
+	public void testGroupByIDFalse() {
+		assertNull(groupDAO.getGroupByGroupID(1));
+	}
+	
+	@Test
+	public void testGroupByNameFalse() {
+		assertNull(groupDAO.getGroupByGroupName("x"));
+	}
+
 }

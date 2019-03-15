@@ -3,12 +3,6 @@ package edu.northeastern.ccs.im.dao;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
-import java.sql.Timestamp;
-import java.util.List;
-
-import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.Message;
 
 public class MessageToUserDAOTest {
@@ -35,25 +29,13 @@ public class MessageToUserDAOTest {
   
   @Test
   public void testRetrieveUserMsg() {
-    String result = "";
-    List<String> chat = messageToUserDAO.retrieveUserMsg("r","j");
-    for(int i = 0; i < chat.size(); i++) {
-      result += chat.get(i) + "\n";
+    messageToUserDAO.retrieveUserMsg("r","j");
     }
-    assertEquals("r /pvt j hello!\n" +
-            "j /pvt r hello\n" +
-            "r /pvt j Hii\n" +
-            "j /pvt r hello\n" +
-            "j /pvt r hello\n" +
-            "r /pvt j Hii\n" +
-            "r /pvt j Hii\n" +
-            "j /pvt r hello\n" +
-            "r /pvt j Test are Failings!! \n" +
-            "j /pvt r well we better fix them then\n" +
-            "r /pvt j we should or else we get a B\n" +
-            "r /pvt j or a C-\n" +
-            "r /pvt j or a F\n" +
-            "j /pvt r im getting an error that says to call dr. Rohan\n" +
-            "r /pvt j I know I am awesome!\n", result);
+  
+  @Test
+  public void testMsgFromGroup() {
+	  Message m = messageDAO.createMessage(new Message(Message.MsgType.GRP, 2, "test", Long.toString(System.currentTimeMillis())));
+	  messageToUserDAO.mapMsgIdToReceiverId(m, GroupDAO.getInstance().getGroupByGroupName("group1").getGrpID());
+	  messageToUserDAO.getMessagesFromGroup("group1");
   }
 }
