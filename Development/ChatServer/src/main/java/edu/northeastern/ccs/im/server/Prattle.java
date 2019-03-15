@@ -178,14 +178,13 @@ public abstract class Prattle {
     }
   }
 
-  protected static void sendGroupMessage(Message msg, String groupName) {
+  public static void sendGroupMessage(Message msg, String groupName) {
     List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(groupName);
     for(ClientRunnable cr : active){
       if(listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName())){
         cr.enqueueMessage(msg);
       }
     }
-    MessageServices.addMessage(MsgType.GRP,msg.getName(),groupName,msg.getText());
 
   }
 }
