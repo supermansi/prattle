@@ -7,6 +7,10 @@ import java.util.Base64;
  */
 public class PasswordHash {
 
+    private PasswordHash(){
+        //empty constructor
+    }
+
     /**
      * This method will return a string that represents the encoded version of the string passed
      * in as input.
@@ -15,7 +19,6 @@ public class PasswordHash {
      * @return string representing the encoded version of the password
      */
     public static String hashPassword(String pass){
-        String encoded = Base64.getEncoder().encodeToString(pass.getBytes());
-        return encoded;
+        return Base64.getEncoder().encodeToString(pass.getBytes());
     }
 }

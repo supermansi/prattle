@@ -51,18 +51,6 @@ public class Message {
   }
 
   /**
-   * Create a new message that contains a command sent the server that requires a single argument.
-   * This message contains the given handle and the single argument.
-   *
-   * @param handle  Handle for the type of message being created.
-   * @param srcName Argument for the message; at present this is the name used to log-in to the IM
-   *                server.
-   */
-  private Message(MessageType handle, String srcName) {
-    this(handle, srcName, null);
-  }
-
-  /**
    * Create a new message to continue the logout process.
    *
    * @param myName The name of the client that sent the quit message.
