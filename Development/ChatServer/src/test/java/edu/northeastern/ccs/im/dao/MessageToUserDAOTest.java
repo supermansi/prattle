@@ -3,13 +3,12 @@ package edu.northeastern.ccs.im.dao;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-
-import java.sql.Timestamp;
 import java.util.List;
 
-import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.Message;
+import edu.northeastern.ccs.im.services.MessageServices;
+
+import static org.junit.Assert.assertEquals;
 
 public class MessageToUserDAOTest {
 
@@ -36,11 +35,17 @@ public class MessageToUserDAOTest {
   @Test
   public void testRetrieveUserMsg() {
     String result = "";
-    List<String> chat = messageToUserDAO.retrieveUserMsg("r","j");
-    for(int i = 0; i < chat.size(); i++) {
+    List<String> chat = messageToUserDAO.retrieveUserMsg("r", "j");
+    for (int i = 0; i < chat.size(); i++) {
       result += chat.get(i) + "\n";
     }
     assertEquals("r /pvt j Hii\n" +
             "j /pvt r hello back\n", result);
+  }
+  @Test
+  public void testMsgFromGroup() {
+	  Message m = messageDAO.createMessage(new Message(Message.MsgType.GRP, 2, "test", Long.toString(System.currentTimeMillis())));
+	  messageToUserDAO.mapMsgIdToReceiverId(m, GroupDAO.getInstance().getGroupByGroupName("group1").getGrpID());
+	  messageToUserDAO.getMessagesFromGroup("group1");
   }
 }
