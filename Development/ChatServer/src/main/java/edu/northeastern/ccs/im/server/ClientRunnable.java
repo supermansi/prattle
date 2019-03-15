@@ -251,6 +251,10 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+  /**
+   * Method to terminate an unresponsive client.
+   * @param timer timer from the client
+   */
   private void setTerminateIfTimerIsBehind(ClientTimer timer) {
     if (timer.isBehind()) {
       ChatLogger.error("Timing out or forcing off a user " + name);
@@ -282,6 +286,11 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+  /**
+   * Method to take a message and send out based on type.
+   *
+   * @param msg message to be sent out
+   */
   private void processMessage(Message msg) {
     if (messageChecks(msg)) {
       // Check for our "special messages"

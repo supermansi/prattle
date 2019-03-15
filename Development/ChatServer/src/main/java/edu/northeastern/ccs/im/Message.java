@@ -272,6 +272,10 @@ public class Message {
    * @return True if the message is a group message; false otherwise
    */
 
+  public boolean isAcknowledge() { return (msgType == MessageType.ACKNOWLEDGEMENT);}
+
+  public boolean isNonAcknowledge() { return (msgType == MessageType.NO_ACKNOWLEDGEMENT);}
+
   public boolean isGroupMessage() { return (msgType == MessageType.GROUP); }
 
   public boolean isRegistration() {
