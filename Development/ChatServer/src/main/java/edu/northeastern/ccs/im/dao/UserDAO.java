@@ -11,7 +11,7 @@ import edu.northeastern.ccs.im.model.User;
 
 public class UserDAO {
 
-  private static ConnectionManager connectionManager;
+  private static IConnectionManager connectionManager;
   private static UserDAO userDAO;
 
   public static UserDAO getInstance() {
