@@ -19,25 +19,14 @@ public class UserDAOTest {
   User user1;
   User createUser;
   User nullUser;
-  protected static ConnectionManager connectionManager;
-  private static String HOSTNAME;
 
   @Before
-  public void setUp() throws NoSuchFieldException, IllegalAccessException {
+  public void setUp() {
     userDAO = UserDAO.getInstance();
     user = new User("Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
     user1 = new User(2, "Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
     createUser = new User("Adi", "Adi", "K", "adi@gmail.com", "1234");
     nullUser = new User("", "", "", "", "");
-
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO,null);
-//    hostname.setAccessible(true);
-//    hostname.set(null,"ABC.ABC.D");
-
-
   }
 
   @After
@@ -178,10 +167,4 @@ public class UserDAOTest {
     userDAO.updateLastSeen(createUser.getUsername(), time);
     assertEquals(time, userDAO.getUserByUsername(createUser.getUsername()).getLastSeen());
   }
-}
-
-class Connection {
- public static void getConnection() throws SQLException {
-   throw new SQLException("Connection failed");
- }
 }

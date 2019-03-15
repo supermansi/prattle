@@ -1,5 +1,8 @@
 package edu.northeastern.ccs.im.dao;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -10,9 +13,9 @@ import edu.northeastern.ccs.im.ChatLogger;
 
 public class ConnectionManager {
 	
+	Properties prop = new Properties();
+	
 	private static final String USER = "b9771ba524a91a";
-
-	private static final String PW = "a27acc27";
 
 	private static final String HOSTNAME = "us-cdbr-iron-east-03.cleardb.net";
 
@@ -22,10 +25,17 @@ public class ConnectionManager {
 
 	public Connection getConnection() {
 		Connection connection = null;
+		
+		try {
+			InputStream inputStream = new FileInputStream("resources/config.properties");
+			prop.load(inputStream);
+		} catch (IOException e1) {
+			ChatLogger.error(e1.getMessage());
+		}
 		try {
 			Properties connectionProperties = new Properties();
 			connectionProperties.put("user", USER);
-			connectionProperties.put("password", PW);
+			connectionProperties.put("password", prop.getProperty("password"));
 			Class.forName("com.mysql.jdbc.Driver");
 
 			connection = DriverManager.getConnection(

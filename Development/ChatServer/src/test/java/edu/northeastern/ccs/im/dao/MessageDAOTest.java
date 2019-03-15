@@ -30,5 +30,10 @@ public class MessageDAOTest {
 		List<Message> message = messageDAO.getMessagesBySender(52);
 		assertNotNull(message.size());
 	}
+	
+	@Test
+	public void testGetMessageFail() {
+		messageDAO.getMessageByID(1);
+	}
 
 }

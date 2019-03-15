@@ -28,9 +28,6 @@ public class UserDAO {
 
   public User createUser(User user) {
     String insertUser = "INSERT INTO USER(USERNAME, PASSWORD, USERFN, USERLN, EMAIL) VALUES(?,?,?,?,?);";
-//    if(isUserExists(user.getUsername())) {
-//      throw new DatabaseConnectionException("Username already exists. Please use a different username.");
-//    }
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, user.getUsername());

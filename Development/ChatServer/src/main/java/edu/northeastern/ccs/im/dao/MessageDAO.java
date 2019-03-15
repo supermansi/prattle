@@ -38,17 +38,14 @@ public class MessageDAO {
 		      preparedStatement.setString(4, message.getTimestamp());
 		      preparedStatement.executeUpdate();
 		      try (ResultSet resultSet = preparedStatement.getGeneratedKeys();) {
-		        int msgID;
-		        if (resultSet.next()) {
-		          msgID = resultSet.getInt(1);
-		        } else {
-		          throw new SQLException("MessageID could not be generated.");
-		        }
-		        message.setMsgID(msgID);
+		    	while(resultSet.next()) {
+		    		int msgID = resultSet.getInt(1);
+		    		message.setMsgID(msgID);
+		    	}
 		        return message;
 		      }
 		    } catch (SQLException e) {
-		      throw new DatabaseConnectionException(e.getMessage()+"\n"+e.getStackTrace());
+		      throw new DatabaseConnectionException(e.getMessage());
 		    }
 	  }
 
