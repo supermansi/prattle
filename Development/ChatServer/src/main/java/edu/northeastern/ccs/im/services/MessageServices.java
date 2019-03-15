@@ -5,6 +5,7 @@ import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
 import edu.northeastern.ccs.im.dao.MessageToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
 public class MessageServices {
@@ -27,13 +28,27 @@ public class MessageServices {
 		messageUserDAO = MessageToUserDAO.getInstance();
 	}
 	
-	public boolean addMessage(String msgType, String sender, String receiver, String message) {
-		if(userDAO.isUserExists(sender)) {
-			if(userDAO.isUserExists(receiver)) {
-				int senderID = userDAO.getUserByUsername(sender).getUserID();
-				Message sendMessage = new Message(Message.MsgType.valueOf(msgType), senderID, message, Long.toString(System.currentTimeMillis()));
-				return true;
-			}
+	public static boolean addMessage(String msgType, String sender, String receiver, String message) {
+		boolean isReceiverValid = false;
+		if(msgType == Message.MsgType.PVT.name()) {
+		     if(userDAO.isUserExists(receiver)) {
+		       isReceiverValid = true;
+		     }
+		   }
+		   else if(msgType == Message.MsgType.GRP.name()) {
+		     if(groupDAO.checkGroupExists(receiver)) {
+		       isReceiverValid = true;
+		     }
+		   }
+		   else {
+		     throw new DatabaseConnectionException("This is not a valid handle.");
+		   }
+		if(isReceiverValid) {
+			int senderID = userDAO.getUserByUsername(sender).getUserID();
+			Message sendMessage = new Message(Message.MsgType.valueOf(msgType), senderID, message, Long.toString(System.currentTimeMillis()));
+			messageDAO.createMessage(sendMessage);
+			messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID());
+			return true;
 		}
 		return false;
 	}
