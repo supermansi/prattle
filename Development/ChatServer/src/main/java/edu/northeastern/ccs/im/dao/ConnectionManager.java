@@ -11,7 +11,7 @@ import java.util.Properties;
 import edu.northeastern.ccs.im.ChatLogger;
 
 
-public class ConnectionManager {
+public class ConnectionManager implements IConnectionManager {
 	
 	Properties prop = new Properties();
 	

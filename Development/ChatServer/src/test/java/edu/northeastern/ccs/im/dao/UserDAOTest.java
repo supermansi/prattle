@@ -1,7 +1,11 @@
 package edu.northeastern.ccs.im.dao;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.lang.reflect.Field;
+import java.sql.SQLException;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
@@ -10,78 +14,107 @@ import static org.junit.Assert.*;
 
 public class UserDAOTest {
 
+  protected static ConnectionManager connectionManager;
+  private static String HOSTNAME;
   UserDAO userDAO;
   User user;
   User user1;
   User createUser;
-  @Before
-  public void setUp() {
-    userDAO = UserDAO.getInstance();
-    user = new User("Karl","Karl","Frisk", "abc@gmail.com","1234");
-    user1 = new User(2,"Karl","Karl","Frisk", "abc@gmail.com","1234");
+  User nullUser;
 
-    createUser = new User("Adi","Adi","K", "adi@gmail.com","1234");
+  @Before
+  public void setUp() throws NoSuchFieldException, IllegalAccessException {
+    userDAO = UserDAO.getInstance();
+    user = new User("Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
+    user1 = new User(2, "Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
+    createUser = new User("Adi", "Adi", "K", "adi@gmail.com", "1234");
+    nullUser = new User("", "", "", "", "");
+
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+  }
+
+  @After
+  public void cleanUp() {
+    if (userDAO.isUserExists(createUser.getUsername())) {
+      userDAO.deleteUser(createUser.getUsername());
+    }
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testCreateUserFail() {
-    assertEquals("Adi",userDAO.createUser(createUser).getUsername());
+  public void testCreateUserFailNull() {
+    assertEquals("", userDAO.createUser(nullUser).getUsername());
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testCreateUserFailDuplicate() {
+    assertEquals("Adi", userDAO.createUser(createUser).getUsername());
     userDAO.createUser(createUser);
-    userDAO.deleteUser("Adi");
   }
 
   @Test
   public void testCreateUser() {
-    assertEquals("Adi",userDAO.createUser(createUser).getUsername());
-    userDAO.deleteUser("Adi");
+    assertEquals("Adi", userDAO.createUser(createUser).getUsername());
   }
 
   @Test
   public void testGetUserByUserName() {
-    assertEquals(user.getUsername(),userDAO.getUserByUsername("Karl").getUsername());
+    userDAO.createUser(createUser);
+    assertEquals(createUser.getUsername(), userDAO.getUserByUsername(createUser.getUsername()).getUsername());
+    assertEquals(createUser.getEmail(), userDAO.getUserByUsername(createUser.getUsername()).getEmail());
   }
 
   @Test
   public void testIsUserExistsTrue() {
-    assertEquals(true,userDAO.isUserExists("Karl"));
+    String userName = userDAO.createUser(createUser).getUsername();
+    assertEquals(true, userDAO.isUserExists(userName));
   }
 
   @Test
   public void testIsUserExistsFalse() {
-    assertEquals(false,userDAO.isUserExists("ABCD"));
+    String userName = userDAO.createUser(createUser).getUsername();
+    userDAO.deleteUser(userName);
+    assertEquals(false, userDAO.isUserExists(userName));
   }
 
   @Test
   public void testIsUserExistsByIdTrue() {
-    assertEquals(true, userDAO.isUserExists(2));
+    int id = userDAO.createUser(createUser).getUserID();
+    assertEquals(true, userDAO.isUserExists(id));
   }
 
   @Test
   public void testIsUserExistsByIdFalse() {
-    assertEquals(false, userDAO.isUserExists(22));
+    int id = userDAO.createUser(createUser).getUserID();
+    userDAO.deleteUser(createUser.getUsername());
+    assertEquals(false, userDAO.isUserExists(id));
   }
 
   @Test
   public void testValidateUserTrue() {
-    assertEquals(true,userDAO.validateUser("Karl","1234"));
+    userDAO.createUser(createUser).getUserID();
+    assertEquals(true, userDAO.validateUser(createUser.getUsername(), createUser.getPassword()));
   }
 
   @Test
   public void testValidateUserFalse() {
-    assertEquals(false,userDAO.validateUser("Karl","abcd"));
+    assertEquals(false, userDAO.validateUser("Karl", "blah"));
   }
 
 
   @Test
   public void testValidateUserFalse2() {
-    assertEquals(false,userDAO.validateUser("blah","blah"));
+    assertEquals(false, userDAO.validateUser("blah", "blah"));
   }
 
   @Test
   public void testDeleteUserTrue() {
-    assertEquals(true, userDAO.isUserExists("Kyle"));
-    userDAO.deleteUser("Kyle");
-    assertEquals(false, userDAO.isUserExists("Kyle"));
+    userDAO.createUser(createUser);
+    assertEquals(true, userDAO.isUserExists("Adi"));
+    userDAO.deleteUser("Adi");
+    assertEquals(false, userDAO.isUserExists("Adi"));
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -92,42 +125,61 @@ public class UserDAOTest {
 
   @Test
   public void testGetUserByUserID() {
-	  user = userDAO.createUser(user);
-    userDAO.deleteUser("Karl");
-    assertEquals(user.getUsername(), userDAO.getUserByUserID(user.getUserID()).getUsername());
+    user = userDAO.createUser(createUser);
+    assertEquals(createUser.getUsername(), userDAO.getUserByUserID(createUser.getUserID()).getUsername());
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetUserByUserIDException() {
+    user = userDAO.createUser(createUser);
+    userDAO.deleteUser("Adi");
+    assertEquals(createUser.getUsername(), userDAO.getUserByUserID(createUser.getUserID()).getUsername());
   }
 
   @Test
   public void testUpdateFirstName() {
-    userDAO.updateFirstName("r","a");
-    assertEquals("a", userDAO.getUserByUsername("r").getUserFN());
+    userDAO.createUser(createUser);
+    userDAO.updateFirstName(createUser.getUsername(), "a");
+    assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getUserFN());
   }
 
 
   @Test
   public void testUpdateLastName() {
-    userDAO.updateLastName("r","a");
-    assertEquals("a", userDAO.getUserByUsername("r").getUserLN());
+    userDAO.createUser(createUser);
+    userDAO.updateLastName(createUser.getUsername(), "a");
+    assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getUserLN());
   }
 
 
   @Test
   public void testUpdatePassword() {
-    userDAO.updatePassword("r","a");
-    assertEquals("a", userDAO.getUserByUsername("r").getPassword());
+    userDAO.createUser(createUser);
+    userDAO.updatePassword(createUser.getUsername(), "a");
+    assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getPassword());
   }
 
 
   @Test
   public void testUpdateEmail() {
-    userDAO.updateEmail("r","a");
-    assertEquals("a", userDAO.getUserByUsername("r").getEmail());
+    userDAO.createUser(createUser);
+    userDAO.updateEmail(createUser.getUsername(), "a");
+    assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getEmail());
   }
-  
+
   @Test
   public void testUpdateLastSeen() {
-	  String time = Long.toString(System.currentTimeMillis());
-	  userDAO.updateLastSeen("admin", time);
-	  assertEquals(time, userDAO.getUserByUsername("admin").getLastSeen());
+    String time = Long.toString(System.currentTimeMillis());
+    userDAO.createUser(createUser);
+    userDAO.updateLastSeen(createUser.getUsername(), time);
+    assertEquals(time, userDAO.getUserByUsername(createUser.getUsername()).getLastSeen());
+  }
+}
+
+class ConnectionTest implements IConnectionManager {
+
+  @Override
+  public java.sql.Connection getConnection() throws SQLException {
+    throw new SQLException("Connection failed");
   }
 }

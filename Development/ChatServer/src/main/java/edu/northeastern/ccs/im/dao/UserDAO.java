@@ -11,7 +11,7 @@ import edu.northeastern.ccs.im.model.User;
 
 public class UserDAO {
 
-  protected static ConnectionManager connectionManager;
+  private static IConnectionManager connectionManager;
   private static UserDAO userDAO;
 
   public static UserDAO getInstance() {
@@ -28,9 +28,9 @@ public class UserDAO {
 
   public User createUser(User user) {
     String insertUser = "INSERT INTO USER(USERNAME, PASSWORD, USERFN, USERLN, EMAIL) VALUES(?,?,?,?,?);";
-    if(isUserExists(user.getUsername())) {
-      throw new DatabaseConnectionException("Username already exists. Please use a different username.");
-    }
+//    if(isUserExists(user.getUsername())) {
+//      throw new DatabaseConnectionException("Username already exists. Please use a different username.");
+//    }
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, user.getUsername());
@@ -50,7 +50,7 @@ public class UserDAO {
       }
       return user;
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage()+"\n"+e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -77,7 +77,7 @@ public class UserDAO {
       }
       return user;
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -104,7 +104,7 @@ public class UserDAO {
       }
       return user;
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -117,7 +117,7 @@ public class UserDAO {
         return resultSet.next();
       }
     }  catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -130,7 +130,7 @@ public class UserDAO {
         return resultSet.next();
       }
     }  catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -145,7 +145,7 @@ public class UserDAO {
         return resultSet.next();
       }
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -158,7 +158,7 @@ public class UserDAO {
         throw new SQLException("User Does not exist in database");
       }
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -170,7 +170,7 @@ public class UserDAO {
       preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -182,7 +182,7 @@ public class UserDAO {
       preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -194,7 +194,7 @@ public class UserDAO {
       preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -206,7 +206,7 @@ public class UserDAO {
       preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+      throw new DatabaseConnectionException(e.getMessage());
     }
   }
   
@@ -218,7 +218,7 @@ public class UserDAO {
 	      preparedStatement.setString(2,userName);
 	      preparedStatement.executeUpdate();
 	    } catch (SQLException e) {
-	      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+	      throw new DatabaseConnectionException(e.getMessage());
 	    }
   }
 }
