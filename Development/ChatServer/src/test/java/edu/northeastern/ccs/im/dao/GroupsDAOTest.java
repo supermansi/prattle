@@ -26,6 +26,7 @@ public class GroupsDAOTest {
 
 	@Test
 	public void testCreateGroup() {
+		group = new Groups("GroupTest", 2);
 		groupDAO.createGroup(group);
 	}
 
