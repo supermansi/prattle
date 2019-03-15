@@ -39,8 +39,8 @@ public class MessageTest {
 	
 	@Test
 	public void testMessage() {
-		message.setMessage("hello");
-		assertEquals("hello", message.getMessage());
+		message.setMessageText("hello");
+		assertEquals("hello", message.getMessageText());
 	}
 	
 	@Test

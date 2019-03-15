@@ -115,7 +115,7 @@ public class ClientRunnable implements Runnable {
                             "already exists."));
                 }
 
-            } else if (msg.isInitialization()) { //todo terminate inactivity for client..
+            } else if (msg.isInitialization()) { 
                 if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
                     // Update the time until we terminate this client due to inactivity.
                     timer.updateAfterInitialization();
@@ -127,7 +127,6 @@ public class ClientRunnable implements Runnable {
                     initialized = false;
                 }
             } else {
-                //this.terminateClient();
                 initialized = false;
             }
         }
@@ -346,7 +345,7 @@ public class ClientRunnable implements Runnable {
     private void retrieveGroupMessagesForGroup(Message msg) {
         List<String> messages = MessageServices.retrieveGroupMessages(getReceiverName(msg.getText()));
         for (String conv : messages) {
-            String arr[] = conv.split(" ");
+            String[] arr = conv.split(" ");
 
             Message sendMessage = Message.makeGroupMessage("@" + msg.getText() + " " + arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
             enqueueMessage(sendMessage);
@@ -356,7 +355,7 @@ public class ClientRunnable implements Runnable {
     private void retrieveMessagesForUser(Message msg) {
         List<String> messages = MessageServices.retrieveUserMessages(msg.getName(), getReceiverName(msg.getText()));
         for (String conv : messages) {
-            String arr[] = conv.split(" ");
+            String[] arr = conv.split(" ");
 
             Message sendMessage = Message.makePrivateMessage(arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
             enqueueMessage(sendMessage);

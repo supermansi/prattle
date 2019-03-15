@@ -3,7 +3,6 @@ package edu.northeastern.ccs.im.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 import org.junit.Test;
@@ -17,7 +16,7 @@ public class MessageDAOTest {
 	@Test
 	public void testCreateMessage() {
 		Message message = messageDAO.createMessage(new Message(Message.MsgType.PVT, 52, "test message", Long.toString(System.currentTimeMillis())));
-		assertEquals("test message", message.getMessage());
+		assertEquals("test message", message.getMessageText());
 	}
 	
 	@Test

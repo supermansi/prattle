@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class MessageDAO {
 		         PreparedStatement preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);) {
 		      preparedStatement.setString(1, message.getMsgType().name());
 		      preparedStatement.setInt(2, message.getSenderID());
-		      preparedStatement.setString(3, message.getMessage());
+		      preparedStatement.setString(3, message.getMessageText());
 		      preparedStatement.setString(4, message.getTimestamp());
 		      preparedStatement.executeUpdate();
 		      try (ResultSet resultSet = preparedStatement.getGeneratedKeys();) {
@@ -52,9 +51,7 @@ public class MessageDAO {
 		      throw new DatabaseConnectionException(e.getMessage()+"\n"+e.getStackTrace());
 		    }
 	  }
-	  
-	  public void deleteMessage(Message message) {}
-	  
+
 	  public Message getMessageByID(int msgID) {
 		  	String getMessage = "SELECT * FROM Message WHERE msgID = ?;";
 		    try (Connection connection = connectionManager.getConnection();
