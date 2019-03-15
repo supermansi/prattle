@@ -46,7 +46,7 @@ public class GroupDAO {
         if (resultSet.next()) {
           groupID = resultSet.getInt(1);
         } else {
-          throw new DatabaseConnectionException("Group ID could not be generated.");
+          throw new SQLException("Group ID could not be generated.");
         }
         group.setGrpID(groupID);
         insertStmt2.setInt(1, group.getAdminID());
@@ -125,7 +125,7 @@ public class GroupDAO {
           group = new Groups(grpID, grpName, adminID);
           return group;
         } else {
-          throw new DatabaseConnectionException("Group not found.");
+          throw new SQLException("Group not found.");
         }
       }
     } catch (SQLException e) {
@@ -147,7 +147,7 @@ public class GroupDAO {
           group = new Groups(grpID, grpName, adminID);
           return group;
         } else {
-          throw new DatabaseConnectionException("Group not found.");
+          throw new SQLException("Group not found.");
         }
       }
     } catch (SQLException e) {
