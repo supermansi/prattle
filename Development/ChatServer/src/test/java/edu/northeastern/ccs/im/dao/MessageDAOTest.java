@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
 public class MessageDAOTest {
@@ -30,6 +31,11 @@ public class MessageDAOTest {
 	public void testGetMessageBySender() {
 		List<Message> message = messageDAO.getMessagesBySender(52);
 		assertNotNull(message.size());
+	}
+	
+	@Test(expected=DatabaseConnectionException.class)
+	public void testGetMessageFail() {
+		messageDAO.getMessageByID(1);
 	}
 
 }

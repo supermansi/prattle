@@ -1,11 +1,13 @@
 package edu.northeastern.ccs.im.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 
 public class GroupsDAOTest {
@@ -66,4 +68,13 @@ public class GroupsDAOTest {
 		assertEquals(group.getGrpID(), groupDAO.getGroupByGroupID(group.getGrpID()).getGrpID());
 	}
 	
+	@Test(expected=DatabaseConnectionException.class)
+	public void testGroupByIDFalse() {
+		assertNull(groupDAO.getGroupByGroupID(1));
+	}
+	
+	@Test(expected=DatabaseConnectionException.class)
+	public void testGroupByNameFalse() {
+		assertNull(groupDAO.getGroupByGroupName("x"));
+	}
 }
