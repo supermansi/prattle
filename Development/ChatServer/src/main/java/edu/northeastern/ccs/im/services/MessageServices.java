@@ -28,14 +28,14 @@ public class MessageServices {
 		messageUserDAO = MessageToUserDAO.getInstance();
 	}
 	
-	public static boolean addMessage(String msgType, String sender, String receiver, String message) {
+	public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message) {
 		boolean isReceiverValid = false;
-		if(msgType == Message.MsgType.PVT.name()) {
+		if(msgType == Message.MsgType.PVT) {
 		     if(userDAO.isUserExists(receiver)) {
 		       isReceiverValid = true;
 		     }
 		   }
-		   else if(msgType == Message.MsgType.GRP.name()) {
+		   else if(msgType == Message.MsgType.GRP) {
 		     if(groupDAO.checkGroupExists(receiver)) {
 		       isReceiverValid = true;
 		     }
@@ -45,7 +45,7 @@ public class MessageServices {
 		   }
 		if(isReceiverValid) {
 			int senderID = userDAO.getUserByUsername(sender).getUserID();
-			Message sendMessage = new Message(Message.MsgType.valueOf(msgType), senderID, message, Long.toString(System.currentTimeMillis()));
+			Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
 			messageDAO.createMessage(sendMessage);
 			messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID());
 			return true;
