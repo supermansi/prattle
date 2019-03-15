@@ -7,8 +7,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
-import javax.jws.soap.SOAPBinding;
-
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message.MsgType;
 
@@ -118,7 +116,7 @@ public class ClientRunnable implements Runnable {
         }
 
       } else if (msg.isInitialization()) { //todo terminate inactivity for client..
-        if (UserServices.login(msg.getName(), msg.getText()) && setUserName(msg.getName())) {
+        if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
           // Update the time until we terminate this client due to inactivity.
           timer.updateAfterInitialization();
           // Set that the client is initialized.
@@ -304,14 +302,10 @@ public class ClientRunnable implements Runnable {
           sendMessageToClient(ServerConstants.SERVER_NAME, "User Does not exist");
         }
       } else if (msg.isGroupMessage()) {
-        //validate if group exists
         String receiverId = getReceiverName(msg.getText());
         try {
-          if (GroupServices.validateUserExistsInGroup(msg.getName(), receiverId)) {
-            Prattle.sendGroupMessage(msg, getReceiverName(msg.getText()));
-          } else {
-            throw new IllegalStateException("User does not belong to the group");
-          }
+          Prattle.sendGroupMessage(msg, receiverId);
+          MessageServices.addMessage(MsgType.GRP,msg.getName(),receiverId,msg.getText());
         } catch (RuntimeException e) {
           sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
         }
@@ -322,9 +316,9 @@ public class ClientRunnable implements Runnable {
         GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName()); //to do
         sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
       } else if (msg.isRetrieveGroup()) {
-        //retrieveGroupMessagesForUser()
+        retrieveGroupMessagesForGroup(msg);
       } else if (msg.isRetrieveUser()) {
-        //retrieve group message
+        retrieveMessagesForUser(msg);
       } else if (msg.isUpdateFirstName()) {
         UserServices.updateFN(msg.getName(), msg.getText());
         sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated First name");
@@ -337,24 +331,43 @@ public class ClientRunnable implements Runnable {
       } else if (msg.isUpdatePassword()) {
         UserServices.updatePassword(msg.getName(), msg.getText());
         sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
-      }else if(msg.isRemoveUser()){
-        try{
-          GroupServices.removeUserFromGroup(getReceiverName(msg.getText()),msg.getName(),msg.getText().split(" ")[2]);
+      } else if (msg.isRemoveUser()) {
+        try {
+          GroupServices.removeUserFromGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
-        }catch (DatabaseConnectionException e){
+        } catch (DatabaseConnectionException e) {
           sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
         }
-      }else if(msg.isAddUserToGroup()){
-        try{
-          GroupServices.addUserToGroup(getReceiverName(msg.getText()),msg.getName(),msg.getText().split(" ")[2]);
+      } else if (msg.isAddUserToGroup()) {
+        try {
+          GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
-        }catch (DatabaseConnectionException e){
+        } catch (DatabaseConnectionException e) {
           sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
         }
       }
-    }
-    else {
+    } else {
       sendMessageToClient(ServerConstants.BOUNCER_ID, "Last message was rejected because it specified an incorrect user name.\"");
+    }
+  }
+
+  private void retrieveGroupMessagesForGroup(Message msg) {
+    List<String> messages = MessageServices.retrieveGroupMessages(getReceiverName(msg.getText()));
+    for (String conv : messages) {
+      String arr[] = conv.split(" ");
+
+      Message sendMessage = Message.makeGroupMessage("@" + msg.getText() + " " + arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
+      enqueueMessage(sendMessage);
+    }
+  }
+
+  private void retrieveMessagesForUser(Message msg) {
+    List<String> messages = MessageServices.retrieveUserMessages(msg.getName(), getReceiverName(msg.getText()));
+    for (String conv : messages) {
+      String arr[] = conv.split(" ");
+
+      Message sendMessage = Message.makePrivateMessage(arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
+      enqueueMessage(sendMessage);
     }
   }
 

@@ -3,18 +3,18 @@ package edu.northeastern.ccs.im.dao;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.Timestamp;
 import java.util.List;
 
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.Message;
-import edu.northeastern.ccs.im.model.User;
-
-import static org.junit.Assert.*;
 
 public class MessageToUserDAOTest {
 
-  MessageToUserDAO messageToUserDAO;
+  MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
+  MessageDAO messageDAO = MessageDAO.getInstance();
   Message message;
   @Before
   public void setUp() {
@@ -27,7 +27,12 @@ public class MessageToUserDAOTest {
     int receiverId = 242;
     messageToUserDAO.mapMsgIdToReceiverId(message,receiverId);
   }
-
+  
+  @Test
+  public void testGetMessageFromGroups() {
+	  messageToUserDAO.getMessagesFromGroup("Group 123");
+  }
+  
   @Test
   public void testRetrieveUserMsg() {
     String result = "";
