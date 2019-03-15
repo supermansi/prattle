@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +57,6 @@ public class MessageToUserDAO {
         while (resultSet.next()) {
           int senderId = resultSet.getInt("senderID");
           String msg = resultSet.getString("message");
-//          String ts = resultSet.getString("timestamp");
           chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
         }
       }

@@ -43,7 +43,7 @@ public class MessageDAO {
 		        if (resultSet.next()) {
 		          msgID = resultSet.getInt(1);
 		        } else {
-		          throw new DatabaseConnectionException("MessageID could not be generated.");
+		          throw new SQLException("MessageID could not be generated.");
 		        }
 		        message.setMsgID(msgID);
 		        return message;
@@ -70,7 +70,7 @@ public class MessageDAO {
 		        message = new Message(msgID, msgType, senderID, context, timestamp);
 		        }
 		        else {
-		          throw new DatabaseConnectionException("Message not found.");
+		          throw new SQLException("Message not found.");
 		        }
 		      }
 		      return message;
