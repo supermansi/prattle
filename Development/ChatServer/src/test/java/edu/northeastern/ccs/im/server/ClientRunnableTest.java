@@ -53,9 +53,6 @@ public class ClientRunnableTest {
     }
 
     private void register() {
-        when(connection.sendMessage(any())).thenReturn(true);
-
-        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         Message testMessage1 = Message.makeRegisterationMessage("t","t t t t t");;
         List<Message> nameList = new ArrayList();
         nameList.add(testMessage1);

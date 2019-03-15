@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 
 public class GroupsDAOTest {
@@ -66,13 +67,13 @@ public class GroupsDAOTest {
 		group = groupDAO.getGroupByGroupName(group.getGrpName());
 		assertEquals(group.getGrpID(), groupDAO.getGroupByGroupID(group.getGrpID()).getGrpID());
 	}
-	
-	@Test
+
+	@Test(expected = DatabaseConnectionException.class)
 	public void testGroupByIDFalse() {
 		assertNull(groupDAO.getGroupByGroupID(1));
 	}
 	
-	@Test
+	@Test(expected = DatabaseConnectionException.class)
 	public void testGroupByNameFalse() {
 		assertNull(groupDAO.getGroupByGroupName("x"));
 	}

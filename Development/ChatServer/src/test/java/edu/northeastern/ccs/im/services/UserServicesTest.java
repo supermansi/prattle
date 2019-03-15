@@ -103,4 +103,5 @@ public class UserServicesTest {
     UserServices.updateLastSeen(user.getUsername(),time);
     assertEquals(Long.toString(time), userDAO.getUserByUsername(user.getUsername()).getLastSeen());
   }
+
 }
