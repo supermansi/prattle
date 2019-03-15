@@ -37,7 +37,27 @@ public enum MessageType {
   /**
    * Messages sent to a group.
    */
-  GROUP("GRP");
+  GROUP("GRP"),
+
+  UPDATE_FN("UFN"),
+
+  UPDATE_LN("ULN"),
+
+  UPDATE_PW("UPW"),
+
+  UPDATE_EM("UEM"),
+
+  CREATE_GROUP("CGR"),
+
+  DELETE_GROUP("DGR"),
+
+  REMOVE_USER("RMU"),
+
+  RETRIEVE_USER("RTU"),
+
+  RETRIEVE_GROUP("RTG"),
+
+  ADD_USER_TO_GRP("AUG");
 
   /**
    * Store the short name of this message type.
