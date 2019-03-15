@@ -337,7 +337,7 @@ public class ClientRunnableTest {
 
             @Override
             public Message next() {
-                return Message.makePrivateMessage("R", "/pvt a hello");
+                return Message.makePrivateMessage("R", "/pvt z hello");
             }
         });
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
@@ -397,7 +397,7 @@ public class ClientRunnableTest {
         }
         ClientRunnable clientRunnable = new ClientRunnable(connection);
         met.setAccessible(true);
-        Message msg = Message.makeRetrieveUserMessage("r","/retrieveUSR MSD");
+        Message msg = Message.makeRetrieveGroupMessage("r","/retrieveUSR MSD");
         met.invoke(clientRunnable,msg);
     }
 
@@ -419,9 +419,93 @@ public class ClientRunnableTest {
     }
 
     @Test
+    public void testProcessMessageGRPNotExist() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        clientRunnable.setName("test");
+        Class<ClientRunnable> clazz = ClientRunnable.class;
+        Method method[] = clazz.getDeclaredMethods();
+        Method met = null;
+        for (Method m : method) {
+            if (m.getName().contains("processMessage")) {
+                met = m;
+            }
+        }
+
+        met.setAccessible(true);
+        Message msg = Message.makeGroupMessage("test", "/grp ZZZ hello world");
+        met.invoke(clientRunnable,msg);
+    }
+
+    @Test
+    public void testProcessMessageGRP() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        clientRunnable.setName("test");
+        Class<ClientRunnable> clazz = ClientRunnable.class;
+        Method method[] = clazz.getDeclaredMethods();
+        Method met = null;
+        for (Method m : method) {
+            if (m.getName().contains("processMessage")) {
+                met = m;
+            }
+        }
+
+        met.setAccessible(true);
+        Message msg1 = Message.createGroupMessage("test", "/createGrp TEST");
+        Message msg2 = Message.makeAddUserToGroupMessage("test", "/addUsrToGrp TEST z");
+        Message msg3 = Message.makeGroupMessage("test", "/grp TEST hello world");
+        Message msg4 = Message.makeRemoveUserMessage("test", "/grp TEST z");
+        Message msg5 = Message.deleteGroupMessage("test", "/grp TEST");
+        met.invoke(clientRunnable,msg1);
+        met.invoke(clientRunnable,msg2);
+        met.invoke(clientRunnable,msg3);
+        met.invoke(clientRunnable,msg4);
+        met.invoke(clientRunnable,msg5);
+    }
+
+    @Test
+    public void testUserFunctions() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        clientRunnable.setName("test");
+        Class<ClientRunnable> clazz = ClientRunnable.class;
+        Method method[] = clazz.getDeclaredMethods();
+        Method met = null;
+        for (Method m : method) {
+            if (m.getName().contains("processMessage")) {
+                met = m;
+            }
+        }
+
+        met.setAccessible(true);
+        Message msg1 = Message.makeUpdateFirstNameMessage("test", "/createGrp XYZ");
+        Message msg2 = Message.makeUpdateLastNameMessage("test", "/addUsrToGrp XYZ z");
+        Message msg3 = Message.makeUpdateEmailMessage("test", "/addUsrToGrp XYZ");
+        Message msg4 = Message.makeUpdatePasswordMessage("test", "/grp test");
+        met.invoke(clientRunnable,msg1);
+        met.invoke(clientRunnable,msg2);
+        met.invoke(clientRunnable,msg3);
+        met.invoke(clientRunnable,msg4);
+    }
+
+    @Test
     public void testRegisteration(){
         register();
         delete();
+    }
+
+    @Test
+    public void processUsrGrpRet() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+        clientRunnable.setName("r");
+        Class<ClientRunnable> clazz = ClientRunnable.class;
+        Method method[] = clazz.getDeclaredMethods();
+        Method met = null;
+        for (Method m : method) {
+            if (m.getName().contains("processMessage")) {
+                met = m;
+            }
+        }
+
+        met.setAccessible(true);
+        Message msg1 = Message.makeRetrieveUserMessage("r", "/retrieveUSR j");
+        Message msg2 = Message.makeRetrieveGroupMessage("r", "retrieveGrp MSD");
+        met.invoke(clientRunnable,msg1);
+        met.invoke(clientRunnable,msg2);
     }
 
     @Test
