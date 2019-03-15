@@ -44,7 +44,7 @@ public class UserDAO {
         if (resultSet.next()) {
           userID = resultSet.getInt(1);
         } else {
-          throw new DatabaseConnectionException("User ID could not be generated.");
+          throw new SQLException("User ID could not be generated.");
         }
         user.setUserID(userID);
       }
@@ -72,7 +72,7 @@ public class UserDAO {
           user = new User(userID, username, userFN, userLN, email, password);
           user.setLastSeen(lastSeen);
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new SQLException("User not found.");
         }
       }
       return user;
@@ -99,7 +99,7 @@ public class UserDAO {
           user = new User(userID, username, userFN, userLN, email, password);
         }
         else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new SQLException("User not found.");
         }
       }
       return user;
@@ -154,7 +154,9 @@ public class UserDAO {
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, userName);
-      preparedStatement.executeUpdate();
+      if(preparedStatement.executeUpdate()==0){
+        throw new SQLException("User Does not exist in database");
+      }
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }

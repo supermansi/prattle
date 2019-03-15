@@ -49,7 +49,7 @@ public class MessageToUserDAO {
 	  List<String> messages = new ArrayList<>();
 	  String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
 	  try (Connection connection = connectionManager.getConnection();
-		         PreparedStatement preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);) {
+         PreparedStatement preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);) {
 		      preparedStatement.setInt(1, groupDAO.getGroupByGroupName(groupName).getGrpID());
 		      try (ResultSet resultSet = preparedStatement.executeQuery();) {
 		        while (resultSet.next()) {
@@ -77,7 +77,6 @@ public class MessageToUserDAO {
         while (resultSet.next()) {
           int senderId = resultSet.getInt("senderID");
           String msg = resultSet.getString("message");
-//          String ts = resultSet.getString("timestamp");
           chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
         }
       }
