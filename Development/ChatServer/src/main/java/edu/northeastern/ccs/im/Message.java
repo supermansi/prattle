@@ -148,11 +148,11 @@ public class Message {
     return new Message((MessageType.REGISTRATION), srcName, text);
   }
 
-  private static Message makeGroupMessage(String srcName, String text) {
+  public static Message makeGroupMessage(String srcName, String text) {
     return new Message((MessageType.GROUP), srcName, text);
   }
 
-  private static Message makePrivateMessage(String srcName, String text) {
+  public static Message makePrivateMessage(String srcName, String text) {
     return new Message((MessageType.PRIVATE), srcName, text);
   }
 

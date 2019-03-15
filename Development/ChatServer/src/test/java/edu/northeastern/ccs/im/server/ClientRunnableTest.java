@@ -326,6 +326,22 @@ public class ClientRunnableTest {
 
     }
 
+    @Test
+    public void testRetrieveMessage() throws InvocationTargetException, IllegalAccessException {
+        Class<ClientRunnable> clazz = ClientRunnable.class;
+        Method method[] = clazz.getDeclaredMethods();
+        Method met = null;
+        for (Method m : method) {
+            if (m.getName().contains("retrieveMessagesForUser")) {
+                met = m;
+            }
+        }
+        ClientRunnable clientRunnable = new ClientRunnable(connection);
+        met.setAccessible(true);
+        Message msg = Message.makeRetrieveUserMessage("r","/retrieveUSR j");
+        met.invoke(clientRunnable,msg);
+    }
+
     /**
      * Message Iterator for use in testing the ClientRunnable class.
      */

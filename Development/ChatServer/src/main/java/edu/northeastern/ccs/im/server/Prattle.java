@@ -20,7 +20,9 @@ import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.services.GroupServices;
+import edu.northeastern.ccs.im.services.MessageServices;
 
+import edu.northeastern.ccs.im.model.Message.MsgType;
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
  * spawns a new thread to handle each client that connects to it. At this point, messages are
@@ -176,7 +178,14 @@ public abstract class Prattle {
     }
   }
 
-  public static void sendGroupMessage(Message msg, String receiverName) {
-    List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(receiverName);
+  protected static void sendGroupMessage(Message msg, String groupName) {
+    List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(groupName);
+    for(ClientRunnable cr : active){
+      if(listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName())){
+        cr.enqueueMessage(msg);
+      }
+    }
+    MessageServices.addMessage(MsgType.GRP,msg.getName(),groupName,msg.getText());
+
   }
 }
