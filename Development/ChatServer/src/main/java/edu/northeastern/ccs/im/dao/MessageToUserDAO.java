@@ -4,7 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +44,25 @@ public class MessageToUserDAO {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
+  
+  public List<String> getMessagesFromGroup(String groupName) {
+	  List<String> messages = new ArrayList<>();
+	  String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
+	  try (Connection connection = connectionManager.getConnection();
+		         PreparedStatement preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);) {
+		      preparedStatement.setInt(1, groupDAO.getGroupByGroupName(groupName).getGrpID());
+		      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+		        while (resultSet.next()) {
+		          String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
+		          String message = resultSet.getString("message");
+		          messages.add(username + " " + message);
+		        }
+		      }
+		      return messages;
+		    } catch (SQLException e) {
+		      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+		    }
+  	}
 
   public List<String> retrieveUserMsg(String sender, String receiver) {
     String selectQuery = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";

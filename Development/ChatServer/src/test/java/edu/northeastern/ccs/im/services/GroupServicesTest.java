@@ -14,7 +14,7 @@ public class GroupServicesTest {
 	
 	@Test
 	public void testCreateGroup() throws SQLException {
-		GroupServices.createGroup("group1", "Karl");
+		GroupServices.createGroup("grouptest1", "admin");
 	}
 	
 	@Test
