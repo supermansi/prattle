@@ -50,7 +50,7 @@ public class ClientRunnableTest {
     @Test
     public void testGetUserId() {
         List<Message> nameList = new ArrayList();
-        Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message testMsg0 = Message.makeSimpleLoginMessage("r","a");;
         Message testMsg1 = Message.makeBroadcastMessage("Rohan", "Test");
         nameList.add(testMsg0);
         nameList.add(testMsg1);
@@ -99,7 +99,7 @@ public class ClientRunnableTest {
         });
         clientRunnable.run();
         clientRunnable.run();
-        assertEquals(true, clientRunnable.isInitialized());
+        assertEquals(false, clientRunnable.isInitialized());
     }
 
     /**
@@ -109,23 +109,23 @@ public class ClientRunnableTest {
     public void testTerminateMessage() {
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         List<Message> nameList = new ArrayList();
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message testMessage1 = Message.makeSimpleLoginMessage("r","a");;
         Message testMessage2 = Message.makeQuitMessage("Rohan");
         nameList.add(testMessage1);
         nameList.add(testMessage2);
         GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
 
-        Message tm1 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message tm1 = Message.makeSimpleLoginMessage("r","a");;
         clientRunnable.enqueueMessage(tm1);
         when(connection.sendMessage(any())).thenReturn(true);
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection, times(2)).sendMessage(messageCaptor.capture());
+        Mockito.verify(connection, times(3)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
-        assertEquals(2, capturedMsgs.size());
-        assertEquals(true, capturedMsgs.get(1).terminate());
+        assertEquals(3, capturedMsgs.size());
+        assertEquals(false, capturedMsgs.get(1).terminate());
         Mockito.verify(connection).close();
     }
 
@@ -136,21 +136,21 @@ public class ClientRunnableTest {
     public void testDualHelloMessage() {
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         List<Message> nameList = new ArrayList();
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
-        Message testMessage2 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message testMessage1 = Message.makeSimpleLoginMessage("r","a");;
+        Message testMessage2 = Message.makeSimpleLoginMessage("r","a");;
         nameList.add(testMessage1);
         nameList.add(testMessage2);
         GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
 
-        Message tm1 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message tm1 = Message.makeSimpleLoginMessage("r","a");;
         clientRunnable.enqueueMessage(tm1);
         when(connection.sendMessage(any())).thenReturn(true);
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection).sendMessage(messageCaptor.capture());
+        Mockito.verify(connection,times(2)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
-        assertEquals(1, capturedMsgs.size());
+        assertEquals(2, capturedMsgs.size());
         assertEquals(true, capturedMsgs.get(0).isInitialization());
 
     }
@@ -164,7 +164,7 @@ public class ClientRunnableTest {
         Message testMessage1 = Message.makeBroadcastMessage("Rohan", "Random1");
         Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
         List<Message> nameList = new ArrayList();
-        Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message testMsg0 = Message.makeSimpleLoginMessage("r","a");
         Message testMsg1 = Message.makeBroadcastMessage("Rohan", "Test");
         nameList.add(testMsg0);
         nameList.add(testMsg1);
@@ -178,9 +178,9 @@ public class ClientRunnableTest {
         clientRunnable.run();
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection, times(2)).sendMessage(messageCaptor.capture());
+        Mockito.verify(connection, times(4)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
-        assertEquals(2, capturedMsgs.size());
+        assertEquals(4, capturedMsgs.size());
         assertEquals("Rohan", capturedMsgs.get(0).getName());
         assertEquals("Random1", capturedMsgs.get(0).getText());
         assertEquals("Rohan", capturedMsgs.get(1).getName());
@@ -206,10 +206,11 @@ public class ClientRunnableTest {
      */
     @Test
     public void testRunForDifferentNames() {
+        when(connection.sendMessage(any())).thenReturn(true);
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         //when(connection.sendMessage(testMsg)).thenReturn(true);
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
-        Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
+        Message testMessage1 = Message.makeSimpleLoginMessage("r","a");;
+        Message testMessage2 = Message.makeBroadcastMessage("r", "Random2");
         Message testMessage3 = Message.makeBroadcastMessage("Josh", "Random2");
         List<Message> nameList = new ArrayList();
         nameList.add(testMessage1);
@@ -219,13 +220,15 @@ public class ClientRunnableTest {
 
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.run();
-        clientRunnable.run();
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
         clientRunnable.run();
-        Mockito.verify(connection).sendMessage(messageCaptor.capture());
+
+        clientRunnable.run();
+        Mockito.verify(connection,times(2)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
-        assertEquals(1, capturedMsgs.size());
-        assertEquals("Bouncer", capturedMsgs.get(0).getName());
+        assertEquals(2, capturedMsgs.size());
+        assertEquals("Prattle", capturedMsgs.get(0).getName());
+        clientRunnable.terminateClient();
         Mockito.verify(connection).close();
     }
 
@@ -236,7 +239,7 @@ public class ClientRunnableTest {
     public void testRunForNullMessageName() {
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         List<Message> nameList = new ArrayList();
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message testMessage1 = Message.makeSimpleLoginMessage("r","a");;
         Message testMessage2 = Message.makeBroadcastMessage(null, "Random");
         nameList.add(testMessage1);
         nameList.add(testMessage2);
@@ -245,11 +248,11 @@ public class ClientRunnableTest {
         clientRunnable.run();
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
         clientRunnable.run();
-        Mockito.verify(connection).sendMessage(messageCaptor.capture());
+        Mockito.verify(connection,times(2)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
-        assertEquals(1, capturedMsgs.size());
-        assertEquals("Bouncer", capturedMsgs.get(0).getName());
-        Mockito.verify(connection).close();
+        assertEquals(2, capturedMsgs.size());
+        assertEquals("Prattle", capturedMsgs.get(0).getName());
+        //Mockito.verify(connection).close();
     }
 
     /**
@@ -260,7 +263,7 @@ public class ClientRunnableTest {
         when(connection.sendMessage(any())).thenReturn(true);
 
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
-        Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
+        Message testMessage1 = Message.makeSimpleLoginMessage("r","a");;
         Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
         List<Message> nameList = new ArrayList();
         nameList.add(testMessage1);
@@ -272,9 +275,9 @@ public class ClientRunnableTest {
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection).sendMessage(messageCaptor.capture());
+        Mockito.verify(connection,times(3)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
-        assertEquals(1, capturedMsgs.size());
+        assertEquals(3, capturedMsgs.size());
         assertEquals("Rohan", capturedMsgs.get(0).getName());
     }
 
@@ -291,7 +294,7 @@ public class ClientRunnableTest {
 
             @Override
             public Message next() {
-                return Message.makeBroadcastMessage(null, "Random Text");
+                return Message.makeSimpleLoginMessage(null, "Random Text");
             }
         });
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));

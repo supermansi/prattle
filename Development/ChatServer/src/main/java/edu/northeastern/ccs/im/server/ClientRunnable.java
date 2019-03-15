@@ -9,10 +9,13 @@ import java.util.concurrent.ScheduledFuture;
 
 import javax.jws.soap.SOAPBinding;
 
+import edu.northeastern.ccs.im.model.Message.MsgType;
+
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.services.GroupServices;
+import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
 
 /**
@@ -100,8 +103,8 @@ public class ClientRunnable implements Runnable {
       Message msg = messageIter.next();
       if (msg.isRegistration()) {
         List<String> regInfo = preProcessRegistrationInformation(msg.getText());
-        if (msg.getName() != null && UserServices.register(regInfo.get(0),regInfo.get(1),
-                regInfo.get(2),regInfo.get(3),regInfo.get(4))) {
+        if (msg.getName() != null && UserServices.register(regInfo.get(0), regInfo.get(1),
+                regInfo.get(2), regInfo.get(3), regInfo.get(4))) {
           setUserName(msg.getName());
           timer.updateAfterInitialization();
           // Set that the client is initialized.
@@ -125,7 +128,8 @@ public class ClientRunnable implements Runnable {
           initialized = false;
         }
       } else {
-        this.terminateClient();
+        //this.terminateClient();
+        initialized = false;
       }
     }
   }
@@ -284,29 +288,55 @@ public class ClientRunnable implements Runnable {
         // Check for our "special messages"
         Prattle.broadcastMessage(msg);
       } else if (msg.isPrivateMessage()) {
-        Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
+        String receiverId = getReceiverName(msg.getText());
+        Prattle.sendPrivateMessage(msg, receiverId);
+        if (!MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText())) {
+          sendMessageToClient(ServerConstants.SERVER_NAME, "User Does not exist");
+        }
       } else if (msg.isGroupMessage()) {
         //validate if group exists
         String receiverId = getReceiverName(msg.getText());
-        try{
-          if(GroupServices.validateUserExistsInGroup(msg.getName(),receiverId)){
-            Prattle.sendGroupMessage(msg,getReceiverName(msg.getText()));
-          }else{
+        try {
+          if (GroupServices.validateUserExistsInGroup(msg.getName(), receiverId)) {
+            Prattle.sendGroupMessage(msg, getReceiverName(msg.getText()));
+          } else {
             throw new IllegalStateException("User does not belong to the group");
           }
-        }catch (RuntimeException e){
-          sendFailureMessage(e.getMessage());
+        } catch (RuntimeException e) {
+          sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
         }
+      } else if (msg.isCreateGroup()) {
+        GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
+        sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
+      } else if (msg.isDeleteGroup()) {
+        GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName()); //to do
+        sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
+      } else if (msg.isRetrieveGroup()) {
+        //retrieveGroupMessagesForUser()
+      } else if (msg.isRetrieveUser()) {
+        //retrieve group message
+      } else if (msg.isUpdateFirstName()) {
+        UserServices.updateFN(msg.getName(), msg.getText());
+        sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated First name");
+      } else if (msg.isUpdateLastName()) {
+        UserServices.updateLN(msg.getName(), msg.getText());
+        sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Last name");
+      } else if (msg.isUpdateEmail()) {
+        UserServices.updateEmail(msg.getName(), msg.getText());
+        sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Email");
+      } else if (msg.isUpdatePassword()) {
+        UserServices.updatePassword(msg.getName(), msg.getText());
+        sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
       }
-    } else {
-      sendFailureMessage("Last message was rejected because it specified an incorrect user name.\"");
+    }
+    else {
+      sendMessageToClient(ServerConstants.BOUNCER_ID, "Last message was rejected because it specified an incorrect user name.\"");
     }
   }
 
-  private void sendFailureMessage(String message){
+  private void sendMessageToClient(String sender, String message) {
     Message sendMsg;
-    sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
-            message);
+    sendMsg = Message.makeAckMessage(sender, message);
     enqueueMessage(sendMsg);
   }
 
