@@ -8,6 +8,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.services.GroupServices;
 
 /**
  * A network server that communicates with IM clients that connect to it. This
@@ -164,7 +166,8 @@ public abstract class Prattle {
 		}
 	}
 
-	public static void sendPrivateMessage(Message msg,String receiver) {
+	public static void
+	sendPrivateMessage(Message msg,String receiver) {
 		for (ClientRunnable tt : active) {
 			// Do not send the message to any clients that are not ready to receive it.
 			if (tt.getName().equalsIgnoreCase(receiver)) {
@@ -172,5 +175,9 @@ public abstract class Prattle {
 				break;
 			}
 		}
+	}
+
+	public static void sendGroupMessage(Message msg, String receiverName) {
+		List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(receiverName);
 	}
 }

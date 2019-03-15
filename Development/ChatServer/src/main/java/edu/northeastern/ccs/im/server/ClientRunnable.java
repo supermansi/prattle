@@ -7,9 +7,12 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
+import javax.jws.soap.SOAPBinding;
+
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.UserServices;
 
 /**
@@ -269,24 +272,42 @@ public class ClientRunnable implements Runnable {
         enqueueMessage(Message.makeQuitMessage(name));
       } else {
         // Check if the message is legal formatted
-        if (messageChecks(msg)) {
-          // Check for our "special messages"
-          if (msg.isBroadcastMessage()) {
-            // Check for our "special messages"
-            Prattle.broadcastMessage(msg);
-          } else if (msg.isPrivateMessage()) {
-            Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
-          } else if (msg.isGroupMessage()) {
-            //Prattle.sendGroupMessage();
-          }
-        } else {
-          Message sendMsg;
-          sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
-                  "Last message was rejected because it specified an incorrect user name.");
-          enqueueMessage(sendMsg);
-        }
+        processMessage(msg);
       }
     }
+  }
+
+  private void processMessage(Message msg) {
+    if (messageChecks(msg)) {
+      // Check for our "special messages"
+      if (msg.isBroadcastMessage()) {
+        // Check for our "special messages"
+        Prattle.broadcastMessage(msg);
+      } else if (msg.isPrivateMessage()) {
+        Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
+      } else if (msg.isGroupMessage()) {
+        //validate if group exists
+        String receiverId = getReceiverName(msg.getText());
+        try{
+          if(GroupServices.validateUserExistsInGroup(msg.getName(),receiverId)){
+            Prattle.sendGroupMessage(msg,getReceiverName(msg.getText()));
+          }else{
+            throw new IllegalStateException("User does not belong to the group");
+          }
+        }catch (RuntimeException e){
+          sendFailureMessage(e.getMessage());
+        }
+      }
+    } else {
+      sendFailureMessage("Last message was rejected because it specified an incorrect user name.\"");
+    }
+  }
+
+  private void sendFailureMessage(String message){
+    Message sendMsg;
+    sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
+            message);
+    enqueueMessage(sendMsg);
   }
 
   private String getReceiverName(String text) {
