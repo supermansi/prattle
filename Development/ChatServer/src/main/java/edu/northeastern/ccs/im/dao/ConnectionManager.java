@@ -22,14 +22,6 @@ public class ConnectionManager {
 	private static final int PORT = 3306;
 
 	private static final String SCHEMA = "heroku_5b0785b4e92d159";
-	
-//	private static final String USER = "root";
-//
-//	private static final String HOSTNAME = "localhost";
-//
-//	private static final int PORT = 3306;
-//
-//	private static final String SCHEMA = "prattle";
 
 	public Connection getConnection() {
 		Connection connection = null;
