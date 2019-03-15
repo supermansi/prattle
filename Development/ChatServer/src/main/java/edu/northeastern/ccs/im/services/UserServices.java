@@ -1,7 +1,5 @@
 package edu.northeastern.ccs.im.services;
 
-import java.sql.SQLException;
-
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
@@ -17,7 +15,7 @@ public class UserServices {
 	}
 
 	public static boolean register(String username, String password, String userFN,
-						String userLN, String email) {
+									 String userLN, String email) {
 		if(userDAO.isUserExists(username)) {
 			return false; // user exists
 		}
@@ -25,6 +23,15 @@ public class UserServices {
 			User registerUser = new User(username, userFN, userLN, email, password);
 			userDAO.createUser(registerUser);
 			return true; // user does not exist and is created
+		}
+	}
+
+	public static void deleteUser(String username) {
+		if(userDAO.isUserExists(username)) {
+			userDAO.deleteUser(username);
+		}
+		else {
+			throw new IllegalArgumentException("User cannot be deleted because user does not exist.");
 		}
 	}
 
@@ -42,5 +49,10 @@ public class UserServices {
 
 	public static void updateEmail(String username, String updatedEmail) {
 		userDAO.updateEmail(username,updatedEmail);
+	}
+	
+	public static void updateLastSeen(String username, Long time) {
+		String lastSeen = Long.toString(time);
+		userDAO.updateLastSeen(username, lastSeen);
 	}
 }

@@ -28,6 +28,9 @@ public class UserDAO {
 
   public User createUser(User user) {
     String insertUser = "INSERT INTO USER(USERNAME, PASSWORD, USERFN, USERLN, EMAIL) VALUES(?,?,?,?,?);";
+    if(isUserExists(user.getUsername())) {
+      throw new DatabaseConnectionException("Username already exists. Please use a different username.");
+    }
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, user.getUsername());
@@ -65,8 +68,9 @@ public class UserDAO {
           String userLN = resultSet.getString("userLN");
           String email = resultSet.getString("email");
           String password = resultSet.getString("password");
-
+          String lastSeen = resultSet.getString("lastSeen");
           user = new User(userID, username, userFN, userLN, email, password);
+          user.setLastSeen(lastSeen);
         } else {
           throw new DatabaseConnectionException("User not found.");
         }
@@ -117,6 +121,19 @@ public class UserDAO {
     }
   }
 
+  public boolean isUserExists(int userId) {
+    String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
+      preparedStatement.setInt(1, userId);
+      try(ResultSet resultSet = preparedStatement.executeQuery();) {
+        return resultSet.next();
+      }
+    }  catch (SQLException e) {
+      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
   public boolean validateUser(String userName, String pw) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND PASSWORD = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -132,13 +149,11 @@ public class UserDAO {
     }
   }
 
-  public void deleteUser(String userName, String emailID, String pw) {
-    String insertUser = "DELETE FROM USER WHERE USERNAME = ? AND EMAIL = ? AND PASSWORD = ?;";
+  public void deleteUser(String userName) {
+    String insertUser = "DELETE FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, userName);
-      preparedStatement.setString(2, emailID);
-      preparedStatement.setString(3, pw);
       preparedStatement.executeUpdate();
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
@@ -191,5 +206,17 @@ public class UserDAO {
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
+  }
+  
+  public void updateLastSeen(String userName, String lastSeen) {
+	    String updateLastSeen = "UPDATE User SET lastSeen=? WHERE username=?;";
+	    try (Connection connection = connectionManager.getConnection();
+	         PreparedStatement preparedStatement = connection.prepareStatement(updateLastSeen, Statement.RETURN_GENERATED_KEYS);) {
+	      preparedStatement.setString(1, lastSeen);
+	      preparedStatement.setString(2,userName);
+	      preparedStatement.executeUpdate();
+	    } catch (SQLException e) {
+	      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+	    }
   }
 }

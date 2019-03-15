@@ -13,23 +13,23 @@ import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
 public class GroupDAO {
+	
+  protected static ConnectionManager connectionManager;
+  private static UserDAO userDAO;
+  private static GroupDAO groupDAO;
 
-  protected ConnectionManager connectionManager;
-  private UserDAO userDAO;
-
-  private static GroupDAO instance = null;
 
   private GroupDAO() {
-    connectionManager = new ConnectionManager();
-    userDAO = userDAO.getInstance();
+    // empty constructor for singleton
   }
 
   public static GroupDAO getInstance() {
-    if (instance == null) {
-      instance = new GroupDAO();
+    if (groupDAO == null) {    	
+        connectionManager = new ConnectionManager();
+        userDAO = UserDAO.getInstance();
+        groupDAO = new GroupDAO();
     }
-
-    return instance;
+    return groupDAO;
   }
 
   public Groups createGroup(Groups group) {
@@ -134,7 +134,7 @@ public class GroupDAO {
   }
 
   public Groups getGroupByGroupID(int groupID) {
-    String insertGroup = "SELECT * FROM GROUPS WHERE GRPNAME = ?;";
+    String insertGroup = "SELECT * FROM GROUPS WHERE grpID = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setInt(1, groupID);
@@ -150,25 +150,6 @@ public class GroupDAO {
           throw new DatabaseConnectionException("Group not found.");
         }
       }
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
-    }
-  }
-
-  public List<String> getAllUsersInGroup(String groupName) {
-    List<String> users = new ArrayList<>();
-    int groupID = getGroupByGroupName(groupName).getGrpID();
-    String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
-    try (Connection connection = connectionManager.getConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);) {
-      preparedStatement.setInt(1, groupID);
-      try (ResultSet resultSet = preparedStatement.executeQuery();) {
-        while (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          users.add(userDAO.getUserByUserID(userID).getUsername());
-        }
-      }
-      return users;
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }

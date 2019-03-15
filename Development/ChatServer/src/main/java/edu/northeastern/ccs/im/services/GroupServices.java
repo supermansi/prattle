@@ -1,6 +1,5 @@
 package edu.northeastern.ccs.im.services;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
@@ -19,9 +18,9 @@ public class GroupServices {
 		//empty private constructor
 	}
 	static {
-		groupDAO = groupDAO.getInstance();
-		groupUserDAO = groupUserDAO.getInstance();
-		userDAO = userDAO.getInstance();
+		groupDAO = GroupDAO.getInstance();
+		groupUserDAO = GroupToUserDAO.getInstance();
+		userDAO = UserDAO.getInstance();
 	}
 	public static void createGroup(String groupName, String adminUsername) {
 		User admin = userDAO.getUserByUsername(adminUsername);
@@ -51,9 +50,9 @@ public class GroupServices {
 		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
 	}
 
-	public List<String> getAllUsersInGroup(String groupName) {
+	public static List<String> getAllUsersInGroup(String groupName) {
 		groupDAO.checkGroupExists(groupName);
-		return groupDAO.getAllUsersInGroup(groupName);
+		return groupUserDAO.getAllUsersInGroup(groupName);
 	}
 
 }
