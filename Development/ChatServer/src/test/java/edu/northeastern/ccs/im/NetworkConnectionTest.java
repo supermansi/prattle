@@ -593,7 +593,7 @@ public class NetworkConnectionTest {
     privateField.setAccessible(true);
     privateField.set(networkConnection, messages);
 
-    assertEquals("HLO 5 Rohan 2 --", met.invoke(obj).toString());
+    assertEquals("HLO 5 Rohan 3 123", met.invoke(obj).toString());
   }
 
   /**
