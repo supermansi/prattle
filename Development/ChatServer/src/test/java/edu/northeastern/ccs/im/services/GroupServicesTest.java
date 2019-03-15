@@ -6,35 +6,46 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class GroupServicesTest {
 	
 	GroupServices groupServices;
-	
-	@Test
-	public void testCreateGroup() throws SQLException {
-		GroupServices.createGroup("grouptest1", "admin");
-	}
-	
-	@Test
-	public void testAddUserToGroup() throws SQLException {
-		GroupServices.addUserToGroup("group1", "Karl", "Abc");
+
+	@Before
+	public void setup(){
+
+
+
 	}
 
 	@Test
-	public void testValidateUserInGroup() throws SQLException {
-		GroupServices.validateUserExistsInGroup("Abc", "group1");
-	}
-	
-	@Test
-	public void testRemoveUserFromGroup() throws SQLException {
-		GroupServices.removeUserFromGroup("group1", "Karl", "Abc");
-	}
-	
-	@Test
-	public void testGetAllUsers() throws SQLException {
+	public void testGroupServiceMethods(){
+
+		GroupServices.createGroup("groupJosh", "admin");
+		GroupServices.addUserToGroup("groupJosh", "admin", "j");
+		GroupServices.validateUserExistsInGroup("j", "groupJosh");
 		List<String> test = new ArrayList<>();
-		assertEquals(test, GroupServices.getAllUsersInGroup("group1"));
+		test.add("admin");
+		test.add("j");
+		assertEquals(test, GroupServices.getAllUsersInGroup("groupJosh"));
+		GroupServices.removeUserFromGroup("groupJosh", "admin", "j");
 	}
+
+	@Test
+	public void deleteGroupFailure(){
+        GroupServices.createGroup("groupJosh", "admin");
+        assertEquals(false,GroupServices.deleteGroup("groupJosh", null));
+
+
+	}
+
+	@After
+	public void cleanUp() {
+		GroupServices.deleteGroup("groupJosh","admin");
+	}
+
 }
