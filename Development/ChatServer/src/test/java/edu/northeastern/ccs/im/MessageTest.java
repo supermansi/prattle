@@ -49,12 +49,117 @@ public class MessageTest {
         Message m4 = Message.makeMessage("hi", null, null);
         assertEquals("BYE 4 user 2 --", m1.toString());
 
-        assertEquals("HLO 4 user 2 --", m2.toString());
+        assertEquals("HLO 4 user 12 Hello World.", m2.toString());
 
         assertEquals("BCT 4 user 12 how are you?", m3.toString());
-
-
     }
+
+    @Test
+    public void testRegMessage(){
+        Message rm = Message.makeMessage("REG", "josh", "reg");
+        assertEquals(true, rm.isRegistration());
+    }
+
+    @Test
+    public void testGroupMessage() {
+        Message gm = Message.makeMessage("GRP", "MSD", "hey");
+        assertEquals(true, gm.isGroupMessage());
+        assertEquals(false, gm.isPrivateMessage());
+    }
+
+    @Test
+    public void testPrivateMessage() {
+        Message pm = Message.makeMessage("PVT", "josh", "hello");
+        assertEquals(true, pm.isPrivateMessage());
+        assertEquals(false, pm.isGroupMessage());
+    }
+
+    @Test
+    public void testAckMessage() {
+        Message am = Message.makeMessage("ACK", "R", "text");
+        assertEquals(true, am.isAcknowledge());
+        assertEquals(false, am.isNonAcknowledge());
+    }
+
+    @Test
+    public void testNoAck(){
+        Message na = Message.makeMessage("NAK", "A", "text");
+        assertEquals(true, na.isNonAcknowledge());
+        assertEquals(false, na.isAcknowledge());
+        assertEquals(false, na.isRegistration());
+    }
+
+    @Test
+    public void testUFN() {
+        Message ufn = Message.makeMessage("UFN", "J", "R");
+        assertEquals(true, ufn.isUpdateFirstName());
+        assertEquals(false, ufn.isUpdateLastName());
+    }
+
+    @Test
+    public void testULN() {
+        Message uln = Message.makeMessage("ULN", "R", "M");
+        assertEquals(true, uln.isUpdateLastName());
+        assertEquals(false, uln.isUpdateFirstName());
+    }
+
+    @Test
+    public void testUPW() {
+        Message upw = Message.makeMessage("UPW", "A", "pass");
+        assertEquals(true, upw.isUpdatePassword());
+        assertEquals(false, upw.isUpdateEmail());
+    }
+
+    @Test
+    public void testUEM() {
+        Message uem = Message.makeMessage("UEM", "A", "123@gmail.com");
+        assertEquals(true, uem.isUpdateEmail());
+        assertEquals(false, uem.isUpdatePassword());
+    }
+
+    @Test
+    public void testCGR() {
+        Message cgm = Message.makeMessage("CGR", "A", "123@gmail.com");
+        assertEquals(true, cgm.isCreateGroup());
+        assertEquals(false, cgm.isDeleteGroup());
+    }
+
+    @Test
+    public void testDeleteGroup() {
+        Message dgr =Message.makeMessage("DGR", "A", "MSD");
+        assertEquals(true, dgr.isDeleteGroup());
+        assertEquals(false, dgr.isCreateGroup());
+    }
+
+    @Test
+    public void testRemoveUser() {
+        Message rmu = Message.makeMessage("RMU", "J", "A");
+        assertEquals(true, rmu.isRemoveUser());
+        assertEquals(false, rmu.isAddUserToGroup());
+    }
+
+    @Test
+    public void testAddUser() {
+        Message aus = Message.makeMessage("AUG", "R", "R");
+        assertEquals(true, aus.isAddUserToGroup());
+        assertEquals(false, aus.isRemoveUser());
+    }
+
+    @Test
+    public void testRetrieveUser() {
+        Message rus = Message.makeMessage("RTU", "K", "L");
+        assertEquals(true, rus.isRetrieveUser());
+        assertEquals(false, rus.isRetrieveGroup());
+    }
+
+    @Test
+    public void testRetrieveGroup() {
+        Message rgp = Message.makeMessage("RTG", "J", "MSD");
+        assertEquals(true, rgp.isRetrieveGroup());
+        assertEquals(false, rgp.isRetrieveUser());
+    }
+
+
 
     /**
      * Test to instantiate a login message.
@@ -130,7 +235,7 @@ public class MessageTest {
         assertEquals("BYE 4 user 2 --", qmnn.toString());
         assertEquals("BYE 2 -- 2 --", qmn.toString());
 
-        assertEquals("HLO 4 user 2 --", hm.toString());
+        assertEquals("HLO 4 user 12 Hello World.", hm.toString());
 
         assertEquals("BCT 4 user 12 how are you?", bmnn.toString());
         assertEquals("BCT 4 user 2 --", bmn.toString());

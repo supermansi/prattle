@@ -42,4 +42,17 @@ public class UserServices {
   public static void updateEmail(String username, String updatedEmail) {
     userDAO.updateEmail(username, updatedEmail);
   }
+
+  public static void deleteUser(String username) {
+    if (userDAO.isUserExists(username)) {
+      userDAO.deleteUser(username);
+    } else {
+      throw new IllegalArgumentException("User cannot be deleted because user does not exist.");
+    }
+  }
+
+  public static void updateLastSeen(String username, Long time) {
+    String lastSeen = Long.toString(time);
+    userDAO.updateLastSeen(username, lastSeen);
+  }
 }

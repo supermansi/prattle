@@ -31,7 +31,7 @@ public class GroupsDAOTest {
 		group = new Groups("GroupTest", 2);
 		groupDAO.createGroup(group);
 	}
-
+	
 	@Test
 	public void testDeleteGroup() {
 		groupDAO.deleteGroupByID(group.getGrpID());
@@ -67,8 +67,8 @@ public class GroupsDAOTest {
 		group = groupDAO.getGroupByGroupName(group.getGrpName());
 		assertEquals(group.getGrpID(), groupDAO.getGroupByGroupID(group.getGrpID()).getGrpID());
 	}
-	
-	@Test(expected=DatabaseConnectionException.class)
+
+	@Test(expected = DatabaseConnectionException.class)
 	public void testGroupByIDFalse() {
 		assertNull(groupDAO.getGroupByGroupID(1));
 	}
