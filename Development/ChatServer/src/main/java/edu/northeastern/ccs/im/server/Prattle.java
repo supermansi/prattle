@@ -163,4 +163,14 @@ public abstract class Prattle {
 			ChatLogger.error("Caught Exception: " + e.toString());
 		}
 	}
+
+	public static void sendPrivateMessage(Message msg,String receiver) {
+		for (ClientRunnable tt : active) {
+			// Do not send the message to any clients that are not ready to receive it.
+			if (tt.getName().equalsIgnoreCase(receiver)) {
+				tt.enqueueMessage(msg);
+				break;
+			}
+		}
+	}
 }

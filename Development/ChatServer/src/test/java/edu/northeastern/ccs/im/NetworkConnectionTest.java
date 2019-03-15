@@ -195,7 +195,7 @@ public class NetworkConnectionTest {
    */
   @Test
   public void testSendMessage() {
-    Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
     networkConnection = new NetworkConnection(sockChan);
     networkConnection.sendMessage(testMessage1);
   }
@@ -243,7 +243,7 @@ public class NetworkConnectionTest {
    */
   @Test
   public void testFailedWrite() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-    Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
     networkConnection = new NetworkConnection(sockChan);
     Field privateField = Class.forName(NetworkConnection.class.getName()).getDeclaredField("channel");
     privateField.setAccessible(true);
@@ -331,7 +331,7 @@ public class NetworkConnectionTest {
    */
   @Test
   public void testPerformWriteAndReturn() throws InvocationTargetException, IllegalAccessException {
-    //Message testMessage1 = Message.makeSimpleLoginMessage("Rohan");
+    //Message testMessage1 = Message.makeSimpleLoginMessage("Rohan","123");
     networkConnection = new NetworkConnection(sockChan);
     //networkConnection.sendMessage(testMessage1);
     Class<NetworkConnection> clazz = NetworkConnection.class;
@@ -377,7 +377,7 @@ public class NetworkConnectionTest {
   public void testHasNextWithInjectedMessage() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -407,7 +407,7 @@ public class NetworkConnectionTest {
   public void testHasNextWithInjectedSelector() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -442,7 +442,7 @@ public class NetworkConnectionTest {
     when(selector.selectedKeys()).thenReturn(new HashSet<SelectionKey>());
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -473,7 +473,7 @@ public class NetworkConnectionTest {
   public void testHasNextWithInjectedSelectorMockedReturnNonZero() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException, IOException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -511,7 +511,7 @@ public class NetworkConnectionTest {
   public void testHasNextWithInjectedSelectorMockedNonReadableKey() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException, IOException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -573,7 +573,7 @@ public class NetworkConnectionTest {
   public void testNextWithInjectedMessage() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -603,7 +603,7 @@ public class NetworkConnectionTest {
   public void testScanAndGetMinMessage() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -642,7 +642,7 @@ public class NetworkConnectionTest {
   public void testScanAndGetMinMessageInitialPosNonZero() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Rohan","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
@@ -683,7 +683,7 @@ public class NetworkConnectionTest {
   public void testScanAndGetMinMessageFailAssert() throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, InstantiationException, ClassNotFoundException, NoSuchFieldException {
 
     Queue<Message> messages = new ConcurrentLinkedQueue<>();
-    Message testMsg0 = Message.makeSimpleLoginMessage("Gori");
+    Message testMsg0 = Message.makeSimpleLoginMessage("Gori","123");
     messages.add(testMsg0);
     Class<?> innerClass = NetworkConnection.class.getDeclaredClasses()[0];
 
