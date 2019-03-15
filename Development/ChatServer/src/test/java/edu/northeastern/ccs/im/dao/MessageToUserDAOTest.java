@@ -40,20 +40,7 @@ public class MessageToUserDAOTest {
     for(int i = 0; i < chat.size(); i++) {
       result += chat.get(i) + "\n";
     }
-    assertEquals("r /pvt j hello!\n" +
-            "j /pvt r hello\n" +
-            "r /pvt j Hii\n" +
-            "j /pvt r hello\n" +
-            "j /pvt r hello\n" +
-            "r /pvt j Hii\n" +
-            "r /pvt j Hii\n" +
-            "j /pvt r hello\n" +
-            "r /pvt j Test are Failings!! \n" +
-            "j /pvt r well we better fix them then\n" +
-            "r /pvt j we should or else we get a B\n" +
-            "r /pvt j or a C-\n" +
-            "r /pvt j or a F\n" +
-            "j /pvt r im getting an error that says to call dr. Rohan\n" +
-            "r /pvt j I know I am awesome!\n", result);
+    assertEquals("r /pvt j Hii\n" +
+            "j /pvt r hello back\n", result);
   }
 }

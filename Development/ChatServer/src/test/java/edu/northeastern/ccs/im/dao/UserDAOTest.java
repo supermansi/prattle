@@ -14,8 +14,6 @@ import static org.junit.Assert.*;
 
 public class UserDAOTest {
 
-  protected static ConnectionManager connectionManager;
-  private static String HOSTNAME;
   UserDAO userDAO;
   User user;
   User user1;
@@ -23,17 +21,12 @@ public class UserDAOTest {
   User nullUser;
 
   @Before
-  public void setUp() throws NoSuchFieldException, IllegalAccessException {
+  public void setUp() {
     userDAO = UserDAO.getInstance();
     user = new User("Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
     user1 = new User(2, "Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
     createUser = new User("Adi", "Adi", "K", "adi@gmail.com", "1234");
     nullUser = new User("", "", "", "", "");
-
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
   }
 
   @After
@@ -173,13 +166,5 @@ public class UserDAOTest {
     userDAO.createUser(createUser);
     userDAO.updateLastSeen(createUser.getUsername(), time);
     assertEquals(time, userDAO.getUserByUsername(createUser.getUsername()).getLastSeen());
-  }
-}
-
-class ConnectionTest implements IConnectionManager {
-
-  @Override
-  public java.sql.Connection getConnection() throws SQLException {
-    throw new SQLException("Connection failed");
   }
 }

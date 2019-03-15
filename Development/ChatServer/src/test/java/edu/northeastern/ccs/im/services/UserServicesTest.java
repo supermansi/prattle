@@ -63,8 +63,8 @@ public class UserServicesTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testDeleteUserFailure() {
-    UserServices.deleteUser(user.getUsername());
     assertEquals(false,userDAO.isUserExists(user.getUsername()));
+    UserServices.deleteUser(user.getUsername());
   }
 
   @Test
