@@ -5,7 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.Message;
 import edu.northeastern.ccs.im.model.User;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MessageServiceTest {
 
   MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();

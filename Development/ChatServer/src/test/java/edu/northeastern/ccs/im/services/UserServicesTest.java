@@ -2,13 +2,16 @@ package edu.northeastern.ccs.im.services;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.assertEquals;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserServicesTest {
 
   UserDAO userDAO;
