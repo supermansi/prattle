@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.sql.SQLException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -35,24 +36,20 @@ import org.mockito.junit.MockitoRule;
  * Test class for the methods in the Prattle class.
  */
 public class PrattleTest {
-  @Mock
-  private ClientRunnable clientRunnable;
-
-  @Mock
-  private ScheduledExecutorService executor;
-
-  @Rule
-  public MockitoRule mockitoRule = MockitoJUnit.rule();
-
   private static final int PORT = 4546;
   private static final int CLIENT_CHECK_DELAY = 200;
-
+  @Rule
+  public MockitoRule mockitoRule = MockitoJUnit.rule();
+  @Mock
+  private ClientRunnable clientRunnable;
+  @Mock
+  private ScheduledExecutorService executor;
   private ServerSocketChannel serverSocketChannel;
   private NetworkConnection networkConnection;
   private ConcurrentLinkedQueue<ClientRunnable> queue;
 
   /**
-   *Method to set up for testing.
+   * Method to set up for testing.
    */
   @Before
   public void setUp() throws IOException, NoSuchFieldException, IllegalAccessException {
@@ -67,47 +64,49 @@ public class PrattleTest {
     Field field = clazz.getDeclaredField("active");
 
     field.setAccessible(true);
-    queue = (ConcurrentLinkedQueue<ClientRunnable>) field.get("Prattle");
+    //queue = (ConcurrentLinkedQueue<ClientRunnable>) field.get("Prattle");
+    queue = new ConcurrentLinkedQueue<ClientRunnable>();
+    field.set(clientRunnable,queue);
     queue.add(clientRunnable);
   }
 
   /**
-   *Test for broadcastMessage method.
+   * Test for broadcastMessage method.
    */
   @Test
   public void testBroadcastMessageTrue() throws IOException {
     Message message = Message.makeBroadcastMessage("abcd", "hello world");
     Prattle.broadcastMessage(message);
-    assertEquals(true,clientRunnable.isInitialized());
+    assertEquals(true, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
 
   /**
-   *Test for broadcastMessage method failure.
+   * Test for broadcastMessage method failure.
    */
   @Test
   public void testBroadcastMessageFalse() throws IOException {
     when(clientRunnable.isInitialized()).thenReturn(false);
     Message message = Message.makeBroadcastMessage("abcd", "hello world");
     Prattle.broadcastMessage(message);
-    assertEquals(false,clientRunnable.isInitialized());
+    assertEquals(false, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
 
   /**
-   *Test for broadcasting a null message.
+   * Test for broadcasting a null message.
    */
   @Test
   public void testBroadcastMessageNull() throws IOException {
     Prattle.broadcastMessage(null);
-    assertEquals(true,clientRunnable.isInitialized());
+    assertEquals(true, clientRunnable.isInitialized());
     serverSocketChannel.close();
   }
 
   /**
-   *Test for the server close method.
+   * Test for the server close method.
    */
   @Test
   public void testStopServer() throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
@@ -121,16 +120,8 @@ public class PrattleTest {
     serverSocketChannel.close();
   }
 
-  private static class PrattleThread extends Thread {
-    @Override
-    public void run() {
-      String[] args = new String[0];
-      Prattle.main(args);
-    }
-  }
-
   /**
-   *Test to create a client thread.
+   * Test to create a client thread.
    */
   @Test
   public void testCreateClientThread() throws IllegalAccessException, InvocationTargetException, IOException {
@@ -145,13 +136,13 @@ public class PrattleTest {
     met.setAccessible(true);
     ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
-    when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
-    met.invoke(null,serverSocketChannel,executor);
+    when(executor.scheduleAtFixedRate(clientRunnable, CLIENT_CHECK_DELAY, CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
+    met.invoke(null, serverSocketChannel, executor);
     serverSocketChannel.close();
   }
 
   /**
-   *Test for removing a client thread.
+   * Test for removing a client thread.
    */
   @Test
   public void testRemoveClient() throws IOException {
@@ -165,7 +156,7 @@ public class PrattleTest {
   }
 
   /**
-   *Test for null socket.
+   * Test for null socket.
    */
   @Test
   public void testCreateClientThreadNotNullSock() throws IllegalAccessException, InvocationTargetException, IOException {
@@ -183,13 +174,13 @@ public class PrattleTest {
     met.setAccessible(true);
     ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
-    when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
-    met.invoke(null,serverSocketChannel,executor);
+    when(executor.scheduleAtFixedRate(clientRunnable, CLIENT_CHECK_DELAY, CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
+    met.invoke(null, serverSocketChannel, executor);
     this.serverSocketChannel.close();
   }
 
   /**
-   *Test for notnullsocket assertion.
+   * Test for notnullsocket assertion.
    */
   @Test
   public void testCreateClientThreadNotNullSockAssertExcept() throws IllegalAccessException, InvocationTargetException, IOException {
@@ -208,14 +199,14 @@ public class PrattleTest {
     met.setAccessible(true);
     ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
-    when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
-    met.invoke(null,serverSocketChannel,executor);
+    when(executor.scheduleAtFixedRate(clientRunnable, CLIENT_CHECK_DELAY, CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
+    met.invoke(null, serverSocketChannel, executor);
     assertEquals(true, getDataFromFile().contains("AssertionError"));
     this.serverSocketChannel.close();
   }
 
   /**
-   *Test for IOExeption with not null Socket.
+   * Test for IOExeption with not null Socket.
    */
   @Test
   public void testCreateClientThreadNotNullSockIOExcept() throws IllegalAccessException, InvocationTargetException, IOException {
@@ -233,15 +224,14 @@ public class PrattleTest {
     met.setAccessible(true);
     ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
     ScheduledFuture scheduledFuture = mock(ScheduledFuture.class);
-    when(executor.scheduleAtFixedRate(clientRunnable,CLIENT_CHECK_DELAY,CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
-    met.invoke(null,serverSocketChannel,executor);
+    when(executor.scheduleAtFixedRate(clientRunnable, CLIENT_CHECK_DELAY, CLIENT_CHECK_DELAY, TimeUnit.MILLISECONDS)).thenReturn(scheduledFuture);
+    met.invoke(null, serverSocketChannel, executor);
     assertEquals(true, getDataFromFile().contains("IOException"));
     this.serverSocketChannel.close();
   }
 
-
   /**
-   *Test to read data from logger file.
+   * Test to read data from logger file.
    */
   private String getDataFromFile() throws IOException {
     FileReader fr;
@@ -252,9 +242,83 @@ public class PrattleTest {
     StringBuilder result = new StringBuilder();
     String next;
 
-    while((next = br.readLine()) != null){
+    while ((next = br.readLine()) != null) {
       result.append(next + "\n");
     }
     return result.toString();
+  }
+
+  /**
+   * Test for broadcastMessage method.
+   */
+  @Test
+  public void testPvtMessage() throws IOException {
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    when(clientRunnable.getName()).thenReturn("abc");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(true, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    this.serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testPvtMessageFalse() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("abcd");
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method.
+   */
+  @Test
+  public void testGrpMessage() throws IOException, SQLException {
+    Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");
+    when(clientRunnable.getName()).thenReturn("j");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(true, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method.
+   */
+  @Test
+  public void testGrpMessageFalseCondn() throws IOException, SQLException {
+    Message message = Message.makeGroupMessage("j", "/grp MSD Hello");
+    when(clientRunnable.getName()).thenReturn("j");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(true, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testGrpMessageFalse() throws IOException, SQLException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("a");
+    Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  private static class PrattleThread extends Thread {
+    @Override
+    public void run() {
+      String[] args = new String[0];
+      Prattle.main(args);
+    }
   }
 }

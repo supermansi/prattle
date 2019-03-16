@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
- * Test class for the methods in the ChatLogger class.
+ * Test class for methods in the ChatLogger class.
  */
 public class ChatLoggerTest {
 

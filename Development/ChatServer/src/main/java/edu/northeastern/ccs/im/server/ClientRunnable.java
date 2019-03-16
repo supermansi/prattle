@@ -1,20 +1,29 @@
 package edu.northeastern.ccs.im.server;
 
+import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
+import edu.northeastern.ccs.im.model.Message.MsgType;
+
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.services.GroupServices;
+import edu.northeastern.ccs.im.services.MessageServices;
+import edu.northeastern.ccs.im.services.UserServices;
 
 /**
  * Instances of this class handle all of the incoming communication from a single IM client.
  * Instances are created when the client signs-on with the server. After instantiation, it is
  * executed periodically on one of the threads from the thread pool and will stop being run only
  * when the client signs off.
- *
+ * <p>
  * This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International
  * License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/. It
  * is based on work originally written by Matthew Hertz and has been adapted for use in a class
@@ -91,17 +100,51 @@ public class ClientRunnable implements Runnable {
     Iterator<Message> messageIter = connection.iterator();
     if (messageIter.hasNext()) {
       // If a message exists, try to use it to initialize the connection
-      Message msg = messageIter.next();
-      if (setUserName(msg.getName())) {
-        // Update the time until we terminate this client due to inactivity.
-        timer.updateAfterInitialization();
-        // Set that the client is initialized.
-        initialized = true;
-      } else {
-        initialized = false;
+      try {
+        Message msg = messageIter.next();
+        if (msg.isRegistration()) {
+          List<String> regInfo = preProcessRegistrationInformation(msg.getText());
+          processRegisteration(regInfo, msg);
+
+        } else if (msg.isInitialization()) {
+          if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
+            // Update the time until we terminate this client due to inactivity.
+            timer.updateAfterInitialization();
+            // Set that the client is initialized.
+            initialized = true;
+            enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
+          } else {
+            sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
+            initialized = false;
+          }
+        } else {
+          initialized = false;
+        }
+      } catch (SQLException e) {
+        ChatLogger.error("Error in connecting to database");
       }
     }
   }
+
+  private void processRegisteration(List<String> regInfo, Message msg) throws SQLException {
+    if (msg.getName() != null && UserServices.register(regInfo.get(0), regInfo.get(1),
+            regInfo.get(2), regInfo.get(3), regInfo.get(4))) {
+      setUserName(msg.getName());
+      timer.updateAfterInitialization();
+      // Set that the client is initialized.
+      initialized = true;
+      enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "User successfully registered"));
+    } else {
+      initialized = false;
+      sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
+              "already exists."));
+    }
+  }
+
+  private List<String> preProcessRegistrationInformation(String text) {
+    return Arrays.asList(text.split(" "));
+  }
+
 
   /**
    * Check if the message is properly formed. At the moment, this means checking that the identifier
@@ -214,6 +257,11 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+  /**
+   * Method to terminate an unresponsive client.
+   *
+   * @param timer timer from the client
+   */
   private void setTerminateIfTimerIsBehind(ClientTimer timer) {
     if (timer.isBehind()) {
       ChatLogger.error("Timing out or forcing off a user " + name);
@@ -240,20 +288,122 @@ public class ClientRunnable implements Runnable {
         enqueueMessage(Message.makeQuitMessage(name));
       } else {
         // Check if the message is legal formatted
-        if (messageChecks(msg)) {
-          // Check for our "special messages"
-          if (msg.isBroadcastMessage()) {
-            // Check for our "special messages"
-            Prattle.broadcastMessage(msg);
-          }
-        } else {
-          Message sendMsg;
-          sendMsg = Message.makeBroadcastMessage(ServerConstants.BOUNCER_ID,
-                  "Last message was rejected because it specified an incorrect user name.");
-          enqueueMessage(sendMsg);
-        }
+        processMessage(msg);
       }
     }
+  }
+
+  /**
+   * Method to take a message and send out based on type.
+   *
+   * @param msg message to be sent out
+   */
+  private void processMessage(Message msg) {
+    if (messageChecks(msg)) {
+      // Check for our "special messages"
+      try {
+        if (msg.isBroadcastMessage()) {
+          // Check for our "special messages"
+          Prattle.broadcastMessage(msg);
+        } else if (msg.isPrivateMessage()) {
+          String receiverId = getReceiverName(msg.getText());
+          Prattle.sendPrivateMessage(msg, receiverId);
+          MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
+        } else if (msg.isGroupMessage()) {
+          String receiverId = getReceiverName(msg.getText());
+          Prattle.sendGroupMessage(msg, receiverId);
+          MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+        } else if (msg.isCreateGroup()) {
+          GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
+        } else if (msg.isDeleteGroup()) {
+          GroupServices.deleteGroup(getReceiverName(msg.getText()), msg.getName()); //to do
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
+        } else if (msg.isRetrieveGroup()) {
+          retrieveGroupMessagesForGroup(msg);
+        } else if (msg.isRetrieveUser()) {
+          retrieveMessagesForUser(msg);
+        } else if (msg.isUpdateFirstName()) {
+          UserServices.updateFN(msg.getName(), msg.getText());
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated First name");
+        } else if (msg.isUpdateLastName()) {
+          UserServices.updateLN(msg.getName(), msg.getText());
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Last name");
+        } else if (msg.isUpdateEmail()) {
+          UserServices.updateEmail(msg.getName(), msg.getText());
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Email");
+        } else if (msg.isUpdatePassword()) {
+          UserServices.updatePassword(msg.getName(), msg.getText());
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
+        } else if (msg.isRemoveUser()) {
+
+          GroupServices.removeUserFromGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
+
+        } else if (msg.isAddUserToGroup()) {
+          GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
+        }
+      } catch (DatabaseConnectionException e) {
+        sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
+      } catch (SQLException e) {
+        ChatLogger.error("Could not connect to database");
+      }
+    } else {
+      sendMessageToClient(ServerConstants.BOUNCER_ID, "Last message was rejected because it specified an incorrect user name.\"");
+    }
+  }
+
+  /**
+   * Method to retrieve the messages sent to a group.
+   *
+   * @param msg retrieve message command sent to server
+   */
+  private void retrieveGroupMessagesForGroup(Message msg) throws SQLException {
+    List<String> messages = MessageServices.retrieveGroupMessages(getReceiverName(msg.getText()));
+    for (String conv : messages) {
+      String[] arr = conv.split(" ");
+
+      Message sendMessage = Message.makeGroupMessage("@" + msg.getText() + " " + arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
+      enqueueMessage(sendMessage);
+    }
+  }
+
+  /**
+   * Method to retrieve the messages sent to a user.
+   *
+   * @param msg retrieve message command sent to server
+   */
+  private void retrieveMessagesForUser(Message msg) throws SQLException {
+    List<String> messages = MessageServices.retrieveUserMessages(msg.getName(), getReceiverName(msg.getText()));
+    for (String conv : messages) {
+      String[] arr = conv.split(" ");
+
+      Message sendMessage = Message.makePrivateMessage(arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
+      enqueueMessage(sendMessage);
+    }
+  }
+
+  /**
+   * Method to send a message to a client based on username.
+   *
+   * @param sender  string representing the sender name
+   * @param message string representing the message text
+   */
+  private void sendMessageToClient(String sender, String message) {
+    Message sendMsg;
+    sendMsg = Message.makeAckMessage(sender, message);
+    enqueueMessage(sendMsg);
+  }
+
+  /**
+   * Method to get the receiver name of a message.
+   *
+   * @param text the message text
+   * @return a string representing the reciever name
+   */
+  private String getReceiverName(String text) {
+    return text.split(" ")[1];
   }
 
   /**
