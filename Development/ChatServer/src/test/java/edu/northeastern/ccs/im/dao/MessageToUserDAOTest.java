@@ -16,13 +16,13 @@ import static org.junit.Assert.assertEquals;
 
 public class MessageToUserDAOTest {
 
-  MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
+  static MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
   MessageDAO messageDAO = MessageDAO.getInstance();
   Message message;
   boolean isException;
 
   @AfterClass
-  public void afterClass() throws NoSuchFieldException, IllegalAccessException {
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
     messageToUserDAO = MessageToUserDAO.getInstance();
     Class clazz = MessageToUserDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");

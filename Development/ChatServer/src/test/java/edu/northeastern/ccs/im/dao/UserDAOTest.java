@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 
 public class UserDAOTest {
 
-  UserDAO userDAO;
+  static UserDAO userDAO;
   User user;
   User user1;
   User createUser;
@@ -24,7 +24,7 @@ public class UserDAOTest {
   boolean isException;
 
   @AfterClass
-  public void afterClass() throws NoSuchFieldException, IllegalAccessException {
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
     userDAO = UserDAO.getInstance();
     Class clazz = UserDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");

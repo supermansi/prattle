@@ -15,12 +15,12 @@ import edu.northeastern.ccs.im.model.Groups;
 
 public class GroupsDAOTest {
 
-  GroupDAO groupDAO;
+  static GroupDAO groupDAO;
   Groups group;
   boolean isException;
 
   @AfterClass
-  public void afterClass() throws NoSuchFieldException, IllegalAccessException {
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
     groupDAO = GroupDAO.getInstance();
     Class clazz = GroupDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");

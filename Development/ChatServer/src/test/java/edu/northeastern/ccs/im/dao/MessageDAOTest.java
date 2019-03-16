@@ -16,11 +16,11 @@ import edu.northeastern.ccs.im.model.Message;
 
 public class MessageDAOTest {
 
-  MessageDAO messageDAO;
+  static MessageDAO messageDAO;
   boolean isException;
 
   @AfterClass
-  public void afterClass() throws NoSuchFieldException, IllegalAccessException {
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
     messageDAO = MessageDAO.getInstance();
     Class clazz = MessageDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");
