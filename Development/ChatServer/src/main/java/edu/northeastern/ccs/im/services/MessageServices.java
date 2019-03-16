@@ -9,6 +9,9 @@ import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
+/**
+ * Class for the Message services.
+ */
 public class MessageServices {
 
   private static GroupDAO groupDAO;
@@ -16,6 +19,9 @@ public class MessageServices {
   private static MessageDAO messageDAO;
   private static MessageToUserDAO messageUserDAO;
 
+  /**
+   * Private constructor for the message service instance.
+   */
   private MessageServices() {
     // empty private constructor
   }
@@ -27,6 +33,15 @@ public class MessageServices {
     messageUserDAO = MessageToUserDAO.getInstance();
   }
 
+  /**
+   * Method to add a message to the database.
+   *
+   * @param msgType msgType describing type of message
+   * @param sender sender name
+   * @param receiver receiver name
+   * @param message message text
+   * @return true if message is added to database, false otherwise
+   */
   public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message) {
     if (msgType == Message.MsgType.PVT) {
       if (userDAO.isUserExists(receiver)) {
@@ -50,10 +65,23 @@ public class MessageServices {
     return false;
   }
 
+  /**
+   * Method to return a list of messages between users.
+   *
+   * @param sender sender's user name
+   * @param receiver reciever's user name
+   * @return a list of strings with the message text sent between users
+   */
   public static List<String> retrieveUserMessages(String sender, String receiver) {
     return messageUserDAO.retrieveUserMsg(sender, receiver);
   }
 
+  /**
+   * Method to return a list of messages sent to a group.
+   *
+   * @param groupName group name
+   * @return a list of strings with the message text to the group
+   */
   public static List<String> retrieveGroupMessages(String groupName) {
     return messageUserDAO.getMessagesFromGroup(groupName);
   }

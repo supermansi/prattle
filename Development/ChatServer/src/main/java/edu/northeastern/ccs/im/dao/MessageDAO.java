@@ -11,12 +11,20 @@ import java.util.List;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
+/**
+ * Class for the message DAO.
+ */
 public class MessageDAO {
 	
 	  protected static IConnectionManager connectionManager;
 	  private static MessageDAO messageDAO;
 
-	  public static MessageDAO getInstance() {
+	/**
+	 * Method to return the singleton instance of the message DAO.
+	 *
+	 * @return the instance of message DAO
+	 */
+	public static MessageDAO getInstance() {
 	    if (messageDAO == null) {
 	      connectionManager = new ConnectionManager();
 	      messageDAO = new MessageDAO();
@@ -24,17 +32,26 @@ public class MessageDAO {
 	    return messageDAO;
 	  }
 
-	  private MessageDAO() {
+	/**
+	 * Private constructor for message DAO.
+	 */
+	private MessageDAO() {
 	    //empty private constructor for singleton
 	  }
-	  
-	  public Message createMessage(Message message) {
+
+	/**
+	 * Method to store a message in the database.
+	 *
+	 * @param message message to be stored in the databse
+	 * @return a message model object
+	 */
+	public Message createMessage(Message message) {
 		    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
 		    try (Connection connection = connectionManager.getConnection();
 		         PreparedStatement preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);) {
 		      preparedStatement.setString(1, message.getMsgType().name());
 		      preparedStatement.setInt(2, message.getSenderID());
-		      preparedStatement.setString(3, message.getMessage());
+		      preparedStatement.setString(3, message.getMessageText());
 		      preparedStatement.setString(4, message.getTimestamp());
 		      preparedStatement.executeUpdate();
 		      try (ResultSet resultSet = preparedStatement.getGeneratedKeys();) {
@@ -48,8 +65,14 @@ public class MessageDAO {
 		      throw new DatabaseConnectionException(e.getMessage());
 		    }
 	  }
-	  
-	  public Message getMessageByID(int msgID) {
+
+	/**
+	 * Method to retrieve a message from the database by the #ID.
+	 *
+	 * @param msgID int representing the message #ID
+	 * @return message model object
+	 */
+	public Message getMessageByID(int msgID) {
 		  	String getMessage = "SELECT * FROM Message WHERE msgID = ?;";
 		    try (Connection connection = connectionManager.getConnection();
 		         PreparedStatement preparedStatement = connection.prepareStatement(getMessage, Statement.RETURN_GENERATED_KEYS);) {
@@ -72,8 +95,14 @@ public class MessageDAO {
 		      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
 		    }
 	  }
-	  
-	  public List<Message> getMessagesBySender(int senderID) {
+
+	/**
+	 * Method to return a list of messages that have the same sender #ID.
+	 *
+	 * @param senderID int representing the sender #ID.
+	 * @return a list of messages matching the sender #ID
+	 */
+	public List<Message> getMessagesBySender(int senderID) {
 		  List<Message> messages = new ArrayList<>();
 		  String listMessages = "SELECT * FROM Message WHERE senderID=?;";
 		  try (Connection connection = connectionManager.getConnection();

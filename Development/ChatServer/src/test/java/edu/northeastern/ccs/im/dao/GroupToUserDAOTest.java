@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.lang.reflect.Field;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
@@ -135,8 +134,8 @@ public class GroupToUserDAOTest {
 		groupToUserDAO.addUserToGroup(2, group.getGrpID());
 		groupToUserDAO.deleteUserFromGroup(0, group.getGrpID());
 	}
-	
-	@Test(expected = DatabaseConnectionException.class)
+
+	@Test(expected=DatabaseConnectionException.class)
 	public void testCreateException() {
 		groupToUserDAO.addUserToGroup(4, 5);
 	}

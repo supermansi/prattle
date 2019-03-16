@@ -10,6 +10,9 @@ public class GroupToUserMapTest {
 	
 	GroupToUserMap groupUserMap = new GroupToUserMap(1, 2);
 
+	/**
+	 * Testing group ID
+	 */
 	@Test
 	public void testGroupID() {
 		groupUserMap.setGroupID(123);

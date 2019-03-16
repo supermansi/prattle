@@ -10,6 +10,9 @@ import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 
+/**
+ * This class is the dao for a group to user mapping.
+ */
 public class GroupToUserDAO {
 
   protected static IConnectionManager connectionManager;
@@ -17,10 +20,18 @@ public class GroupToUserDAO {
   private static GroupDAO groupDAO;
   private static UserDAO userDAO;
 
+    /**
+     * Private constructor for the group to user DAO.
+     */
   private GroupToUserDAO() {
     // empty constructor for singleton
   }
 
+    /**
+     * Method to return the singleton instance of the group to user DAO.
+     *
+     * @return group to user DAO instance
+     */
   public static GroupToUserDAO getInstance() {
     if (instance == null) {
       connectionManager = new ConnectionManager();
@@ -31,6 +42,12 @@ public class GroupToUserDAO {
     return instance;
   }
 
+    /**
+     * Method to add a user to a group in the database.
+     *
+     * @param userID int representing the user #ID
+     * @param groupID int representing the user #ID
+     */
   public void addUserToGroup(int userID, int groupID) {
     String insertUserToGroupMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?,?);";
     // Check if group exists and user exists
@@ -52,6 +69,13 @@ public class GroupToUserDAO {
     }
   }
 
+    /**
+     * Method to check if a user is part of a group.
+     *
+     * @param userID int representing the user #ID
+     * @param groupID int representing the group #ID
+     * @return true if the user is part of the group, otherwise false
+     */
   public boolean checkIfUserInGroup(int userID, int groupID) {
     String checkIfUserInGroup = "SELECT * FROM GroupToUserMap WHERE userID=? AND groupID=?;";
     try (Connection connection = connectionManager.getConnection();
@@ -66,6 +90,12 @@ public class GroupToUserDAO {
     }
   }
 
+    /**
+     * Method to delete user from a group.
+     *
+     * @param userID int representing the user #ID
+     * @param groupID int representing the group #ID
+     */
   public void deleteUserFromGroup(int userID, int groupID) {
     if (checkIfUserInGroup(userID, groupID)) {
       String deleteUser = "DELETE FROM GroupToUserMap WHERE userID=? AND groupID=?;";
@@ -80,6 +110,11 @@ public class GroupToUserDAO {
     }
   }
 
+    /**
+     * Method to delete all users from a specified group.
+     *
+     * @param userID int representing the user #ID
+     */
   public void deleteUserFromAllGroups(int userID) {
     String deleteUser = "DELETE FROM GroupToUserMap WHERE userID=?;";
     try (Connection connection = connectionManager.getConnection();
@@ -91,6 +126,12 @@ public class GroupToUserDAO {
     }
   }
 
+    /**
+     * Method to return a list of all the user's names that belong to a group.
+     *
+     * @param groupName string representing the group name
+     * @return a list of strings representing the user's in the group names
+     */
   public List<String> getAllUsersInGroup(String groupName) {
     List<String> users = new ArrayList<>();
     int groupID = groupDAO.getGroupByGroupName(groupName).getGrpID();

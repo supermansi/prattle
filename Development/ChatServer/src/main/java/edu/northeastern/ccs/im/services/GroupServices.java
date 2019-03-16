@@ -8,12 +8,18 @@ import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
+/**
+ * Class for the group services.
+ */
 public class GroupServices {
 
 	private static GroupDAO groupDAO;
 	private static GroupToUserDAO groupUserDAO;
 	private static UserDAO userDAO;
 
+    /**
+     * Private constructor for the group services instance.
+     */
 	private GroupServices() {
 		//empty private constructor
 	}
@@ -23,12 +29,25 @@ public class GroupServices {
 		userDAO = UserDAO.getInstance();
 	}
 
+    /**
+     * Method to create a group in the database.
+     *
+     * @param groupName string representing the group name
+     * @param adminUsername string representing the admin name
+     */
 	public static void createGroup(String groupName, String adminUsername) {
 		User admin = userDAO.getUserByUsername(adminUsername);
 		Groups group = new Groups(groupName, admin.getUserID());
 		groupDAO.createGroup(group);
 	}
 
+    /**
+     * Method to create a group in the database.
+     *
+     * @param groupName string representing the group name
+     * @param adminName string representing the admin name
+     * @param userName string representing the username name
+     */
 	public static void addUserToGroup(String groupName, String adminName, String userName) {
 		groupDAO.checkGroupExists(groupName);
 		groupDAO.validateGroupAdmin(groupName, adminName);
@@ -38,12 +57,26 @@ public class GroupServices {
 			groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
 	}
 
+    /**
+     * Method to determine if a user is part of a group.
+     *
+     * @param userName string representing the user name
+     * @param groupName string representing the group name
+     * @return true if the user is in the group, false otherwise
+     */
 	public static boolean validateUserExistsInGroup(String userName, String groupName) {
 		User user = userDAO.getUserByUsername(userName);
 		Groups group = groupDAO.getGroupByGroupName(groupName);
 		return groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID());
 	}
 
+    /**
+     * Method to remove a user from a group.
+     *
+     * @param groupName string representing the group name
+     * @param adminName string representing the admin name
+     * @param userName string representing the user name
+     */
 	public static void removeUserFromGroup(String groupName, String adminName, String userName) {
 		groupDAO.validateGroupAdmin(groupName, adminName);
 		User user = userDAO.getUserByUsername(userName);
@@ -51,17 +84,29 @@ public class GroupServices {
 		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
 	}
 
+    /**
+     * Method to get a list of all the users in a group.
+     *
+     * @param groupName string representing the group name
+     * @return list of user names in the group
+     */
 	public static List<String> getAllUsersInGroup(String groupName) {
 		groupDAO.checkGroupExists(groupName);
 		return groupUserDAO.getAllUsersInGroup(groupName);
 	}
-	
+
+    /**
+     * Method to delete a group from the database.
+     *
+     * @param grpName string representing the group name
+     * @param adminName string representing the admin name
+     * @return true if the group is deleted, false otherwise
+     */
 	public static boolean deleteGroup(String grpName, String adminName) {
-		if(groupDAO.checkGroupExists(groupDAO.getGroupByGroupName(grpName).getGrpID())) {
-			if(userDAO.isUserExists(userDAO.getUserByUsername(adminName).getUserID())) {
+		if(groupDAO.checkGroupExists(groupDAO.getGroupByGroupName(grpName).getGrpID()) &&
+				userDAO.isUserExists(adminName)) {
 				groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName(grpName).getGrpID());
 				return true;
-			}
 		}
 		return false;
 	}

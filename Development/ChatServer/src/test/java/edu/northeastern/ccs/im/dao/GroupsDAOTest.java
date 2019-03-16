@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import java.lang.reflect.Field;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
@@ -155,14 +154,14 @@ public class GroupsDAOTest {
 		group = groupDAO.getGroupByGroupName(group.getGrpName());
 	}
 
+
 	@Test(expected = DatabaseConnectionException.class)
 	public void testGroupByIDFalse() {
 		assertNull(groupDAO.getGroupByGroupID(1));
 	}
-
-	@Test(expected = DatabaseConnectionException.class)
+	
+	@Test(expected=DatabaseConnectionException.class)
 	public void testGroupByNameFalse() {
 		assertNull(groupDAO.getGroupByGroupName("x"));
 	}
-
 }

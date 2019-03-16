@@ -11,40 +11,51 @@ import java.util.Properties;
 import edu.northeastern.ccs.im.ChatLogger;
 
 
-public class ConnectionManager implements IConnectionManager{
-	
-	Properties prop = new Properties();
-	
-	private static final String USER = "b9771ba524a91a";
+/**
+ * This class represents the dao that manages the connection to the database.
+ */
 
-	private static final String HOSTNAME = "us-cdbr-iron-east-03.cleardb.net";
+public class ConnectionManager implements IConnectionManager {
 
-	private static final int PORT = 3306;
 
-	private static final String SCHEMA = "heroku_5b0785b4e92d159";
+  Properties prop = new Properties();
 
-	public Connection getConnection() {
-		Connection connection = null;
-		
-		try {
-			InputStream inputStream = new FileInputStream("resources/config.properties");
-			prop.load(inputStream);
-		} catch (IOException e1) {
-			ChatLogger.error(e1.getMessage());
-		}
-		try {
-			Properties connectionProperties = new Properties();
-			connectionProperties.put("user", USER);
-			connectionProperties.put("password", prop.getProperty("password"));
-			Class.forName("com.mysql.jdbc.Driver");
+  private static final String USER = "b9771ba524a91a";
 
-			connection = DriverManager.getConnection(
-			    "jdbc:mysql://" + HOSTNAME + ":" + PORT + "/" + SCHEMA,
-			    connectionProperties);
-		} catch (SQLException | ClassNotFoundException e) {
-			ChatLogger.error(e.getMessage());
-		}
-		return connection;
-	}
+  private static final String HOSTNAME = "us-cdbr-iron-east-03.cleardb.net";
+
+  private static final int PORT = 3306;
+
+  private static final String SCHEMA = "heroku_5b0785b4e92d159";
+
+
+  /**
+   * Method to get the connection to the database.
+   *
+   * @return Connection representing the connection to the database
+   */
+  public Connection getConnection() {
+    Connection connection = null;
+
+    try {
+      InputStream inputStream = new FileInputStream("resources/config.properties");
+      prop.load(inputStream);
+    } catch (IOException e1) {
+      ChatLogger.error(e1.getMessage());
+    }
+    try {
+      Properties connectionProperties = new Properties();
+      connectionProperties.put("user", USER);
+      connectionProperties.put("password", prop.getProperty("password"));
+      Class.forName("com.mysql.jdbc.Driver");
+
+      connection = DriverManager.getConnection(
+              "jdbc:mysql://" + HOSTNAME + ":" + PORT + "/" + SCHEMA,
+              connectionProperties);
+    } catch (SQLException | ClassNotFoundException e) {
+      ChatLogger.error(e.getMessage());
+    }
+    return connection;
+  }
 
 }

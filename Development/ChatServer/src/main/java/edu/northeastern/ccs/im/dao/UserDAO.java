@@ -9,11 +9,19 @@ import java.sql.Statement;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
+/**
+ * Class for the user DAO.
+ */
 public class UserDAO {
 
   private static IConnectionManager connectionManager;
   private static UserDAO userDAO;
 
+  /**
+   * Method to get the singleton instance of the user DAO.
+   *
+   * @return the instance of teh user DAO
+   */
   public static UserDAO getInstance() {
     if (userDAO == null) {
       connectionManager = new ConnectionManager();
@@ -22,10 +30,19 @@ public class UserDAO {
     return userDAO;
   }
 
+  /**
+   * Private constructor for the user DAO
+   */
   private UserDAO() {
     //empty private constructor for singleton
   }
 
+  /**
+   * Method to create a user in the database.
+   *
+   * @param user user model object to store
+   * @return user model object
+   */
   public User createUser(User user) {
     String insertUser = "INSERT INTO USER(USERNAME, PASSWORD, USERFN, USERLN, EMAIL) VALUES(?,?,?,?,?);";
     try (Connection connection = connectionManager.getConnection();
@@ -51,6 +68,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to get a user model object by user name.
+   *
+   * @param userName sting representing the username
+   * @return user model object
+   */
   public User getUserByUsername(String userName) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -78,6 +101,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to get a user model object by user #ID.
+   *
+   * @param userId int representing a user ID
+   * @return a user model object
+   */
   public User getUserByUserID(int userId) {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -105,6 +134,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to determine if a user exists in the database by the username.
+   *
+   * @param userName string representing the user name
+   * @return true if the user is in the database, false otherwise
+   */
   public boolean isUserExists(String userName) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -118,6 +153,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to determine if a user exists in the database by the user #ID.
+   *
+   * @param userId int representing the user name
+   * @return true if the user is in the database, false otherwise
+   */
   public boolean isUserExists(int userId) {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -131,6 +172,13 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to check if a user name and password match.
+   *
+   * @param userName string representing the username
+   * @param pw string representing the password
+   * @return true if the fields match, otherwise false
+   */
   public boolean validateUser(String userName, String pw) {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND PASSWORD = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -146,6 +194,11 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to delete a user from the database.
+   *
+   * @param userName string representing the user name
+   */
   public void deleteUser(String userName) {
     String insertUser = "DELETE FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -159,6 +212,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to update the first name of a a user in the database.
+   *
+   * @param userName string representing the user first name
+   * @param updatedFirstName string representing the new user first name
+   */
   public void updateFirstName(String userName, String updatedFirstName) {
     String insertUser = "UPDATE USER SET USERFN = ? WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -171,6 +230,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to update the last name of a a user in the database.
+   *
+   * @param userName string representing the user last name
+   * @param updatedLastName string representing the new user last name
+   */
   public void updateLastName(String userName, String updatedLastName) {
     String insertUser = "UPDATE USER SET USERLN = ? WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -183,6 +248,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to update the password of a a user in the database.
+   *
+   * @param userName string representing the user password
+   * @param updatedPassword string representing the new user password
+   */
   public void updatePassword(String userName, String updatedPassword) {
     String insertUser = "UPDATE USER SET PASSWORD = ? WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -195,6 +266,12 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to update the email of a a user in the database.
+   *
+   * @param userName string representing the user email
+   * @param updatedEmail string representing the new user email
+   */
   public void updateEmail(String userName, String updatedEmail) {
     String insertUser = "UPDATE USER SET EMAIL = ? WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
@@ -206,7 +283,13 @@ public class UserDAO {
       throw new DatabaseConnectionException(e.getMessage());
     }
   }
-  
+
+  /**
+   * Method to update the timestamp of the last seen message of a user in the database.
+   *
+   * @param userName string representing the user last name
+   * @param lastSeen string representing the timestamp of the last seen message of a user
+   */
   public void updateLastSeen(String userName, String lastSeen) {
 	    String updateLastSeen = "UPDATE User SET lastSeen=? WHERE username=?;";
 	    try (Connection connection = connectionManager.getConnection();
