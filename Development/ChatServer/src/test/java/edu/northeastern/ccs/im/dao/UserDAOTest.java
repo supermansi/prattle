@@ -3,8 +3,9 @@ package edu.northeastern.ccs.im.dao;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
@@ -13,7 +14,7 @@ import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.*;
-
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserDAOTest {
 
   static UserDAO userDAO;

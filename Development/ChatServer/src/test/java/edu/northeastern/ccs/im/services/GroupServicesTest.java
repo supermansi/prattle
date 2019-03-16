@@ -9,8 +9,12 @@ import java.util.List;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupServicesTest {
 	
 	GroupServices groupServices;

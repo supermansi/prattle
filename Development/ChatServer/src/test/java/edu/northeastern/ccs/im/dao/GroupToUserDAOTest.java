@@ -7,13 +7,16 @@ import static org.junit.Assert.assertTrue;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.Field;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupToUserDAOTest {
 
   static GroupToUserDAO groupToUserDAO;

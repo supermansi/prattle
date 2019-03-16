@@ -9,11 +9,14 @@ import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MessageDAOTest {
 
   static MessageDAO messageDAO;

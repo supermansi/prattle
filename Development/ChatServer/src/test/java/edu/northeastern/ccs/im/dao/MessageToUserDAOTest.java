@@ -3,7 +3,9 @@ package edu.northeastern.ccs.im.dao;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -14,6 +16,7 @@ import edu.northeastern.ccs.im.services.MessageServices;
 
 import static org.junit.Assert.assertEquals;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MessageToUserDAOTest {
 
   static MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
