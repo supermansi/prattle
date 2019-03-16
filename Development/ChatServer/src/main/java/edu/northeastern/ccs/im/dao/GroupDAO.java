@@ -71,13 +71,24 @@ public class GroupDAO {
         insertStmt2.setInt(1, group.getAdminID());
         insertStmt2.setInt(2, group.getGrpID());
         insertStmt2.executeUpdate();
+        return group;
       } finally {
-        resultSet.close();
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
-      return group;
     } finally {
-      insertStmt1.close();
-      insertStmt2.close();
+      try {
+        if (insertStmt1 != null) {
+          insertStmt1.close();
+        }
+
+
+      } finally {
+        if (insertStmt2 != null) {
+          insertStmt2.close();
+        }
+      }
       connection.close();
     }
   }
@@ -96,7 +107,9 @@ public class GroupDAO {
       statement.setInt(1, groupID);
       statement.executeUpdate();
     } finally {
-      statement.close();
+      if (statement != null) {
+        statement.close();
+      }
       connection.close();
     }
   }
@@ -119,11 +132,14 @@ public class GroupDAO {
         result = statement.executeQuery();
         return result.next();
       } finally {
-        result.close();
-        ;
+        if (result != null) {
+          result.close();
+        }
       }
     } finally {
-      statement.close();
+      if (statement != null) {
+        statement.close();
+      }
       connection.close();
     }
   }
@@ -146,10 +162,14 @@ public class GroupDAO {
         result = statement.executeQuery();
         return result.next();
       } finally {
-        result.close();
+        if (result != null) {
+          result.close();
+        }
       }
     } finally {
-      statement.close();
+      if (statement != null) {
+        statement.close();
+      }
       connection.close();
     }
   }
@@ -175,10 +195,15 @@ public class GroupDAO {
         result = preparedStatement.executeQuery();
         return result.next();
       } finally {
-        result.close();
+        if (result != null) {
+          result.close();
+        }
+
       }
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -198,7 +223,10 @@ public class GroupDAO {
       preparedStatement.setString(1, groupName);
       return getGroups(preparedStatement);
     } finally {
-      preparedStatement.close();
+
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -218,7 +246,9 @@ public class GroupDAO {
       preparedStatement.setInt(1, groupID);
       return getGroups(preparedStatement);
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -238,7 +268,9 @@ public class GroupDAO {
         throw new SQLException("Group not found.");
       }
     } finally {
-      resultSet.close();
+      if (resultSet != null) {
+        resultSet.close();
+      }
     }
   }
 }

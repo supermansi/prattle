@@ -68,10 +68,14 @@ public class UserDAO {
 
         return user;
       } finally {
-        resultSet.close();
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -109,10 +113,14 @@ public class UserDAO {
 
         return user;
       } finally {
-        resultSet.close();
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
 
     }
@@ -148,11 +156,15 @@ public class UserDAO {
           throw new DatabaseConnectionException("User not found.");
         }
       } finally {
-        resultSet.close();
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
       return user;
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
 
     }
@@ -172,14 +184,18 @@ public class UserDAO {
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, userName);
       ResultSet resultSet = null;
-      try  {
+      try {
         resultSet = preparedStatement.executeQuery();
         return resultSet.next();
-      }finally {
-        resultSet.close();
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -198,14 +214,18 @@ public class UserDAO {
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, userId);
       ResultSet resultSet = null;
-      try  {
+      try {
         resultSet = preparedStatement.executeQuery();
         return resultSet.next();
-      }finally {
-        resultSet.close();
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
 
     }
@@ -228,14 +248,19 @@ public class UserDAO {
       preparedStatement.setString(2, pw);
 
       ResultSet resultSet = null;
-      try  {
+      try {
         resultSet = preparedStatement.executeQuery();
         return resultSet.next();
-      }finally {
-        resultSet.close();
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+
+      }
       connection.close();
 
     }
@@ -258,7 +283,9 @@ public class UserDAO {
       }
     } finally {
 
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -279,7 +306,9 @@ public class UserDAO {
       preparedStatement.setString(2, userName);
       preparedStatement.executeUpdate();
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -300,7 +329,9 @@ public class UserDAO {
       preparedStatement.setString(2, userName);
       preparedStatement.executeUpdate();
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -321,7 +352,9 @@ public class UserDAO {
       preparedStatement.setString(2, userName);
       preparedStatement.executeUpdate();
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
 
@@ -343,7 +376,9 @@ public class UserDAO {
       preparedStatement.setString(2, userName);
       preparedStatement.executeUpdate();
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -364,7 +399,9 @@ public class UserDAO {
       preparedStatement.setString(2, userName);
       preparedStatement.executeUpdate();
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }

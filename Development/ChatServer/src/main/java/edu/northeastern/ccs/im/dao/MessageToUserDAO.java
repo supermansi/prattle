@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
 /**
@@ -16,10 +15,10 @@ import edu.northeastern.ccs.im.model.Message;
  */
 public class MessageToUserDAO {
 
+  protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
   private static MessageToUserDAO messageToUserDAO;
   private static GroupDAO groupDAO;
-  protected static IConnectionManager connectionManager;
 
   /**
    * Private constructor for the message to user DAO.
@@ -46,7 +45,7 @@ public class MessageToUserDAO {
   /**
    * Method to map a message to the receiverID.
    *
-   * @param message message to map
+   * @param message    message to map
    * @param receiverId receiverID to map
    */
   public void mapMsgIdToReceiverId(Message message, int receiverId) throws SQLException {
@@ -59,8 +58,10 @@ public class MessageToUserDAO {
       statement.setInt(1, message.getMsgID());
       statement.setInt(2, receiverId);
       statement.executeUpdate();
-    }finally {
-      statement.close();
+    } finally {
+      if (statement != null) {
+        statement.close();
+      }
       connection.close();
     }
   }
@@ -80,18 +81,23 @@ public class MessageToUserDAO {
       preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, groupDAO.getGroupByGroupName(groupName).getGrpID());
       ResultSet resultSet = null;
-      try {resultSet = preparedStatement.executeQuery();
+      try {
+        resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
           String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
           String message = resultSet.getString("message");
           messages.add(username + " " + message);
         }
-      }finally {
-        resultSet.close();
+      } finally {
+        if(resultSet!=null){
+          resultSet.close();
+        }
       }
       return messages;
-    }finally {
-      preparedStatement.close();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
@@ -99,7 +105,7 @@ public class MessageToUserDAO {
   /**
    * Method to retrieve messages between users.
    *
-   * @param sender sender of the message
+   * @param sender   sender of the message
    * @param receiver receiver of the message
    * @return list of strings representing the messages
    */
@@ -108,25 +114,30 @@ public class MessageToUserDAO {
     List<String> chat = new ArrayList<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
-    try{
+    try {
       statement = connection.prepareStatement(selectQuery);
-      statement.setInt(1,userDAO.getUserByUsername(sender).getUserID());
-      statement.setInt(2,userDAO.getUserByUsername(receiver).getUserID());
-      statement.setInt(3,userDAO.getUserByUsername(receiver).getUserID());
-      statement.setInt(4,userDAO.getUserByUsername(sender).getUserID());
+      statement.setInt(1, userDAO.getUserByUsername(sender).getUserID());
+      statement.setInt(2, userDAO.getUserByUsername(receiver).getUserID());
+      statement.setInt(3, userDAO.getUserByUsername(receiver).getUserID());
+      statement.setInt(4, userDAO.getUserByUsername(sender).getUserID());
       ResultSet resultSet = null;
-      try {resultSet = statement.executeQuery();
+      try {
+        resultSet = statement.executeQuery();
         while (resultSet.next()) {
           int senderId = resultSet.getInt("senderID");
           String msg = resultSet.getString("message");
           chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
         }
-      }finally {
-        resultSet.close();
+      } finally {
+        if(resultSet!=null){
+          resultSet.close();
+        }
       }
       return chat;
-    }finally {
-      statement.close();
+    } finally {
+      if (statement != null) {
+        statement.close();
+      }
       connection.close();
     }
   }

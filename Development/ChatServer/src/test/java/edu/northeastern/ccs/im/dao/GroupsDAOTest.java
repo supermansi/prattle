@@ -2,6 +2,8 @@ package edu.northeastern.ccs.im.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -11,6 +13,8 @@ import org.junit.runners.MethodSorters;
 import org.mockito.internal.matchers.Null;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.SQLException;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
@@ -196,6 +200,22 @@ public class GroupsDAOTest {
     isException = true;
     group = new Groups("GroupTest", 2);
     groupDAO.createGroup(group);
+  }
+
+  @Test(expected = InvocationTargetException.class)
+  public void testGetGrp() throws InvocationTargetException, IllegalAccessException {
+    Class<GroupDAO> clazz = GroupDAO.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("getGroups")) {
+        met = m;
+      }
+    }
+    met.setAccessible(true);
+    Object o = null;
+    met.invoke(groupDAO,o);
+
   }
 
 }

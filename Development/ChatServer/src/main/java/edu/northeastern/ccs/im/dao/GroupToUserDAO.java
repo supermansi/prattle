@@ -61,7 +61,9 @@ public class GroupToUserDAO {
           statement.setInt(2, groupID);
           statement.executeUpdate();
         } finally {
-          statement.close();
+          if (statement != null) {
+            statement.close();
+          }
           connection.close();
         }
       } else {
@@ -91,7 +93,9 @@ public class GroupToUserDAO {
         return result.next();
       }
     } finally {
-      statement.close();
+      if (statement != null) {
+        statement.close();
+      }
       connection.close();
     }
   }
@@ -113,7 +117,9 @@ public class GroupToUserDAO {
         statement.setInt(2, groupID);
         statement.executeUpdate();
       } finally {
-        statement.close();
+        if (statement != null) {
+          statement.close();
+        }
         connection.close();
       }
     }
@@ -133,7 +139,9 @@ public class GroupToUserDAO {
       statement.setInt(1, userID);
       statement.executeUpdate();
     } finally {
-      statement.close();
+      if (statement != null) {
+        statement.close();
+      }
     }
   }
 
@@ -155,19 +163,23 @@ public class GroupToUserDAO {
       ResultSet resultSet = null;
       try {
         resultSet = preparedStatement.executeQuery();
-        {
-          while (resultSet.next()) {
-            int userID = resultSet.getInt("userID");
-            users.add(userDAO.getUserByUserID(userID).getUsername());
-          }
+
+        while (resultSet.next()) {
+          int userID = resultSet.getInt("userID");
+          users.add(userDAO.getUserByUserID(userID).getUsername());
         }
+
 
         return users;
       } finally {
-        resultSet.close();
+        if (resultSet != null) {
+          resultSet.close();
+        }
       }
     } finally {
-      preparedStatement.close();
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
       connection.close();
     }
   }
