@@ -415,7 +415,7 @@ public class ClientRunnableTest {
         Message msg = Message.makePrivateMessage("test", "/pvt r hello world");
         try{
             met.invoke(clientRunnable,msg);
-        }catch (NullPointerException e){
+        }catch (Exception e){
             assert true;
         }
 
