@@ -12,7 +12,7 @@ import edu.northeastern.ccs.im.model.User;
 
 public class GroupDAO {
 	
-  protected static ConnectionManager connectionManager;
+  protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
   private static GroupDAO groupDAO;
 

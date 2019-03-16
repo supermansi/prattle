@@ -13,7 +13,7 @@ import edu.northeastern.ccs.im.model.Message;
 
 public class MessageDAO {
 	
-	  protected static ConnectionManager connectionManager;
+	  protected static IConnectionManager connectionManager;
 	  private static MessageDAO messageDAO;
 
 	  public static MessageDAO getInstance() {

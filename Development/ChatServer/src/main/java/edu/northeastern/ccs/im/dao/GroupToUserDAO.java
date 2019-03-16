@@ -12,7 +12,7 @@ import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 
 public class GroupToUserDAO {
 
-  protected static ConnectionManager connectionManager;
+  protected static IConnectionManager connectionManager;
   private static GroupToUserDAO instance = null;
   private static GroupDAO groupDAO;
   private static UserDAO userDAO;

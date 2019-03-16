@@ -16,7 +16,7 @@ public class MessageToUserDAO {
   private static UserDAO userDAO;
   private static MessageToUserDAO messageToUserDAO;
   private static GroupDAO groupDAO;
-  protected static ConnectionManager connectionManager;
+  protected static IConnectionManager connectionManager;
 
   private MessageToUserDAO() {
     //empty private constructor for singleton
