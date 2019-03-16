@@ -178,15 +178,6 @@ public class MessageServiceTest {
 
   @Test
   public void testRetrieveGroupMessages() throws SQLException {
-    User user = new User("Aditi17", "Aditi17", "Kacheria17", "aditik17@gmail.com", "1234517");
-    if (userDAO.isUserExists(user.getUsername())) {
-      userDAO.deleteUser(user.getUsername());
-    }
-    Groups groupMSD = new Groups("groupMSD12", user.getUserID());
-    if (groupDAO.checkGroupExists("groupMSD12")) {
-      groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName("groupMSD12").getGrpID());
-    }
-    groupDAO.createGroup(groupMSD);
     String result = "";
     List<String> chat = MessageServices.retrieveGroupMessages("MSD");
     for (int i = 0; i < chat.size(); i++) {
@@ -195,7 +186,5 @@ public class MessageServiceTest {
     assertEquals("r /grp MSD Hello\n" +
             "j /grp MSD hello to the group\n", result);
 
-    userDAO.deleteUser(user.getUsername());
-    groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName("groupMSD12").getGrpID());
   }
 }

@@ -89,7 +89,7 @@ public class GroupsDAOTest {
     groupDAO.deleteGroupByID(group.getGrpID());
   }
 
-  @Test(expected=DatabaseConnectionException.class)
+  @Test(expected=SQLException.class)
   public void testGroupByNameFalse() throws SQLException {
     groupDAO = GroupDAO.getInstance();
     group = new Groups("Group 12", 2);

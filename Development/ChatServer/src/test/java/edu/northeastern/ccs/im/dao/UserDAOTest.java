@@ -26,7 +26,7 @@ public class UserDAOTest {
     userDAO = UserDAO.getInstance();
   }
 
-  @Test(expected = DatabaseConnectionException.class)
+  @Test
   public void testCreateUserFailNull() throws SQLException {
     User nullUser = new User("", "", "", "", "");
     if (userDAO.isUserExists(nullUser.getUsername())) {
@@ -35,7 +35,7 @@ public class UserDAOTest {
     assertEquals("", userDAO.createUser(nullUser).getUsername());
   }
 
-  @Test(expected = DatabaseConnectionException.class)
+  @Test(expected = SQLException.class)
   public void testCreateUserFailDuplicate() throws SQLException {
     User createUser = new User("Adi", "Adi", "K", "adi@gmail.com", "1234");
     if (userDAO.isUserExists(createUser.getUsername())) {
@@ -141,9 +141,9 @@ public class UserDAOTest {
       userDAO.deleteUser(createUser.getUsername());
     }
     userDAO.createUser(createUser);
-    assertEquals(true, userDAO.isUserExists("Adi"));
+    assertEquals(true, userDAO.isUserExists("Adi8"));
     userDAO.deleteUser("Adi8");
-    assertEquals(false, userDAO.isUserExists("Adi"));
+    assertEquals(false, userDAO.isUserExists("Adi8"));
   }
 
   @Test(expected = DatabaseConnectionException.class)
