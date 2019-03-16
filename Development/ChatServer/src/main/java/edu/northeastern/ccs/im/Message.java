@@ -133,62 +133,167 @@ public class Message {
     return result;
   }
 
+  /**
+   * Method to create a registration message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a registration message
+   */
   public static Message makeRegisterationMessage(String srcName, String text) {
     return new Message((MessageType.REGISTRATION), srcName, text);
   }
 
+  /**
+   * Method to create a group message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a group message
+   */
   public static Message makeGroupMessage(String srcName, String text) {
     return new Message((MessageType.GROUP), srcName, text);
   }
 
+  /**
+   * Method to create a private message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a private message
+   */
   public static Message makePrivateMessage(String srcName, String text) {
     return new Message((MessageType.PRIVATE), srcName, text);
   }
 
+  /**
+   * Method to create a no acknowledge message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a no acknowledge message
+   */
   public static Message makeNackMessage(String srcName, String text) {
     return new Message(MessageType.NO_ACKNOWLEDGEMENT, srcName, text);
   }
 
+  /**
+   * Method to create an acknowledge message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return an acknowledge message
+   */
   public static Message makeAckMessage(String srcName, String text) {
     return new Message(MessageType.ACKNOWLEDGEMENT, srcName, text);
   }
 
-    public static Message makeUpdateFirstNameMessage(String srcName, String text){
-        return new Message(MessageType.UPDATE_FN, srcName, text);
-    }
+  /**
+   * Method to create an update first name message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return an update first name message
+   */
+  public static Message makeUpdateFirstNameMessage(String srcName, String text){
+    return new Message(MessageType.UPDATE_FN, srcName, text);
+  }
 
-    public static Message makeUpdateLastNameMessage(String srcName, String text){
-        return new Message(MessageType.UPDATE_LN, srcName, text);
-    }
+  /**
+   * Method to create an update last name message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return an update last name message
+   */
+  public static Message makeUpdateLastNameMessage(String srcName, String text){
+    return new Message(MessageType.UPDATE_LN, srcName, text);
+  }
 
-    public static Message makeUpdatePasswordMessage(String srcName, String text){
-        return new Message(MessageType.UPDATE_PW, srcName, text);
-    }
+  /**
+   * Method to create an update password message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return an update password message
+   */
+  public static Message makeUpdatePasswordMessage(String srcName, String text){
+    return new Message(MessageType.UPDATE_PW, srcName, text);
+  }
 
-    public static Message makeUpdateEmailMessage(String srcName, String text){
-        return new Message(MessageType.UPDATE_EM, srcName, text);
-    }
+  /**
+   * Method to create an update email message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return an update email message
+   */
+  public static Message makeUpdateEmailMessage(String srcName, String text){
+    return new Message(MessageType.UPDATE_EM, srcName, text);
+  }
 
-    public static Message createGroupMessage(String srcName, String text){
-        return new Message(MessageType.CREATE_GROUP, srcName,text);
-    }
+  /**
+   * Method to create a create group message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a create group message
+   */
+  public static Message createGroupMessage(String srcName, String text){
+    return new Message(MessageType.CREATE_GROUP, srcName,text);
+  }
 
-    public static Message deleteGroupMessage(String srcName, String text){
-        return new Message(MessageType.DELETE_GROUP, srcName,text);
-    }
+  /**
+   * Method to create a delete group message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a delete group message
+   */
+  public static Message deleteGroupMessage(String srcName, String text){
+    return new Message(MessageType.DELETE_GROUP, srcName,text);
+  }
 
-    public static Message makeRemoveUserMessage(String srcName, String text){
-        return new Message(MessageType.REMOVE_USER, srcName, text);
-    }
+  /**
+   * Method to create a remove user message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a remove user message
+   */
+  public static Message makeRemoveUserMessage(String srcName, String text){
+    return new Message(MessageType.REMOVE_USER, srcName, text);
+  }
 
-    public static Message makeRetrieveUserMessage(String srcName, String text){
-        return new Message(MessageType.RETRIEVE_USER, srcName, text);
-    }
+  /**
+   * Method to create a retrieve user message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a retrieve user message
+   */
+  public static Message makeRetrieveUserMessage(String srcName, String text){
+    return new Message(MessageType.RETRIEVE_USER, srcName, text);
+  }
 
-    public static Message makeRetrieveGroupMessage(String srcName, String text){
-        return new Message(MessageType.RETRIEVE_GROUP, srcName, text);
-    }
+  /**
+   * Method to create a retrieve group message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return a retrieve group message
+   */
+  public static Message makeRetrieveGroupMessage(String srcName, String text){
+    return new Message(MessageType.RETRIEVE_GROUP, srcName, text);
+  }
 
+  /**
+   * Method to create an add user to group message.
+   *
+   * @param srcName sender's user name
+   * @param text text of the message
+   * @return an add user to group message
+   */
   public static Message makeAddUserToGroupMessage(String srcName, String text){
     return new Message(MessageType.ADD_USER_TO_GRP, srcName, text);
   }
@@ -256,39 +361,103 @@ public class Message {
   public boolean isPrivateMessage() { return (msgType == MessageType.PRIVATE); }
 
   /**
-   * Determine if this message is a group message.
+   * Determine if this message is an acknowledge message.
    *
-   * @return True if the message is a group message; false otherwise
+   * @return True if the message is an acknowledge message; false otherwise
    */
-
   public boolean isAcknowledge() { return (msgType == MessageType.ACKNOWLEDGEMENT);}
 
+  /**
+   * Determine if this message is a non acknowledge message.
+   *
+   * @return True if the message is a non acknowledge message; false otherwise
+   */
   public boolean isNonAcknowledge() { return (msgType == MessageType.NO_ACKNOWLEDGEMENT);}
 
+  /**
+   * Determine if this message is a group message.
+   *
+   * @return True if the message is a group; false otherwise
+   */
   public boolean isGroupMessage() { return (msgType == MessageType.GROUP); }
 
+  /**
+   * Determine if this message is a registration message.
+   *
+   * @return True if the message is a registration message; false otherwise
+   */
   public boolean isRegistration() {
         return (msgType == MessageType.REGISTRATION);
     }
 
+  /**
+   * Determine if this message is an update first name message.
+   *
+   * @return True if the message is an update first name message; false otherwise
+   */
   public boolean isUpdateFirstName() {return (msgType == MessageType.UPDATE_FN); }
 
+  /**
+   * Determine if this message is an update last name message.
+   *
+   * @return True if the message is an update last name message; false otherwise
+   */
   public boolean isUpdateLastName() {return (msgType == MessageType.UPDATE_LN); }
 
+  /**
+   * Determine if this message is an update password message.
+   *
+   * @return True if the message is an update password message; false otherwise
+   */
   public boolean isUpdatePassword() {return (msgType == MessageType.UPDATE_PW); }
 
+  /**
+   * Determine if this message is an update email message.
+   *
+   * @return True if the message is an update email message; false otherwise
+   */
   public boolean isUpdateEmail() {return (msgType == MessageType.UPDATE_EM); }
 
+  /**
+   * Determine if this message is a create group message.
+   *
+   * @return True if the message is a create group message; false otherwise
+   */
   public boolean isCreateGroup() {return (msgType == MessageType.CREATE_GROUP); }
 
+  /**
+   * Determine if this message is a delete group message.
+   *
+   * @return True if the message is a delete group message; false otherwise
+   */
   public boolean isDeleteGroup() {return (msgType == MessageType.DELETE_GROUP); }
 
+  /**
+   * Determine if this message is a remove user message.
+   *
+   * @return True if the message is a remove user message; false otherwise
+   */
   public boolean isRemoveUser() {return (msgType == MessageType.REMOVE_USER); }
 
+  /**
+   * Determine if this message is a retrieve user message.
+   *
+   * @return True if the message is a retrieve user message; false otherwise
+   */
   public boolean isRetrieveUser() {return (msgType == MessageType.RETRIEVE_USER); }
 
+  /**
+   * Determine if this message is a retrieve group message.
+   *
+   * @return True if the message is a retrieve group message; false otherwise
+   */
   public boolean isRetrieveGroup() {return (msgType == MessageType.RETRIEVE_GROUP); }
 
+  /**
+   * Determine if this message is an add user to group message.
+   *
+   * @return True if the message is an add user to group message; false otherwise
+   */
   public boolean isAddUserToGroup() {return (msgType == MessageType.ADD_USER_TO_GRP); }
 
 

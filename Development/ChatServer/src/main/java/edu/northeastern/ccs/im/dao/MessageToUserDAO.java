@@ -11,6 +11,9 @@ import java.util.List;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
+/**
+ * Class for the message to user DAO.
+ */
 public class MessageToUserDAO {
 
   private static UserDAO userDAO;
@@ -18,10 +21,18 @@ public class MessageToUserDAO {
   private static GroupDAO groupDAO;
   protected static ConnectionManager connectionManager;
 
+    /**
+     * Private constructor for the message to user DAO.
+     */
   private MessageToUserDAO() {
     //empty private constructor for singleton
   }
 
+    /**
+     * Method to get the singleton instance of the message to user DAO.
+     *
+     * @return the instance of the message to user DAO
+     */
   public static MessageToUserDAO getInstance() {
     if (messageToUserDAO == null) {
       connectionManager = new ConnectionManager();
@@ -32,6 +43,12 @@ public class MessageToUserDAO {
     return messageToUserDAO;
   }
 
+    /**
+     * Method to map a message to the receiverID.
+     *
+     * @param message message to map
+     * @param receiverId receiverID to map
+     */
   public void mapMsgIdToReceiverId(Message message, int receiverId) {
     String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
     // Check if group exists and user exists
@@ -44,7 +61,13 @@ public class MessageToUserDAO {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
-  
+
+    /**
+     * Method to get messages sent to a group.
+     *
+     * @param groupName group name to retrieve messages from
+     * @return a list of strings that contain the messages sent to a group
+     */
   public List<String> getMessagesFromGroup(String groupName) {
 	  List<String> messages = new ArrayList<>();
 	  String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
@@ -64,6 +87,13 @@ public class MessageToUserDAO {
 		    }
   	}
 
+    /**
+     * Method to retrieve messages between users.
+     *
+     * @param sender sender of the message
+     * @param receiver receiver of the message
+     * @return list of strings representing the messages
+     */
   public List<String> retrieveUserMsg(String sender, String receiver) {
     String selectQuery = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";
     List<String> chat = new ArrayList<>();

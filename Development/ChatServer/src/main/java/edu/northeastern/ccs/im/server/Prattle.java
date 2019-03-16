@@ -166,6 +166,12 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * Method to send private message to specified receiver.
+   *
+   * @param msg message to be sent
+   * @param receiver receiver name to send to
+   */
   public static void sendPrivateMessage(Message msg, String receiver) {
     for (ClientRunnable tt : active) {
       // Do not send the message to any clients that are not ready to receive it.
@@ -176,6 +182,12 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * Method to send private message to specified receiver.
+   *
+   * @param msg message to be sent
+   * @param groupName receiver name to send to
+   */
   public static void sendGroupMessage(Message msg, String groupName) {
     List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(groupName);
     for(ClientRunnable cr : active){

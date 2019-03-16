@@ -11,6 +11,9 @@ import java.util.Properties;
 import edu.northeastern.ccs.im.ChatLogger;
 
 
+/**
+ *This class represents the dao that manages the connection to the database.
+ */
 public class ConnectionManager {
 	
 	Properties prop = new Properties();
@@ -23,6 +26,12 @@ public class ConnectionManager {
 
 	private static final String SCHEMA = "heroku_5b0785b4e92d159";
 
+
+	/**
+	 * Method to get the connection to the database.
+	 *
+	 * @return Connection representing the connection to the database
+	 */
 	public Connection getConnection() {
 		Connection connection = null;
 		

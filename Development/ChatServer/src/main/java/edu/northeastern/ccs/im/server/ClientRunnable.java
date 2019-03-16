@@ -342,6 +342,11 @@ public class ClientRunnable implements Runnable {
         }
     }
 
+    /**
+     * Method to retrieve the messages sent to a group.
+     *
+     * @param msg retrieve message command sent to server
+     */
     private void retrieveGroupMessagesForGroup(Message msg) {
         List<String> messages = MessageServices.retrieveGroupMessages(getReceiverName(msg.getText()));
         for (String conv : messages) {
@@ -352,6 +357,11 @@ public class ClientRunnable implements Runnable {
         }
     }
 
+    /**
+     * Method to retrieve the messages sent to a user.
+     *
+     * @param msg retrieve message command sent to server
+     */
     private void retrieveMessagesForUser(Message msg) {
         List<String> messages = MessageServices.retrieveUserMessages(msg.getName(), getReceiverName(msg.getText()));
         for (String conv : messages) {
@@ -362,12 +372,24 @@ public class ClientRunnable implements Runnable {
         }
     }
 
+    /**
+     * Method to send a message to a client based on username.
+     *
+     * @param sender string representing the sender name
+     * @param message string representing the message text
+     */
     private void sendMessageToClient(String sender, String message) {
         Message sendMsg;
         sendMsg = Message.makeAckMessage(sender, message);
         enqueueMessage(sendMsg);
     }
 
+    /**
+     * Method to get the receiver name of a message.
+     *
+     * @param text the message text
+     * @return a string representing the reciever name
+     */
     private String getReceiverName(String text) {
         return text.split(" ")[1];
     }

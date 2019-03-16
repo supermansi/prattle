@@ -10,17 +10,27 @@ import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
+/**
+ * This class is the DAO for groups.
+ */
 public class GroupDAO {
 	
   protected static ConnectionManager connectionManager;
   private static UserDAO userDAO;
   private static GroupDAO groupDAO;
 
-
+    /**
+     * Private constructor for the group DAO.
+     */
   private GroupDAO() {
     // empty constructor for singleton
   }
 
+    /**
+     * Method to ensure the groupDAO is a singleton and returns the same instance.
+     *
+     * @return the singleton instance of teh GroupDAO
+     */
   public static GroupDAO getInstance() {
     if (groupDAO == null) {    	
         connectionManager = new ConnectionManager();
@@ -30,6 +40,12 @@ public class GroupDAO {
     return groupDAO;
   }
 
+    /**
+     * Method to write a group model's fields into the database.
+     *
+     * @param group group model to get the fields from
+     * @return a group model object
+     */
   public Groups createGroup(Groups group) {
     String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
     String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
@@ -57,6 +73,11 @@ public class GroupDAO {
     }
   }
 
+    /**
+     * Method to delete a group from the database.
+     *
+     * @param groupID int representing the group #ID
+     */
   public void deleteGroupByID(int groupID) {
     String deleteGroup = "DELETE FROM GROUPS WHERE grpID=?;";
     try (Connection connection = connectionManager.getConnection();
@@ -68,6 +89,12 @@ public class GroupDAO {
     }
   }
 
+    /**
+     * Method to check if a group already exists in the database from a string group name.
+     *
+     * @param groupName string representing the group name
+     * @return boolean true if the group exists, otherwise false
+     */
   public boolean checkGroupExists(String groupName) {
     String checkGroup = "SELECT * FROM Groups WHERE grpName=?;";
     try (Connection connection = connectionManager.getConnection();
@@ -81,6 +108,12 @@ public class GroupDAO {
     }
   }
 
+    /**
+     * Method to check if a group already exists in the database from a int group #ID.
+     *
+     * @param groupID int representing the group #ID
+     * @return boolean true if the group exists, otherwise false
+     */
   public boolean checkGroupExists(int groupID) {
     String checkGroup = "SELECT * FROM Groups WHERE grpID=?;";
     try (Connection connection = connectionManager.getConnection();
@@ -94,6 +127,13 @@ public class GroupDAO {
     }
   }
 
+    /**
+     * Method to check if a given user is the admin of a given group.
+     *
+     * @param groupName string representing the group name
+     * @param userName string representing the user name
+     * @return true if the user is the admin of the group, false otherwise
+     */
   public boolean validateGroupAdmin(String groupName, String userName) {
     User admin = userDAO.getUserByUsername(userName);
     String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
@@ -109,47 +149,52 @@ public class GroupDAO {
     }
   }
 
+    /**
+     * Method to get a group model from the database based on group name.
+     *
+     * @param groupName string representing the group name
+     * @return group model object
+     */
   public Groups getGroupByGroupName(String groupName) {
     String insertGroup = "SELECT * FROM GROUPS WHERE grpName = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, groupName);
-      try (ResultSet resultSet = preparedStatement.executeQuery();) {
-        Groups group;
-        if (resultSet.next()) {
-          int grpID = resultSet.getInt("grpID");
-          String grpName = resultSet.getString("grpName");
-          int adminID = resultSet.getInt("adminID");
-          group = new Groups(grpID, grpName, adminID);
-          return group;
-        } else {
-          throw new SQLException("Group not found.");
-        }
-      }
+      return getGroups(preparedStatement);
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
+    /**
+     * Method to get a group model from the database based on group #ID.
+     *
+     * @param groupID int representing the group #ID
+     * @return group model object
+     */
   public Groups getGroupByGroupID(int groupID) {
     String insertGroup = "SELECT * FROM GROUPS WHERE grpID = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setInt(1, groupID);
-      try (ResultSet resultSet = preparedStatement.executeQuery();) {
-        Groups group;
-        if (resultSet.next()) {
-          int grpID = resultSet.getInt("grpID");
-          String grpName = resultSet.getString("grpName");
-          int adminID = resultSet.getInt("adminID");
-          group = new Groups(grpID, grpName, adminID);
-          return group;
-        } else {
-          throw new SQLException("Group not found.");
-        }
-      }
+      return getGroups(preparedStatement);
     } catch (SQLException e) {
       throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
+    }
+  }
+
+  private Groups getGroups(PreparedStatement preparedStatement) throws SQLException {
+    try (ResultSet resultSet = preparedStatement.executeQuery();) {
+      Groups group;
+      if (resultSet.next()) {
+        int grpID = resultSet.getInt("grpID");
+        String grpName = resultSet.getString("grpName");
+        int adminID = resultSet.getInt("adminID");
+        group = new Groups(grpID, grpName, adminID);
+        return group;
+      } else {
+        throw new SQLException("Group not found.");
+      }
     }
   }
 }

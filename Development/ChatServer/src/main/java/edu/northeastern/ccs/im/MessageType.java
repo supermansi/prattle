@@ -39,24 +39,54 @@ public enum MessageType {
    */
   GROUP("GRP"),
 
+  /**
+   * Message to update user first name.
+   */
   UPDATE_FN("UFN"),
 
+  /**
+   * Message to update user last name.
+   */
   UPDATE_LN("ULN"),
 
+  /**
+   * Message to update user password.
+   */
   UPDATE_PW("UPW"),
 
+  /**
+   * Message to update user email.
+   */
   UPDATE_EM("UEM"),
 
+  /**
+   * Message to create a group.
+   */
   CREATE_GROUP("CGR"),
 
+  /**
+   * Message to delete a group.
+   */
   DELETE_GROUP("DGR"),
 
+  /**
+   * Message to remove a user from a group.
+   */
   REMOVE_USER("RMU"),
 
+  /**
+   * Message to retrieve messages from a user.
+   */
   RETRIEVE_USER("RTU"),
 
+  /**
+   * Message to retrieve messages from a group.
+   */
   RETRIEVE_GROUP("RTG"),
 
+  /**
+   * Message to a user to a group.
+   */
   ADD_USER_TO_GRP("AUG");
 
   /**
