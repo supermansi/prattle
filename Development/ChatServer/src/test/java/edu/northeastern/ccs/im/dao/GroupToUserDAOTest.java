@@ -8,6 +8,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 
 public class GroupToUserDAOTest {
@@ -69,12 +70,12 @@ public class GroupToUserDAOTest {
 		//assertFalse(groupToUserDAO.checkIfUserInGroup(1, group.getGrpID()));
 	}
 	
-	@Test
+	@Test(expected=DatabaseConnectionException.class)
 	public void testCreateException() {
 		groupToUserDAO.addUserToGroup(4, 5);
 	}
 	
-	@Test
+	@Test(expected=DatabaseConnectionException.class)
 	public void testGetAllUsers() {
 		assertNotNull(groupToUserDAO.getAllUsersInGroup(group.getGrpName()));
 	}
