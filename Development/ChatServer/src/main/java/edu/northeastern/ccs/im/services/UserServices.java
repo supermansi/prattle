@@ -78,7 +78,7 @@ public class UserServices {
    * @param username user's username
    * @param updatedPassword new password
    */
-  public static void updatePassword(String username, String updatedPassword) {
+  public static void updatePassword(String username, String updatedPassword) throws SQLException {
     userDAO.updatePassword(username, updatedPassword);
   }
 

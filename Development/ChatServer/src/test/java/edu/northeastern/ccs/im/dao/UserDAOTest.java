@@ -21,9 +21,27 @@ public class UserDAOTest {
   User user;
   User user1;
 
+  boolean isException;
+
+  @AfterClass
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
+    userDAO = UserDAO.getInstance();
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionManager());
+
+  }
+
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException {
     userDAO = UserDAO.getInstance();
+    userDAO = UserDAO.getInstance();
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionManager());
+    user1 = new User( "Karl12", "Karl12", "Frisk", "abc12@gmail.com", "1234");
   }
 
   @Test
@@ -239,5 +257,131 @@ public class UserDAOTest {
     userDAO.updateLastSeen(createUser.getUsername(), time);
     assertEquals(time, userDAO.getUserByUsername(createUser.getUsername()).getLastSeen());
     userDAO.deleteUser(createUser.getUsername());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testGetUserByUsernameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.getUserByUsername(user1.getUsername());
+  }
+
+
+  @Test(expected = NullPointerException.class)
+  public void testGetUserByUserIDException1() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.getUserByUserID(user1.getUserID());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testIsUserExistsUserNameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.isUserExists(user1.getUsername());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testIsUserExistsUserIDException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.isUserExists(user1.getUserID());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testValidateUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.validateUser(user1.getUsername(), user1.getPassword());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testDeleteUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.deleteUser(user1.getUsername());
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testUpdateFirstNameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.updateFirstName(user1.getUsername(), "a");
+  }
+
+
+  @Test(expected = NullPointerException.class)
+  public void testUpdateLastNameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.updateLastName(user1.getUsername(), "a");
+  }
+
+
+  @Test(expected = NullPointerException.class)
+  public void testUpdateEmailException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.updateEmail(user1.getUsername(), "a");
+  }
+
+
+  @Test(expected = NullPointerException.class)
+  public void testUpdatePasswordException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.updatePassword(user1.getUsername(), "a");
+  }
+
+
+  @Test(expected = NullPointerException.class)
+  public void testUpdateLastSeenException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    String time = Long.toString(System.currentTimeMillis());
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.updateLastSeen(user1.getUsername(), time);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testCreateUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionTest());
+    isException = true;
+    userDAO.createUser(user1);
   }
 }
