@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.dao;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,10 +16,20 @@ import static org.junit.Assert.assertEquals;
 
 public class MessageToUserDAOTest {
 
-  MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
+  static MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
   MessageDAO messageDAO = MessageDAO.getInstance();
   Message message;
   boolean isException;
+
+  @AfterClass
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
+    messageToUserDAO = MessageToUserDAO.getInstance();
+    Class clazz = MessageToUserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(messageToUserDAO, new ConnectionManager());
+
+  }
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -40,7 +51,7 @@ public class MessageToUserDAOTest {
   @Test
   public void testAddMsg() {
     int receiverId = 242;
-    messageToUserDAO.mapMsgIdToReceiverId(message,receiverId);
+    messageToUserDAO.mapMsgIdToReceiverId(message, receiverId);
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -51,7 +62,7 @@ public class MessageToUserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(messageToUserDAO, new ConnectionTest());
     isException = true;
-    messageToUserDAO.mapMsgIdToReceiverId(message,receiverId);
+    messageToUserDAO.mapMsgIdToReceiverId(message, receiverId);
   }
 
   @Test
@@ -93,9 +104,9 @@ public class MessageToUserDAOTest {
 
   @Test
   public void testMsgFromGroup() {
-	  Message m = messageDAO.createMessage(new Message(Message.MsgType.GRP, 2, "test", Long.toString(System.currentTimeMillis())));
-	  messageToUserDAO.mapMsgIdToReceiverId(m, GroupDAO.getInstance().getGroupByGroupName("group1").getGrpID());
-	  messageToUserDAO.getMessagesFromGroup("group1");
+    Message m = messageDAO.createMessage(new Message(Message.MsgType.GRP, 2, "test", Long.toString(System.currentTimeMillis())));
+    messageToUserDAO.mapMsgIdToReceiverId(m, GroupDAO.getInstance().getGroupByGroupName("group1").getGrpID());
+    messageToUserDAO.getMessagesFromGroup("group1");
   }
 
   @Test(expected = DatabaseConnectionException.class)

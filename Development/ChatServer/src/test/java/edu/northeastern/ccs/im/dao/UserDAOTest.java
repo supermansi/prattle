@@ -1,7 +1,9 @@
 package edu.northeastern.ccs.im.dao;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -14,12 +16,22 @@ import static org.junit.Assert.*;
 
 public class UserDAOTest {
 
-  UserDAO userDAO;
+  static UserDAO userDAO;
   User user;
   User user1;
   User createUser;
   User nullUser;
   boolean isException;
+
+  @AfterClass
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
+    userDAO = UserDAO.getInstance();
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionManager());
+
+  }
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException {
@@ -237,7 +249,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.validateUser(createUser.getUsername(),createUser.getPassword());
+    userDAO.validateUser(createUser.getUsername(), createUser.getPassword());
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -257,7 +269,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateFirstName(createUser.getUsername(),"a");
+    userDAO.updateFirstName(createUser.getUsername(), "a");
   }
 
 
@@ -268,7 +280,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateLastName(createUser.getUsername(),"a");
+    userDAO.updateLastName(createUser.getUsername(), "a");
   }
 
 
@@ -279,7 +291,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateEmail(createUser.getUsername(),"a");
+    userDAO.updateEmail(createUser.getUsername(), "a");
   }
 
 
@@ -290,7 +302,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updatePassword(createUser.getUsername(),"a");
+    userDAO.updatePassword(createUser.getUsername(), "a");
   }
 
 
@@ -302,7 +314,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateLastSeen(createUser.getUsername(),time);
+    userDAO.updateLastSeen(createUser.getUsername(), time);
   }
 }
 
