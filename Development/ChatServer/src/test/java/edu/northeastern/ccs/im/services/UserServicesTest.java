@@ -67,6 +67,10 @@ public class UserServicesTest {
     userDAO.deleteUser(user.getUsername());
   }
 
+  /**
+   * Deletes user successfully.
+   * @throws SQLException
+   */
   @Test
   public void testDeleteUserSuccess() throws SQLException {
     User user = new User("Aditi4","Aditi4","Kacheria4", "aditik4@gmail.com","123454");
