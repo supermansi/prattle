@@ -42,7 +42,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.1</version>
                     <configuration>
-                        <!--<skipTests>true</skipTests>-->
+                        <skipTests>true</skipTests>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -80,7 +80,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <configuration>
                         <runOrder>random</runOrder>
-                        <!--<skipTests>true</skipTests>-->
+                        <skipTests>true</skipTests>
                     </configuration>
                 </plugin>
             </plugins>
