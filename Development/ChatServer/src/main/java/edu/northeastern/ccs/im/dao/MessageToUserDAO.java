@@ -49,7 +49,7 @@ public class MessageToUserDAO {
      * @param message message to map
      * @param receiverId receiverID to map
      */
-  public void mapMsgIdToReceiverId(Message message, int receiverId) {
+  public void mapMsgIdToReceiverId(Message message, int receiverId) throws SQLException {
     String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
     // Check if group exists and user exists
     try (Connection connection = connectionManager.getConnection();
@@ -57,8 +57,6 @@ public class MessageToUserDAO {
       statement.setInt(1, message.getMsgID());
       statement.setInt(2, receiverId);
       statement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -68,7 +66,7 @@ public class MessageToUserDAO {
      * @param groupName group name to retrieve messages from
      * @return a list of strings that contain the messages sent to a group
      */
-  public List<String> getMessagesFromGroup(String groupName) {
+  public List<String> getMessagesFromGroup(String groupName) throws SQLException {
 	  List<String> messages = new ArrayList<>();
 	  String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
 	  try (Connection connection = connectionManager.getConnection();
@@ -82,8 +80,6 @@ public class MessageToUserDAO {
 		        }
 		      }
 		      return messages;
-		    } catch (SQLException e) {
-		      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
 		    }
   	}
 
@@ -94,7 +90,7 @@ public class MessageToUserDAO {
      * @param receiver receiver of the message
      * @return list of strings representing the messages
      */
-  public List<String> retrieveUserMsg(String sender, String receiver) {
+  public List<String> retrieveUserMsg(String sender, String receiver) throws SQLException {
     String selectQuery = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";
     List<String> chat = new ArrayList<>();
     try(Connection connection = connectionManager.getConnection();
@@ -111,8 +107,6 @@ public class MessageToUserDAO {
         }
       }
       return chat;
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 }

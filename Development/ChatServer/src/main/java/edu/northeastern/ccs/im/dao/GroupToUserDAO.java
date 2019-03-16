@@ -48,7 +48,7 @@ public class GroupToUserDAO {
      * @param userID int representing the user #ID
      * @param groupID int representing the user #ID
      */
-  public void addUserToGroup(int userID, int groupID) {
+  public void addUserToGroup(int userID, int groupID) throws SQLException {
     String insertUserToGroupMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?,?);";
     // Check if group exists and user exists
     if (groupDAO.checkGroupExists(groupID)) {
@@ -58,8 +58,6 @@ public class GroupToUserDAO {
           statement.setInt(1, userID);
           statement.setInt(2, groupID);
           statement.executeUpdate();
-        } catch (SQLException e) {
-          throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
         }
       } else {
         throw new DatabaseConnectionException("User does not exist!");
@@ -76,7 +74,7 @@ public class GroupToUserDAO {
      * @param groupID int representing the group #ID
      * @return true if the user is part of the group, otherwise false
      */
-  public boolean checkIfUserInGroup(int userID, int groupID) {
+  public boolean checkIfUserInGroup(int userID, int groupID) throws SQLException {
     String checkIfUserInGroup = "SELECT * FROM GroupToUserMap WHERE userID=? AND groupID=?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement statement = connection.prepareStatement(checkIfUserInGroup);) {
@@ -85,8 +83,6 @@ public class GroupToUserDAO {
       try (ResultSet result = statement.executeQuery();) {
         return result.next();
       }
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -96,7 +92,7 @@ public class GroupToUserDAO {
      * @param userID int representing the user #ID
      * @param groupID int representing the group #ID
      */
-  public void deleteUserFromGroup(int userID, int groupID) {
+  public void deleteUserFromGroup(int userID, int groupID) throws SQLException {
     if (checkIfUserInGroup(userID, groupID)) {
       String deleteUser = "DELETE FROM GroupToUserMap WHERE userID=? AND groupID=?;";
       try (Connection connection = connectionManager.getConnection();
@@ -104,8 +100,6 @@ public class GroupToUserDAO {
         statement.setInt(1, userID);
         statement.setInt(2, groupID);
         statement.executeUpdate();
-      } catch (SQLException e) {
-        throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
       }
     }
   }
@@ -115,14 +109,12 @@ public class GroupToUserDAO {
      *
      * @param userID int representing the user #ID
      */
-  public void deleteUserFromAllGroups(int userID) {
+  public void deleteUserFromAllGroups(int userID) throws SQLException {
     String deleteUser = "DELETE FROM GroupToUserMap WHERE userID=?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement statement = connection.prepareStatement(deleteUser);) {
       statement.setInt(1, userID);
       statement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -132,7 +124,7 @@ public class GroupToUserDAO {
      * @param groupName string representing the group name
      * @return a list of strings representing the user's in the group names
      */
-  public List<String> getAllUsersInGroup(String groupName) {
+  public List<String> getAllUsersInGroup(String groupName) throws SQLException {
     List<String> users = new ArrayList<>();
     int groupID = groupDAO.getGroupByGroupName(groupName).getGrpID();
     String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
@@ -146,8 +138,6 @@ public class GroupToUserDAO {
         }
       }
       return users;
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 }

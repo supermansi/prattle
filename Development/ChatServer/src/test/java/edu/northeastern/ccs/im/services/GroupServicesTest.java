@@ -27,7 +27,7 @@ public class GroupServicesTest {
 	}
 
 	@Test
-	public void testGroupServiceMethods(){
+	public void testGroupServiceMethods() throws SQLException {
 
 		GroupServices.createGroup("groupJosh", "admin");
 		GroupServices.addUserToGroup("groupJosh", "admin", "j");
@@ -40,7 +40,7 @@ public class GroupServicesTest {
 	}
 
 	@Test
-	public void deleteGroupFailure(){
+	public void deleteGroupFailure() throws SQLException {
         GroupServices.createGroup("groupJosh", "admin");
         assertEquals(false,GroupServices.deleteGroup("groupJosh", null));
 
@@ -48,7 +48,7 @@ public class GroupServicesTest {
 	}
 
 	@After
-	public void cleanUp() {
+	public void cleanUp() throws SQLException {
 		GroupServices.deleteGroup("groupJosh","admin");
 	}
 

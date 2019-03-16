@@ -46,7 +46,7 @@ public class GroupDAO {
      * @param group group model to get the fields from
      * @return a group model object
      */
-  public Groups createGroup(Groups group) {
+  public Groups createGroup(Groups group) throws SQLException {
     String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
     String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
     try (Connection connection = connectionManager.getConnection();
@@ -60,7 +60,7 @@ public class GroupDAO {
         if (resultSet.next()) {
           groupID = resultSet.getInt(1);
         } else {
-          throw new SQLException("Group ID could not be generated.");
+          throw new DatabaseConnectionException("Group ID could not be generated.");
         }
         group.setGrpID(groupID);
         insertStmt2.setInt(1, group.getAdminID());
@@ -68,8 +68,6 @@ public class GroupDAO {
         insertStmt2.executeUpdate();
       }
       return group;
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -78,14 +76,12 @@ public class GroupDAO {
      *
      * @param groupID int representing the group #ID
      */
-  public void deleteGroupByID(int groupID) {
+  public void deleteGroupByID(int groupID) throws SQLException {
     String deleteGroup = "DELETE FROM GROUPS WHERE grpID=?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement statement = connection.prepareStatement(deleteGroup);) {
       statement.setInt(1, groupID);
       statement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -95,7 +91,7 @@ public class GroupDAO {
      * @param groupName string representing the group name
      * @return boolean true if the group exists, otherwise false
      */
-  public boolean checkGroupExists(String groupName) {
+  public boolean checkGroupExists(String groupName) throws SQLException {
     String checkGroup = "SELECT * FROM Groups WHERE grpName=?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement statement = connection.prepareStatement(checkGroup);) {
@@ -103,8 +99,6 @@ public class GroupDAO {
       try (ResultSet result = statement.executeQuery();) {
         return result.next();
       }
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -114,7 +108,7 @@ public class GroupDAO {
      * @param groupID int representing the group #ID
      * @return boolean true if the group exists, otherwise false
      */
-  public boolean checkGroupExists(int groupID) {
+  public boolean checkGroupExists(int groupID) throws SQLException {
     String checkGroup = "SELECT * FROM Groups WHERE grpID=?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement statement = connection.prepareStatement(checkGroup);) {
@@ -122,8 +116,6 @@ public class GroupDAO {
       try (ResultSet result = statement.executeQuery();) {
         return result.next();
       }
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -134,7 +126,7 @@ public class GroupDAO {
      * @param userName string representing the user name
      * @return true if the user is the admin of the group, false otherwise
      */
-  public boolean validateGroupAdmin(String groupName, String userName) {
+  public boolean validateGroupAdmin(String groupName, String userName) throws SQLException {
     User admin = userDAO.getUserByUsername(userName);
     String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
     try (Connection connection = connectionManager.getConnection();
@@ -144,8 +136,6 @@ public class GroupDAO {
       try (ResultSet result = preparedStatement.executeQuery();) {
         return result.next();
       }
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 
@@ -155,14 +145,12 @@ public class GroupDAO {
      * @param groupName string representing the group name
      * @return group model object
      */
-  public Groups getGroupByGroupName(String groupName) {
+  public Groups getGroupByGroupName(String groupName) throws SQLException {
     String insertGroup = "SELECT * FROM GROUPS WHERE grpName = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, groupName);
       return getGroups(preparedStatement);
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
     }
   }
 

@@ -43,7 +43,7 @@ public class UserDAO {
    * @param user user model object to store
    * @return user model object
    */
-  public User createUser(User user) {
+  public User createUser(User user) throws SQLException {
     String insertUser = "INSERT INTO USER(USERNAME, PASSWORD, USERFN, USERLN, EMAIL) VALUES(?,?,?,?,?);";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
@@ -58,13 +58,11 @@ public class UserDAO {
         if (resultSet.next()) {
           userID = resultSet.getInt(1);
         } else {
-          throw new SQLException("User ID could not be generated.");
+          throw new DatabaseConnectionException("User ID could not be generated.");
         }
         user.setUserID(userID);
       }
       return user;
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -74,7 +72,7 @@ public class UserDAO {
    * @param userName sting representing the username
    * @return user model object
    */
-  public User getUserByUsername(String userName) {
+  public User getUserByUsername(String userName) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
@@ -92,12 +90,10 @@ public class UserDAO {
           user = new User(userID, username, userFN, userLN, email, password);
           user.setLastSeen(lastSeen);
         } else {
-          throw new SQLException("User not found.");
+          throw new DatabaseConnectionException("User not found.");
         }
       }
       return user;
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -107,7 +103,7 @@ public class UserDAO {
    * @param userId int representing a user ID
    * @return a user model object
    */
-  public User getUserByUserID(int userId) {
+  public User getUserByUserID(int userId) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
@@ -125,12 +121,10 @@ public class UserDAO {
           user = new User(userID, username, userFN, userLN, email, password);
         }
         else {
-          throw new SQLException("User not found.");
+          throw new DatabaseConnectionException("User not found.");
         }
       }
       return user;
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -140,7 +134,7 @@ public class UserDAO {
    * @param userName string representing the user name
    * @return true if the user is in the database, false otherwise
    */
-  public boolean isUserExists(String userName) {
+  public boolean isUserExists(String userName) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
@@ -148,8 +142,6 @@ public class UserDAO {
       try(ResultSet resultSet = preparedStatement.executeQuery();) {
         return resultSet.next();
       }
-    }  catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -159,7 +151,7 @@ public class UserDAO {
    * @param userId int representing the user name
    * @return true if the user is in the database, false otherwise
    */
-  public boolean isUserExists(int userId) {
+  public boolean isUserExists(int userId) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
@@ -167,8 +159,6 @@ public class UserDAO {
       try(ResultSet resultSet = preparedStatement.executeQuery();) {
         return resultSet.next();
       }
-    }  catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -179,7 +169,7 @@ public class UserDAO {
    * @param pw string representing the password
    * @return true if the fields match, otherwise false
    */
-  public boolean validateUser(String userName, String pw) {
+  public boolean validateUser(String userName, String pw) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERNAME = ? AND PASSWORD = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
@@ -189,8 +179,6 @@ public class UserDAO {
       try(ResultSet resultSet = preparedStatement.executeQuery();) {
         return resultSet.next();
       }
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -199,16 +187,14 @@ public class UserDAO {
    *
    * @param userName string representing the user name
    */
-  public void deleteUser(String userName) {
+  public void deleteUser(String userName) throws SQLException {
     String insertUser = "DELETE FROM USER WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, userName);
       if(preparedStatement.executeUpdate()==0){
-        throw new SQLException("User Does not exist in database");
+        throw new DatabaseConnectionException("User Does not exist in database");
       }
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -218,15 +204,13 @@ public class UserDAO {
    * @param userName string representing the user first name
    * @param updatedFirstName string representing the new user first name
    */
-  public void updateFirstName(String userName, String updatedFirstName) {
+  public void updateFirstName(String userName, String updatedFirstName) throws SQLException {
     String insertUser = "UPDATE USER SET USERFN = ? WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, updatedFirstName);
       preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -236,15 +220,13 @@ public class UserDAO {
    * @param userName string representing the user last name
    * @param updatedLastName string representing the new user last name
    */
-  public void updateLastName(String userName, String updatedLastName) {
+  public void updateLastName(String userName, String updatedLastName) throws SQLException {
     String insertUser = "UPDATE USER SET USERLN = ? WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, updatedLastName);
       preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -272,15 +254,13 @@ public class UserDAO {
    * @param userName string representing the user email
    * @param updatedEmail string representing the new user email
    */
-  public void updateEmail(String userName, String updatedEmail) {
+  public void updateEmail(String userName, String updatedEmail) throws SQLException {
     String insertUser = "UPDATE USER SET EMAIL = ? WHERE USERNAME = ?;";
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);) {
       preparedStatement.setString(1, updatedEmail);
       preparedStatement.setString(2,userName);
       preparedStatement.executeUpdate();
-    } catch (SQLException e) {
-      throw new DatabaseConnectionException(e.getMessage());
     }
   }
 
@@ -290,15 +270,13 @@ public class UserDAO {
    * @param userName string representing the user last name
    * @param lastSeen string representing the timestamp of the last seen message of a user
    */
-  public void updateLastSeen(String userName, String lastSeen) {
+  public void updateLastSeen(String userName, String lastSeen) throws SQLException {
 	    String updateLastSeen = "UPDATE User SET lastSeen=? WHERE username=?;";
 	    try (Connection connection = connectionManager.getConnection();
 	         PreparedStatement preparedStatement = connection.prepareStatement(updateLastSeen, Statement.RETURN_GENERATED_KEYS);) {
 	      preparedStatement.setString(1, lastSeen);
 	      preparedStatement.setString(2,userName);
 	      preparedStatement.executeUpdate();
-	    } catch (SQLException e) {
-	      throw new DatabaseConnectionException(e.getMessage());
 	    }
   }
 }

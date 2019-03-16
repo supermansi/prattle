@@ -9,6 +9,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
@@ -33,7 +34,7 @@ public class MessageServiceTest {
   GroupDAO groupDAO;
 
   @Before
-  public void setUp() {
+  public void setUp() throws SQLException {
     messageToUserDAO = MessageToUserDAO.getInstance();
     userDAO = UserDAO.getInstance();
     groupDAO = GroupDAO.getInstance();
@@ -53,7 +54,7 @@ public class MessageServiceTest {
     }
 
   @After
-  public void cleanUp() {
+  public void cleanUp() throws SQLException {
     if (userDAO.isUserExists(user.getUsername())) {
       userDAO.deleteUser(user.getUsername());
     }
@@ -66,22 +67,22 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void testSend() {
+  public void testSend() throws SQLException {
     assertTrue(MessageServices.addMessage(Message.MsgType.PVT, user.getUsername(), user1.getUsername(), "Hii"));
   }
 
   @Test
-  public void testAddMsgsPVT() {
+  public void testAddMsgsPVT() throws SQLException {
     assertEquals(true, MessageServices.addMessage(Message.MsgType.PVT, user.getUsername(), user1.getUsername(), "Hello There"));
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testAddMsgInvalid() {
+  public void testAddMsgInvalid() throws SQLException {
     assertEquals(false, MessageServices.addMessage(Message.MsgType.BCT, user.getUsername(), user1.getUsername(), "Hi"));
   }
 
   @Test
-  public void testAddMsgsGRP() {
+  public void testAddMsgsGRP() throws SQLException {
     groupMSD = new Groups("groupMSD1", user.getUserID());
     groupMSDOther = new Groups("groupMSD2", user.getUserID());
 
@@ -94,12 +95,12 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void testAddMsgsToNonExistingReceiverPVT() {
+  public void testAddMsgsToNonExistingReceiverPVT() throws SQLException {
     assertEquals(false, MessageServices.addMessage(Message.MsgType.PVT, user.getUsername(), "Maegen", "Hello There blah"));
   }
 
   @Test
-  public void testAddMsgsToNonExistingReceiverGRP() {
+  public void testAddMsgsToNonExistingReceiverGRP() throws SQLException {
     groupMSD = new Groups("groupMSD1", user.getUserID());
     groupMSDOther = new Groups("groupMSD2", user.getUserID());
 
@@ -109,7 +110,7 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void testRetrieveUserMessages() {
+  public void testRetrieveUserMessages() throws SQLException {
     String result = "";
     List<String> chat = MessageServices.retrieveUserMessages("r", "j");
     for (int i = 0; i < chat.size(); i++) {
@@ -120,7 +121,7 @@ public class MessageServiceTest {
   }
 
   @Test
-  public void testRetrieveGroupMessages() {
+  public void testRetrieveGroupMessages() throws SQLException {
     groupMSD = new Groups("groupMSD1", user.getUserID());
     groupMSDOther = new Groups("groupMSD2", user.getUserID());
 

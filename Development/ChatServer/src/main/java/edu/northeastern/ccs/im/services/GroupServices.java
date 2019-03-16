@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.services;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
@@ -35,7 +36,7 @@ public class GroupServices {
      * @param groupName string representing the group name
      * @param adminUsername string representing the admin name
      */
-	public static void createGroup(String groupName, String adminUsername) {
+	public static void createGroup(String groupName, String adminUsername) throws SQLException {
 		User admin = userDAO.getUserByUsername(adminUsername);
 		Groups group = new Groups(groupName, admin.getUserID());
 		groupDAO.createGroup(group);
@@ -48,7 +49,7 @@ public class GroupServices {
      * @param adminName string representing the admin name
      * @param userName string representing the username name
      */
-	public static void addUserToGroup(String groupName, String adminName, String userName) {
+	public static void addUserToGroup(String groupName, String adminName, String userName) throws SQLException {
 		groupDAO.checkGroupExists(groupName);
 		groupDAO.validateGroupAdmin(groupName, adminName);
 		User user = userDAO.getUserByUsername(userName);
@@ -64,7 +65,7 @@ public class GroupServices {
      * @param groupName string representing the group name
      * @return true if the user is in the group, false otherwise
      */
-	public static boolean validateUserExistsInGroup(String userName, String groupName) {
+	public static boolean validateUserExistsInGroup(String userName, String groupName) throws SQLException {
 		User user = userDAO.getUserByUsername(userName);
 		Groups group = groupDAO.getGroupByGroupName(groupName);
 		return groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID());
@@ -77,7 +78,7 @@ public class GroupServices {
      * @param adminName string representing the admin name
      * @param userName string representing the user name
      */
-	public static void removeUserFromGroup(String groupName, String adminName, String userName) {
+	public static void removeUserFromGroup(String groupName, String adminName, String userName) throws SQLException {
 		groupDAO.validateGroupAdmin(groupName, adminName);
 		User user = userDAO.getUserByUsername(userName);
 		Groups group = groupDAO.getGroupByGroupName(groupName);
@@ -90,7 +91,7 @@ public class GroupServices {
      * @param groupName string representing the group name
      * @return list of user names in the group
      */
-	public static List<String> getAllUsersInGroup(String groupName) {
+	public static List<String> getAllUsersInGroup(String groupName) throws SQLException {
 		groupDAO.checkGroupExists(groupName);
 		return groupUserDAO.getAllUsersInGroup(groupName);
 	}
@@ -102,7 +103,7 @@ public class GroupServices {
      * @param adminName string representing the admin name
      * @return true if the group is deleted, false otherwise
      */
-	public static boolean deleteGroup(String grpName, String adminName) {
+	public static boolean deleteGroup(String grpName, String adminName) throws SQLException {
 		if(groupDAO.checkGroupExists(groupDAO.getGroupByGroupName(grpName).getGrpID()) &&
 				userDAO.isUserExists(adminName)) {
 				groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName(grpName).getGrpID());

@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
+import java.sql.SQLException;
+
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
@@ -24,7 +26,7 @@ public class UserServices {
    * @param password the user's password
    * @return true if the fields match, false otherwise
    */
-  public static boolean login(String username, String password) {
+  public static boolean login(String username, String password) throws SQLException {
     return userDAO.validateUser(username, password);
   }
 
@@ -39,7 +41,7 @@ public class UserServices {
    * @return true if the user has been registered and stored in teh database, false otherwise
    */
   public static boolean register(String username, String password, String userFN,
-                                 String userLN, String email) {
+                                 String userLN, String email) throws SQLException {
 
     if (userDAO.isUserExists(username)) {
       return false; // user exists
@@ -56,7 +58,7 @@ public class UserServices {
    * @param username user's username
    * @param updatedFirstName new first name
    */
-  public static void updateFN(String username, String updatedFirstName) {
+  public static void updateFN(String username, String updatedFirstName) throws SQLException {
     userDAO.updateFirstName(username, updatedFirstName);
   }
 
@@ -66,7 +68,7 @@ public class UserServices {
    * @param username user's username
    * @param updatedLastName new last name
    */
-  public static void updateLN(String username, String updatedLastName) {
+  public static void updateLN(String username, String updatedLastName) throws SQLException {
     userDAO.updateLastName(username, updatedLastName);
   }
 
@@ -86,7 +88,7 @@ public class UserServices {
    * @param username user's username
    * @param updatedEmail new email
    */
-  public static void updateEmail(String username, String updatedEmail) {
+  public static void updateEmail(String username, String updatedEmail) throws SQLException {
     userDAO.updateEmail(username, updatedEmail);
   }
 
@@ -95,7 +97,7 @@ public class UserServices {
    *
    * @param username user name of user to be delete
    */
-  public static void deleteUser(String username) {
+  public static void deleteUser(String username) throws SQLException {
     if (userDAO.isUserExists(username)) {
       userDAO.deleteUser(username);
     } else {
@@ -109,7 +111,7 @@ public class UserServices {
    * @param username user's username
    * @param time string representing time stamp
    */
-  public static void updateLastSeen(String username, Long time) {
+  public static void updateLastSeen(String username, Long time) throws SQLException {
     String lastSeen = Long.toString(time);
     userDAO.updateLastSeen(username, lastSeen);
   }

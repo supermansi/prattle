@@ -24,7 +24,7 @@ public class UserDAOTest {
   User nullUser;
 
   @Before
-  public void setUp() throws NoSuchFieldException, IllegalAccessException {
+  public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
     userDAO = UserDAO.getInstance();
     user = new User("Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
     user1 = new User(2, "Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
@@ -36,80 +36,80 @@ public class UserDAOTest {
   }
 
   @After
-  public void cleanUp() {
+  public void cleanUp() throws SQLException {
     if (userDAO.isUserExists(createUser.getUsername())) {
       userDAO.deleteUser(createUser.getUsername());
     }
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testCreateUserFailNull() {
+  public void testCreateUserFailNull() throws SQLException {
     assertEquals("", userDAO.createUser(nullUser).getUsername());
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testCreateUserFailDuplicate() {
+  public void testCreateUserFailDuplicate() throws SQLException {
     assertEquals("Adi", userDAO.createUser(createUser).getUsername());
     userDAO.createUser(createUser);
   }
 
   @Test
-  public void testCreateUser() {
+  public void testCreateUser() throws SQLException {
     assertEquals("Adi", userDAO.createUser(createUser).getUsername());
   }
 
   @Test
-  public void testGetUserByUserName() {
+  public void testGetUserByUserName() throws SQLException {
     userDAO.createUser(createUser);
     assertEquals(createUser.getUsername(), userDAO.getUserByUsername(createUser.getUsername()).getUsername());
     assertEquals(createUser.getEmail(), userDAO.getUserByUsername(createUser.getUsername()).getEmail());
   }
 
   @Test
-  public void testIsUserExistsTrue() {
+  public void testIsUserExistsTrue() throws SQLException {
     String userName = userDAO.createUser(createUser).getUsername();
     assertEquals(true, userDAO.isUserExists(userName));
   }
 
   @Test
-  public void testIsUserExistsFalse() {
+  public void testIsUserExistsFalse() throws SQLException {
     String userName = userDAO.createUser(createUser).getUsername();
     userDAO.deleteUser(userName);
     assertEquals(false, userDAO.isUserExists(userName));
   }
 
   @Test
-  public void testIsUserExistsByIdTrue() {
+  public void testIsUserExistsByIdTrue() throws SQLException {
     int id = userDAO.createUser(createUser).getUserID();
     assertEquals(true, userDAO.isUserExists(id));
   }
 
   @Test
-  public void testIsUserExistsByIdFalse() {
+  public void testIsUserExistsByIdFalse() throws SQLException {
     int id = userDAO.createUser(createUser).getUserID();
     userDAO.deleteUser(createUser.getUsername());
     assertEquals(false, userDAO.isUserExists(id));
   }
 
   @Test
-  public void testValidateUserTrue() {
+  public void testValidateUserTrue() throws SQLException {
     userDAO.createUser(createUser).getUserID();
     assertEquals(true, userDAO.validateUser(createUser.getUsername(), createUser.getPassword()));
   }
 
   @Test
-  public void testValidateUserFalse() {
+  public void testValidateUserFalse() throws SQLException {
     assertEquals(false, userDAO.validateUser("Karl", "blah"));
   }
 
 
   @Test
-  public void testValidateUserFalse2() {
+  public void testValidateUserFalse2() throws SQLException {
     assertEquals(false, userDAO.validateUser("blah", "blah"));
   }
 
   @Test
-  public void testDeleteUserTrue() {
+  public void testDeleteUserTrue() throws SQLException {
     userDAO.createUser(createUser);
     assertEquals(true, userDAO.isUserExists("Adi"));
     userDAO.deleteUser("Adi");
@@ -117,26 +117,26 @@ public class UserDAOTest {
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testDeleteUserFalse() {
+  public void testDeleteUserFalse() throws SQLException {
     assertEquals(false, userDAO.isUserExists("aaa"));
     userDAO.deleteUser("aaa");
   }
 
   @Test
-  public void testGetUserByUserID() {
+  public void testGetUserByUserID() throws SQLException {
     user = userDAO.createUser(createUser);
     assertEquals(createUser.getUsername(), userDAO.getUserByUserID(createUser.getUserID()).getUsername());
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testGetUserByUserIDException() {
+  public void testGetUserByUserIDException() throws SQLException {
     user = userDAO.createUser(createUser);
     userDAO.deleteUser("Adi");
     assertEquals(createUser.getUsername(), userDAO.getUserByUserID(createUser.getUserID()).getUsername());
   }
 
   @Test
-  public void testUpdateFirstName() {
+  public void testUpdateFirstName() throws SQLException {
     userDAO.createUser(createUser);
     userDAO.updateFirstName(createUser.getUsername(), "a");
     assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getUserFN());
@@ -144,7 +144,7 @@ public class UserDAOTest {
 
 
   @Test
-  public void testUpdateLastName() {
+  public void testUpdateLastName() throws SQLException {
     userDAO.createUser(createUser);
     userDAO.updateLastName(createUser.getUsername(), "a");
     assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getUserLN());
@@ -152,7 +152,7 @@ public class UserDAOTest {
 
 
   @Test
-  public void testUpdatePassword() {
+  public void testUpdatePassword() throws SQLException {
     userDAO.createUser(createUser);
     userDAO.updatePassword(createUser.getUsername(), "a");
     assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getPassword());
@@ -160,14 +160,14 @@ public class UserDAOTest {
 
 
   @Test
-  public void testUpdateEmail() {
+  public void testUpdateEmail() throws SQLException {
     userDAO.createUser(createUser);
     userDAO.updateEmail(createUser.getUsername(), "a");
     assertEquals("a", userDAO.getUserByUsername(createUser.getUsername()).getEmail());
   }
 
   @Test
-  public void testUpdateLastSeen() {
+  public void testUpdateLastSeen() throws SQLException {
     String time = Long.toString(System.currentTimeMillis());
     userDAO.createUser(createUser);
     userDAO.updateLastSeen(createUser.getUsername(), time);

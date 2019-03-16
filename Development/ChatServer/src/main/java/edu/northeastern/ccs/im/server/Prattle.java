@@ -7,6 +7,7 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -188,7 +189,7 @@ public abstract class Prattle {
    * @param msg message to be sent
    * @param groupName receiver name to send to
    */
-  public static void sendGroupMessage(Message msg, String groupName) {
+  public static void sendGroupMessage(Message msg, String groupName) throws SQLException {
     List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(groupName);
     for(ClientRunnable cr : active){
       if(listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName())){

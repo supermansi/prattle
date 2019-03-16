@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.services;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
@@ -42,7 +43,7 @@ public class MessageServices {
    * @param message message text
    * @return true if message is added to database, false otherwise
    */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message) {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message) throws SQLException {
     if (msgType == Message.MsgType.PVT) {
       if (userDAO.isUserExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();
@@ -72,7 +73,7 @@ public class MessageServices {
    * @param receiver reciever's user name
    * @return a list of strings with the message text sent between users
    */
-  public static List<String> retrieveUserMessages(String sender, String receiver) {
+  public static List<String> retrieveUserMessages(String sender, String receiver) throws SQLException {
     return messageUserDAO.retrieveUserMsg(sender, receiver);
   }
 
@@ -82,7 +83,7 @@ public class MessageServices {
    * @param groupName group name
    * @return a list of strings with the message text to the group
    */
-  public static List<String> retrieveGroupMessages(String groupName) {
+  public static List<String> retrieveGroupMessages(String groupName) throws SQLException {
     return messageUserDAO.getMessagesFromGroup(groupName);
   }
 }

@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.sql.SQLException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -278,7 +279,7 @@ public class PrattleTest {
    * Test for broadcastMessage method.
    */
   @Test
-  public void testGrpMessage() throws IOException {
+  public void testGrpMessage() throws IOException, SQLException {
     Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");
     when(clientRunnable.getName()).thenReturn("j");
     Prattle.sendGroupMessage(message, "MSD");
@@ -291,7 +292,7 @@ public class PrattleTest {
    * Test for broadcastMessage method.
    */
   @Test
-  public void testGrpMessageFalseCondn() throws IOException {
+  public void testGrpMessageFalseCondn() throws IOException, SQLException {
     Message message = Message.makeGroupMessage("j", "/grp MSD Hello");
     when(clientRunnable.getName()).thenReturn("j");
     Prattle.sendGroupMessage(message, "MSD");
@@ -303,7 +304,7 @@ public class PrattleTest {
    * Test for broadcastMessage method failure.
    */
   @Test
-  public void testGrpMessageFalse() throws IOException {
+  public void testGrpMessageFalse() throws IOException, SQLException {
     when(clientRunnable.isInitialized()).thenReturn(false);
     when(clientRunnable.getName()).thenReturn("a");
     Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");

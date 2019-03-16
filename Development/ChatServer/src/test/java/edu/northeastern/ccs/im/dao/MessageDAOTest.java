@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.List;
 
 import org.junit.After;
@@ -27,25 +28,25 @@ public class MessageDAOTest {
   }
 
   @Test
-  public void testCreateMessage() {
+  public void testCreateMessage() throws SQLException {
     Message message = messageDAO.createMessage(new Message(Message.MsgType.PVT, 52, "test message", Long.toString(System.currentTimeMillis())));
     assertEquals("test message", message.getMessageText());
   }
 
   @Test
-  public void testGetMessageByID() {
+  public void testGetMessageByID() throws SQLException {
     Message message = messageDAO.getMessageByID(2);
     assertEquals(52, message.getSenderID());
   }
 
   @Test
-  public void testGetMessageBySender() {
+  public void testGetMessageBySender() throws SQLException {
     List<Message> message = messageDAO.getMessagesBySender(52);
     assertNotNull(message.size());
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testGetMessageFail() {
+  public void testGetMessageFail() throws SQLException {
     messageDAO.getMessageByID(1);
   }
 }

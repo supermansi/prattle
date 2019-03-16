@@ -6,6 +6,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import java.sql.SQLException;
+
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
@@ -19,7 +21,7 @@ public class UserServicesTest {
   User user1;
 
   @Before
-  public void setUp() {
+  public void setUp() throws SQLException {
     userDAO = UserDAO.getInstance();
     user = new User("Aditi","Aditi","Kacheria", "aditik@gmail.com","12345");
     user1 = new User("Daba","Daba","Daba", "daba@gmail.com","daba");
@@ -29,37 +31,37 @@ public class UserServicesTest {
   }
 
   @After
-  public void cleanUp() {
+  public void cleanUp() throws SQLException {
     if(userDAO.isUserExists(user.getUsername())) {
       userDAO.deleteUser(user.getUsername());
     }
   }
 
   @Test
-  public void testLoginSuccess() {
+  public void testLoginSuccess() throws SQLException {
     userDAO.createUser(user);
     assertEquals(true, UserServices.login(user.getUsername(),user.getPassword()));
   }
 
   @Test
-  public void testLoginFailure() {
+  public void testLoginFailure() throws SQLException {
     userDAO.createUser(user);
     assertEquals(false, UserServices.login(user.getUsername(),user1.getPassword()));
   }
 
   @Test
-  public void testRegistrationSuccess() {
+  public void testRegistrationSuccess() throws SQLException {
     assertEquals(true,UserServices.register(user.getUsername(),user.getUserFN(),user.getUserLN(),user.getUserLN(),user.getPassword()));
   }
 
   @Test
-  public void testRegistrationFailure() {
+  public void testRegistrationFailure() throws SQLException {
     UserServices.register(user.getUsername(),user.getUserFN(),user.getUserLN(),user.getUserLN(),user.getPassword());
     assertEquals(false,UserServices.register(user.getUsername(),user.getUserFN(),user.getUserLN(),user.getUserLN(),user.getPassword()));
   }
 
   @Test
-  public void testDeleteUserSuccess() {
+  public void testDeleteUserSuccess() throws SQLException {
     userDAO.createUser(user);
     assertEquals(true, userDAO.isUserExists(user.getUsername()));
     UserServices.deleteUser(user.getUsername());
@@ -68,20 +70,20 @@ public class UserServicesTest {
 
 
   @Test(expected = IllegalArgumentException.class)
-  public void testDeleteUserFailure() {
+  public void testDeleteUserFailure() throws SQLException {
     assertEquals(false,userDAO.isUserExists(user.getUsername()));
     UserServices.deleteUser(user.getUsername());
   }
 
   @Test
-  public void testUpdateFN() {
+  public void testUpdateFN() throws SQLException {
     userDAO.createUser(user);
     UserServices.updateFN(user.getUsername(),"Abibi");
     assertEquals("Abibi",userDAO.getUserByUsername(user.getUsername()).getUserFN());
   }
 
   @Test
-  public void testUpdateLN() {
+  public void testUpdateLN() throws SQLException {
     userDAO.createUser(user);
     UserServices.updateLN(user.getUsername(),"Kach");
     assertEquals("Kach",userDAO.getUserByUsername(user.getUsername()).getUserLN());
@@ -89,21 +91,21 @@ public class UserServicesTest {
 
 
   @Test
-  public void testUpdateEmail() {
+  public void testUpdateEmail() throws SQLException {
     userDAO.createUser(user);
     UserServices.updateEmail(user.getUsername(),"kach@gmail.com");
     assertEquals("kach@gmail.com",userDAO.getUserByUsername(user.getUsername()).getEmail());
   }
 
   @Test
-  public void testUpdatePassword() {
+  public void testUpdatePassword() throws SQLException {
     userDAO.createUser(user);
     UserServices.updatePassword(user.getUsername(),"password");
     assertEquals("password",userDAO.getUserByUsername(user.getUsername()).getPassword());
   }
 
   @Test
-  public void testUpdateLastSeen() {
+  public void testUpdateLastSeen() throws SQLException {
     userDAO.createUser(user);
     long time = System.currentTimeMillis();
     UserServices.updateLastSeen(user.getUsername(),time);

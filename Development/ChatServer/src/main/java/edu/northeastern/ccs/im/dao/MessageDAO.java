@@ -45,7 +45,7 @@ public class MessageDAO {
 	 * @param message message to be stored in the databse
 	 * @return a message model object
 	 */
-	public Message createMessage(Message message) {
+	public Message createMessage(Message message) throws SQLException {
 		    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
 		    try (Connection connection = connectionManager.getConnection();
 		         PreparedStatement preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);) {
@@ -61,8 +61,6 @@ public class MessageDAO {
 		    	}
 		        return message;
 		      }
-		    } catch (SQLException e) {
-		      throw new DatabaseConnectionException(e.getMessage());
 		    }
 	  }
 
@@ -72,7 +70,7 @@ public class MessageDAO {
 	 * @param msgID int representing the message #ID
 	 * @return message model object
 	 */
-	public Message getMessageByID(int msgID) {
+	public Message getMessageByID(int msgID) throws SQLException {
 		  	String getMessage = "SELECT * FROM Message WHERE msgID = ?;";
 		    try (Connection connection = connectionManager.getConnection();
 		         PreparedStatement preparedStatement = connection.prepareStatement(getMessage, Statement.RETURN_GENERATED_KEYS);) {
@@ -87,12 +85,10 @@ public class MessageDAO {
 		        message = new Message(msgID, msgType, senderID, context, timestamp);
 		        }
 		        else {
-		          throw new SQLException("Message not found.");
+		          throw new DatabaseConnectionException("Message not found.");
 		        }
 		      }
 		      return message;
-		    } catch (SQLException e) {
-		      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
 		    }
 	  }
 
@@ -102,7 +98,7 @@ public class MessageDAO {
 	 * @param senderID int representing the sender #ID.
 	 * @return a list of messages matching the sender #ID
 	 */
-	public List<Message> getMessagesBySender(int senderID) {
+	public List<Message> getMessagesBySender(int senderID) throws SQLException {
 		  List<Message> messages = new ArrayList<>();
 		  String listMessages = "SELECT * FROM Message WHERE senderID=?;";
 		  try (Connection connection = connectionManager.getConnection();
@@ -115,8 +111,6 @@ public class MessageDAO {
 		        }
 		      }
 		      return messages;
-		    } catch (SQLException e) {
-		      throw new DatabaseConnectionException(e.getMessage() + "\n" + e.getStackTrace());
 		    }
 	  }
 }
