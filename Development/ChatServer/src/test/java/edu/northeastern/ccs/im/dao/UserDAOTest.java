@@ -317,16 +317,3 @@ public class UserDAOTest {
     userDAO.updateLastSeen(createUser.getUsername(), time);
   }
 }
-
-class ConnectionTest implements IConnectionManager {
-
-  @Override
-  public java.sql.Connection getConnection() throws SQLException {
-    throw new SQLException("Connection failed");
-  }
-
-  @Test
-  public void foo(){
-    assert true;
-  }
-}
