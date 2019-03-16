@@ -45,10 +45,9 @@ public class MessageServiceTest {
     userDAO.createUser(user);
     userDAO.createUser(user1);
     messageDAO = MessageDAO.getInstance();
-    groupMSD = new Groups("groupMSD1", userDAO.getUserByUsername(user.getUsername()).getUserID());
-    groupMSDOther = new Groups("groupMSD2", userDAO.getUserByUsername(user.getUsername()).getUserID());
-    groupDAO.createGroup(groupMSD);
-  }
+//    groupMSD = new Groups("groupMSD1", userDAO.getUserByUsername(user.getUsername()).getUserID());
+//    groupMSDOther = new Groups("groupMSD2", userDAO.getUserByUsername(user.getUsername()).getUserID());
+    }
 
   @After
   public void cleanUp() {
@@ -80,6 +79,11 @@ public class MessageServiceTest {
 
   @Test
   public void testAddMsgsGRP() {
+    groupMSD = new Groups("groupMSD1", user.getUserID());
+    groupMSDOther = new Groups("groupMSD2", user.getUserID());
+
+    groupDAO.createGroup(groupMSD);
+
     if (!GroupServices.validateUserExistsInGroup(user1.getUsername(), groupMSD.getGrpName())) {
       GroupServices.addUserToGroup(groupMSD.getGrpName(), user.getUsername(), user1.getUsername());
     }
@@ -93,6 +97,11 @@ public class MessageServiceTest {
 
   @Test
   public void testAddMsgsToNonExistingReceiverGRP() {
+    groupMSD = new Groups("groupMSD1", user.getUserID());
+    groupMSDOther = new Groups("groupMSD2", user.getUserID());
+
+    groupDAO.createGroup(groupMSD);
+
     assertEquals(false, MessageServices.addMessage(Message.MsgType.GRP, user.getUsername(), groupMSDOther.getGrpName(), "Hello There Group blah"));
   }
 
@@ -109,6 +118,10 @@ public class MessageServiceTest {
 
   @Test
   public void testRetrieveGroupMessages() {
+    groupMSD = new Groups("groupMSD1", user.getUserID());
+    groupMSDOther = new Groups("groupMSD2", user.getUserID());
+
+    groupDAO.createGroup(groupMSD);
     String result = "";
     List<String> chat = MessageServices.retrieveGroupMessages("MSD");
     for (int i = 0; i < chat.size(); i++) {

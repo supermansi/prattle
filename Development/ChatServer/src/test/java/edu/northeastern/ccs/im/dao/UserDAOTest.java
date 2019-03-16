@@ -45,6 +45,9 @@ public class UserDAOTest {
     createUser = new User("Adi", "Adi", "K", "adi@gmail.com", "1234");
     nullUser = new User("", "", "", "", "");
     isException = false;
+    if (!isException && userDAO.isUserExists(createUser.getUsername())) {
+      userDAO.deleteUser(createUser.getUsername());
+    }
   }
 
   @After

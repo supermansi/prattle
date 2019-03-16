@@ -20,6 +20,9 @@ public class UserServicesTest {
     userDAO = UserDAO.getInstance();
     user = new User("Aditi","Aditi","Kacheria", "aditik@gmail.com","12345");
     user1 = new User("Daba","Daba","Daba", "daba@gmail.com","daba");
+    if(userDAO.isUserExists(user.getUsername())) {
+      userDAO.deleteUser(user.getUsername());
+    }
   }
 
   @After
