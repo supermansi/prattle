@@ -246,7 +246,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.validateUser(createUser.getUsername(),createUser.getPassword());
+    userDAO.validateUser(createUser.getUsername(), createUser.getPassword());
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -266,7 +266,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateFirstName(createUser.getUsername(),"a");
+    userDAO.updateFirstName(createUser.getUsername(), "a");
   }
 
 
@@ -277,7 +277,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateLastName(createUser.getUsername(),"a");
+    userDAO.updateLastName(createUser.getUsername(), "a");
   }
 
 
@@ -288,7 +288,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateEmail(createUser.getUsername(),"a");
+    userDAO.updateEmail(createUser.getUsername(), "a");
   }
 
 
@@ -299,7 +299,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updatePassword(createUser.getUsername(),"a");
+    userDAO.updatePassword(createUser.getUsername(), "a");
   }
 
 
@@ -311,7 +311,7 @@ public class UserDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(userDAO, new ConnectionTest());
     isException = true;
-    userDAO.updateLastSeen(createUser.getUsername(),time);
+    userDAO.updateLastSeen(createUser.getUsername(), time);
   }
 }
 
