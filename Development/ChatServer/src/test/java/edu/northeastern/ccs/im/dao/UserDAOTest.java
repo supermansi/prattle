@@ -22,41 +22,24 @@ public class UserDAOTest {
   User user1;
   User createUser;
   User nullUser;
-  boolean isException;
-
-  @AfterClass
-  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
-    userDAO = UserDAO.getInstance();
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionManager());
-
-  }
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException {
     userDAO = UserDAO.getInstance();
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionManager());
     user = new User("Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
     user1 = new User(2, "Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
     createUser = new User("Adi", "Adi", "K", "adi@gmail.com", "1234");
     nullUser = new User("", "", "", "", "");
-    isException = false;
-    if (!isException && userDAO.isUserExists(createUser.getUsername())) {
+    if (userDAO.isUserExists(createUser.getUsername())) {
       userDAO.deleteUser(createUser.getUsername());
     }
   }
 
   @After
   public void cleanUp() {
-    if (!isException && userDAO.isUserExists(createUser.getUsername())) {
+    if (userDAO.isUserExists(createUser.getUsername())) {
       userDAO.deleteUser(createUser.getUsername());
     }
-    isException = false;
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -73,16 +56,6 @@ public class UserDAOTest {
   @Test
   public void testCreateUser() {
     assertEquals("Adi", userDAO.createUser(createUser).getUsername());
-  }
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testCreateUserException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.createUser(createUser);
   }
 
   @Test
@@ -199,122 +172,5 @@ public class UserDAOTest {
     userDAO.createUser(createUser);
     userDAO.updateLastSeen(createUser.getUsername(), time);
     assertEquals(time, userDAO.getUserByUsername(createUser.getUsername()).getLastSeen());
-  }
-
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testGetUserByUsernameException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.getUserByUsername(createUser.getUsername());
-  }
-
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testGetUserByUserIDException1() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.getUserByUserID(createUser.getUserID());
-  }
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testIsUserExistsUserNameException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.isUserExists(createUser.getUsername());
-  }
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testIsUserExistsUserIDException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.isUserExists(createUser.getUserID());
-  }
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testValidateUserException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.validateUser(createUser.getUsername(), createUser.getPassword());
-  }
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testDeleteUserException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.deleteUser(createUser.getUsername());
-  }
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testUpdateFirstNameException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.updateFirstName(createUser.getUsername(), "a");
-  }
-
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testUpdateLastNameException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.updateLastName(createUser.getUsername(), "a");
-  }
-
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testUpdateEmailException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.updateEmail(createUser.getUsername(), "a");
-  }
-
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testUpdatePasswordException() throws NoSuchFieldException, IllegalAccessException {
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.updatePassword(createUser.getUsername(), "a");
-  }
-
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testUpdateLastSeenException() throws NoSuchFieldException, IllegalAccessException {
-    String time = Long.toString(System.currentTimeMillis());
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionTest());
-    isException = true;
-    userDAO.updateLastSeen(createUser.getUsername(), time);
   }
 }
