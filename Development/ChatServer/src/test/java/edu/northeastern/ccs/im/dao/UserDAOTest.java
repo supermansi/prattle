@@ -1,7 +1,9 @@
 package edu.northeastern.ccs.im.dao;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -20,6 +22,16 @@ public class UserDAOTest {
   User createUser;
   User nullUser;
   boolean isException;
+
+  @AfterClass
+  public void afterClass() throws NoSuchFieldException, IllegalAccessException {
+    userDAO = UserDAO.getInstance();
+    Class clazz = UserDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(userDAO, new ConnectionManager());
+
+  }
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException {
