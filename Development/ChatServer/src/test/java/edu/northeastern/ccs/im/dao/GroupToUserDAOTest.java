@@ -35,7 +35,7 @@ public class GroupToUserDAOTest {
 		groupToUserDAO.addUserToGroup(2, group.getGrpID());
 	}
 	
-	@Test
+	@Test(expected=DatabaseConnectionException.class)
 	public void testAddUserFail() {
 		groupToUserDAO.addUserToGroup(0, 1);
 	}
@@ -75,7 +75,7 @@ public class GroupToUserDAOTest {
 		groupToUserDAO.addUserToGroup(4, 5);
 	}
 	
-	@Test(expected=DatabaseConnectionException.class)
+	@Test
 	public void testGetAllUsers() {
 		assertNotNull(groupToUserDAO.getAllUsersInGroup(group.getGrpName()));
 	}
