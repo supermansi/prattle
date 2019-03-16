@@ -21,18 +21,18 @@ public class MessageToUserDAO {
   private static GroupDAO groupDAO;
   protected static IConnectionManager connectionManager;
 
-    /**
-     * Private constructor for the message to user DAO.
-     */
+  /**
+   * Private constructor for the message to user DAO.
+   */
   private MessageToUserDAO() {
     //empty private constructor for singleton
   }
 
-    /**
-     * Method to get the singleton instance of the message to user DAO.
-     *
-     * @return the instance of the message to user DAO
-     */
+  /**
+   * Method to get the singleton instance of the message to user DAO.
+   *
+   * @return the instance of the message to user DAO
+   */
   public static MessageToUserDAO getInstance() {
     if (messageToUserDAO == null) {
       connectionManager = new ConnectionManager();
@@ -43,70 +43,91 @@ public class MessageToUserDAO {
     return messageToUserDAO;
   }
 
-    /**
-     * Method to map a message to the receiverID.
-     *
-     * @param message message to map
-     * @param receiverId receiverID to map
-     */
+  /**
+   * Method to map a message to the receiverID.
+   *
+   * @param message message to map
+   * @param receiverId receiverID to map
+   */
   public void mapMsgIdToReceiverId(Message message, int receiverId) throws SQLException {
     String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
     // Check if group exists and user exists
-    try (Connection connection = connectionManager.getConnection();
-         PreparedStatement statement = connection.prepareStatement(insertMSgToUserMap);) {
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    try {
+      statement = connection.prepareStatement(insertMSgToUserMap);
       statement.setInt(1, message.getMsgID());
       statement.setInt(2, receiverId);
       statement.executeUpdate();
+    }finally {
+      statement.close();
+      connection.close();
     }
   }
 
-    /**
-     * Method to get messages sent to a group.
-     *
-     * @param groupName group name to retrieve messages from
-     * @return a list of strings that contain the messages sent to a group
-     */
+  /**
+   * Method to get messages sent to a group.
+   *
+   * @param groupName group name to retrieve messages from
+   * @return a list of strings that contain the messages sent to a group
+   */
   public List<String> getMessagesFromGroup(String groupName) throws SQLException {
-	  List<String> messages = new ArrayList<>();
-	  String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
-	  try (Connection connection = connectionManager.getConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);) {
-		      preparedStatement.setInt(1, groupDAO.getGroupByGroupName(groupName).getGrpID());
-		      try (ResultSet resultSet = preparedStatement.executeQuery();) {
-		        while (resultSet.next()) {
-		          String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
-		          String message = resultSet.getString("message");
-		          messages.add(username + " " + message);
-		        }
-		      }
-		      return messages;
-		    }
-  	}
+    List<String> messages = new ArrayList<>();
+    String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, groupDAO.getGroupByGroupName(groupName).getGrpID());
+      ResultSet resultSet = null;
+      try {resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
+          String message = resultSet.getString("message");
+          messages.add(username + " " + message);
+        }
+      }finally {
+        resultSet.close();
+      }
+      return messages;
+    }finally {
+      preparedStatement.close();
+      connection.close();
+    }
+  }
 
-    /**
-     * Method to retrieve messages between users.
-     *
-     * @param sender sender of the message
-     * @param receiver receiver of the message
-     * @return list of strings representing the messages
-     */
+  /**
+   * Method to retrieve messages between users.
+   *
+   * @param sender sender of the message
+   * @param receiver receiver of the message
+   * @return list of strings representing the messages
+   */
   public List<String> retrieveUserMsg(String sender, String receiver) throws SQLException {
     String selectQuery = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";
     List<String> chat = new ArrayList<>();
-    try(Connection connection = connectionManager.getConnection();
-        PreparedStatement statement = connection.prepareStatement(selectQuery);) {
-        statement.setInt(1,userDAO.getUserByUsername(sender).getUserID());
-        statement.setInt(2,userDAO.getUserByUsername(receiver).getUserID());
-        statement.setInt(3,userDAO.getUserByUsername(receiver).getUserID());
-        statement.setInt(4,userDAO.getUserByUsername(sender).getUserID());
-      try (ResultSet resultSet = statement.executeQuery();) {
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    try{
+      statement = connection.prepareStatement(selectQuery);
+      statement.setInt(1,userDAO.getUserByUsername(sender).getUserID());
+      statement.setInt(2,userDAO.getUserByUsername(receiver).getUserID());
+      statement.setInt(3,userDAO.getUserByUsername(receiver).getUserID());
+      statement.setInt(4,userDAO.getUserByUsername(sender).getUserID());
+      ResultSet resultSet = null;
+      try {resultSet = statement.executeQuery();
         while (resultSet.next()) {
           int senderId = resultSet.getInt("senderID");
           String msg = resultSet.getString("message");
           chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
         }
+      }finally {
+        resultSet.close();
       }
       return chat;
+    }finally {
+      statement.close();
+      connection.close();
     }
   }
 }

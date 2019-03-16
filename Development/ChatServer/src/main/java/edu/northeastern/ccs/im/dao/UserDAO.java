@@ -171,8 +171,12 @@ public class UserDAO {
     try {
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, userName);
-      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+      ResultSet resultSet = null;
+      try  {
+        resultSet = preparedStatement.executeQuery();
         return resultSet.next();
+      }finally {
+        resultSet.close();
       }
     } finally {
       preparedStatement.close();
@@ -193,8 +197,12 @@ public class UserDAO {
     try {
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, userId);
-      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+      ResultSet resultSet = null;
+      try  {
+        resultSet = preparedStatement.executeQuery();
         return resultSet.next();
+      }finally {
+        resultSet.close();
       }
     } finally {
       preparedStatement.close();
@@ -219,8 +227,12 @@ public class UserDAO {
       preparedStatement.setString(1, userName);
       preparedStatement.setString(2, pw);
 
-      try (ResultSet resultSet = preparedStatement.executeQuery();) {
+      ResultSet resultSet = null;
+      try  {
+        resultSet = preparedStatement.executeQuery();
         return resultSet.next();
+      }finally {
+        resultSet.close();
       }
     } finally {
       preparedStatement.close();

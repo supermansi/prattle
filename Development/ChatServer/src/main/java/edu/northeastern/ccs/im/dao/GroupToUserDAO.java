@@ -20,18 +20,18 @@ public class GroupToUserDAO {
   private static GroupDAO groupDAO;
   private static UserDAO userDAO;
 
-    /**
-     * Private constructor for the group to user DAO.
-     */
+  /**
+   * Private constructor for the group to user DAO.
+   */
   private GroupToUserDAO() {
     // empty constructor for singleton
   }
 
-    /**
-     * Method to return the singleton instance of the group to user DAO.
-     *
-     * @return group to user DAO instance
-     */
+  /**
+   * Method to return the singleton instance of the group to user DAO.
+   *
+   * @return group to user DAO instance
+   */
   public static GroupToUserDAO getInstance() {
     if (instance == null) {
       connectionManager = new ConnectionManager();
@@ -42,22 +42,27 @@ public class GroupToUserDAO {
     return instance;
   }
 
-    /**
-     * Method to add a user to a group in the database.
-     *
-     * @param userID int representing the user #ID
-     * @param groupID int representing the user #ID
-     */
+  /**
+   * Method to add a user to a group in the database.
+   *
+   * @param userID  int representing the user #ID
+   * @param groupID int representing the user #ID
+   */
   public void addUserToGroup(int userID, int groupID) throws SQLException {
     String insertUserToGroupMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?,?);";
     // Check if group exists and user exists
     if (groupDAO.checkGroupExists(groupID)) {
       if (userDAO.isUserExists(userDAO.getUserByUserID(userID).getUsername())) {
-        try (Connection connection = connectionManager.getConnection();
-             PreparedStatement statement = connection.prepareStatement(insertUserToGroupMap);) {
+        Connection connection = connectionManager.getConnection();
+        PreparedStatement statement = null;
+        try {
+          statement = connection.prepareStatement(insertUserToGroupMap);
           statement.setInt(1, userID);
           statement.setInt(2, groupID);
           statement.executeUpdate();
+        } finally {
+          statement.close();
+          connection.close();
         }
       } else {
         throw new DatabaseConnectionException("User does not exist!");
@@ -67,77 +72,103 @@ public class GroupToUserDAO {
     }
   }
 
-    /**
-     * Method to check if a user is part of a group.
-     *
-     * @param userID int representing the user #ID
-     * @param groupID int representing the group #ID
-     * @return true if the user is part of the group, otherwise false
-     */
+  /**
+   * Method to check if a user is part of a group.
+   *
+   * @param userID  int representing the user #ID
+   * @param groupID int representing the group #ID
+   * @return true if the user is part of the group, otherwise false
+   */
   public boolean checkIfUserInGroup(int userID, int groupID) throws SQLException {
     String checkIfUserInGroup = "SELECT * FROM GroupToUserMap WHERE userID=? AND groupID=?;";
-    try (Connection connection = connectionManager.getConnection();
-         PreparedStatement statement = connection.prepareStatement(checkIfUserInGroup);) {
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    try {
+      statement = connection.prepareStatement(checkIfUserInGroup);
       statement.setInt(1, userID);
       statement.setInt(2, groupID);
       try (ResultSet result = statement.executeQuery();) {
         return result.next();
       }
+    } finally {
+      statement.close();
+      connection.close();
     }
   }
 
-    /**
-     * Method to delete user from a group.
-     *
-     * @param userID int representing the user #ID
-     * @param groupID int representing the group #ID
-     */
+  /**
+   * Method to delete user from a group.
+   *
+   * @param userID  int representing the user #ID
+   * @param groupID int representing the group #ID
+   */
   public void deleteUserFromGroup(int userID, int groupID) throws SQLException {
     if (checkIfUserInGroup(userID, groupID)) {
       String deleteUser = "DELETE FROM GroupToUserMap WHERE userID=? AND groupID=?;";
-      try (Connection connection = connectionManager.getConnection();
-           PreparedStatement statement = connection.prepareStatement(deleteUser);) {
+      Connection connection = connectionManager.getConnection();
+      PreparedStatement statement = null;
+      try {
+        statement = connection.prepareStatement(deleteUser);
         statement.setInt(1, userID);
         statement.setInt(2, groupID);
         statement.executeUpdate();
+      } finally {
+        statement.close();
+        connection.close();
       }
     }
   }
 
-    /**
-     * Method to delete all users from a specified group.
-     *
-     * @param userID int representing the user #ID
-     */
+  /**
+   * Method to delete all users from a specified group.
+   *
+   * @param userID int representing the user #ID
+   */
   public void deleteUserFromAllGroups(int userID) throws SQLException {
     String deleteUser = "DELETE FROM GroupToUserMap WHERE userID=?;";
-    try (Connection connection = connectionManager.getConnection();
-         PreparedStatement statement = connection.prepareStatement(deleteUser);) {
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    try {
+      statement = connection.prepareStatement(deleteUser);
       statement.setInt(1, userID);
       statement.executeUpdate();
+    } finally {
+      statement.close();
     }
   }
 
-    /**
-     * Method to return a list of all the user's names that belong to a group.
-     *
-     * @param groupName string representing the group name
-     * @return a list of strings representing the user's in the group names
-     */
+  /**
+   * Method to return a list of all the user's names that belong to a group.
+   *
+   * @param groupName string representing the group name
+   * @return a list of strings representing the user's in the group names
+   */
   public List<String> getAllUsersInGroup(String groupName) throws SQLException {
     List<String> users = new ArrayList<>();
     int groupID = groupDAO.getGroupByGroupName(groupName).getGrpID();
     String listUsers = "SELECT * FROM GroupToUserMap WHERE groupID=?;";
-    try (Connection connection = connectionManager.getConnection();
-         PreparedStatement preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);) {
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(listUsers, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, groupID);
-      try (ResultSet resultSet = preparedStatement.executeQuery();) {
-        while (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          users.add(userDAO.getUserByUserID(userID).getUsername());
+      ResultSet resultSet = null;
+      try {
+        resultSet = preparedStatement.executeQuery();
+        {
+          while (resultSet.next()) {
+            int userID = resultSet.getInt("userID");
+            users.add(userDAO.getUserByUserID(userID).getUsername());
+          }
         }
+
+        return users;
+      } finally {
+        resultSet.close();
       }
-      return users;
+    } finally {
+      preparedStatement.close();
+      connection.close();
     }
   }
 }

@@ -21,10 +21,27 @@ import edu.northeastern.ccs.im.model.Message;
 public class MessageDAOTest {
 
   static MessageDAO messageDAO;
+  boolean isException;
+  Message message1;
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException {
     messageDAO = MessageDAO.getInstance();
+    Class clazz = MessageDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(messageDAO, new ConnectionManager());
+    isException = false;
+    message1 = new Message(Message.MsgType.PVT,2, "admin", Long.toString(System.currentTimeMillis()));
+  }
+
+  @AfterClass
+  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
+    messageDAO = MessageDAO.getInstance();
+    Class clazz = MessageDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(messageDAO, new ConnectionManager());
   }
 
   @Test
@@ -49,4 +66,47 @@ public class MessageDAOTest {
   public void testGetMessageFail() throws SQLException {
     messageDAO.getMessageByID(1);
   }
+
+
+  @Test(expected = NullPointerException.class)
+  public void testCreateMessageException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = MessageDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(messageDAO, new ConnectionTest());
+    isException = true;
+    Message message = messageDAO.createMessage(message1);
+  }
+
+
+  @Test(expected = NullPointerException.class)
+  public void testGetMessageByIDException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = MessageDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(messageDAO, new ConnectionTest());
+    isException = true;
+    Message message = messageDAO.getMessageByID(2);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testGetMessageBySenderException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = MessageDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(messageDAO, new ConnectionTest());
+    isException = true;
+    List<Message> message = messageDAO.getMessagesBySender(52);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testGetMessageFailException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    Class clazz = MessageDAO.class;
+    Field connectionManager = clazz.getDeclaredField("connectionManager");
+    connectionManager.setAccessible(true);
+    connectionManager.set(messageDAO, new ConnectionTest());
+    isException = true;
+    Message message = messageDAO.getMessageByID(1);
+  }
+
 }
