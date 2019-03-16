@@ -26,6 +26,7 @@ import static junit.framework.TestCase.assertNotSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -143,11 +144,11 @@ public class ClientRunnableTest {
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection, times(3)).sendMessage(messageCaptor.capture());
+        verify(connection, times(3)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
         assertEquals(3, capturedMsgs.size());
         assertEquals(false, capturedMsgs.get(1).terminate());
-        Mockito.verify(connection).close();
+        verify(connection).close();
     }
 
     /**
@@ -169,7 +170,7 @@ public class ClientRunnableTest {
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection,times(2)).sendMessage(messageCaptor.capture());
+        verify(connection,times(2)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
         assertEquals(2, capturedMsgs.size());
         assertEquals(true, capturedMsgs.get(0).isInitialization());
@@ -199,7 +200,7 @@ public class ClientRunnableTest {
         clientRunnable.run();
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection, times(4)).sendMessage(messageCaptor.capture());
+        verify(connection, times(4)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
         assertEquals(4, capturedMsgs.size());
         assertEquals("Rohan", capturedMsgs.get(0).getName());
@@ -245,12 +246,12 @@ public class ClientRunnableTest {
         clientRunnable.run();
 
         clientRunnable.run();
-        Mockito.verify(connection,times(2)).sendMessage(messageCaptor.capture());
+        verify(connection,times(2)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
         assertEquals(2, capturedMsgs.size());
         assertEquals("Prattle", capturedMsgs.get(0).getName());
         clientRunnable.terminateClient();
-        Mockito.verify(connection).close();
+        verify(connection).close();
     }
 
     /**
@@ -269,7 +270,7 @@ public class ClientRunnableTest {
         clientRunnable.run();
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
         clientRunnable.run();
-        Mockito.verify(connection,times(2)).sendMessage(messageCaptor.capture());
+        verify(connection,times(2)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
         assertEquals(2, capturedMsgs.size());
         assertEquals("Prattle", capturedMsgs.get(0).getName());
@@ -296,7 +297,7 @@ public class ClientRunnableTest {
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.run();
         clientRunnable.run();
-        Mockito.verify(connection,times(3)).sendMessage(messageCaptor.capture());
+        verify(connection,times(3)).sendMessage(messageCaptor.capture());
         List<Message> capturedMsgs = messageCaptor.getAllValues();
         assertEquals(3, capturedMsgs.size());
         assertEquals("Rohan", capturedMsgs.get(0).getName());
@@ -321,7 +322,7 @@ public class ClientRunnableTest {
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
         clientRunnable.run();
         clientRunnable.terminateClient();
-        Mockito.verify(connection).close();
+        verify(connection).close();
     }
 
     @Test
@@ -340,7 +341,7 @@ public class ClientRunnableTest {
         clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
         clientRunnable.run();
         clientRunnable.terminateClient();
-        Mockito.verify(connection).close();
+        verify(connection).close();
     }
 
     /**
@@ -458,7 +459,7 @@ public class ClientRunnableTest {
     }
 
     @Test
-    public void testUserFunctions() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+    public void testUserFunctions() throws InvocationTargetException, IllegalAccessException{
         clientRunnable.setName("test");
         Class<ClientRunnable> clazz = ClientRunnable.class;
         Method method[] = clazz.getDeclaredMethods();
@@ -482,8 +483,16 @@ public class ClientRunnableTest {
 
     @Test
     public void testRegisteration(){
-        register();
-        delete();
+        Message testMessage1 = Message.makeRegisterationMessage("t","t t t t t");;
+        List<Message> nameList = new ArrayList();
+        nameList.add(testMessage1);
+
+        clientRunnable.enqueueMessage(testMessage1);
+
+        GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
+        when(connection.iterator()).thenReturn(itr);
+        clientRunnable.run();
+        UserDAO.getInstance().deleteUser("t");
     }
 
     @Test
@@ -519,10 +528,14 @@ public class ClientRunnableTest {
         GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.run();
+        verify(connection).sendMessage(messageCaptor.capture());
+        List<Message> capturedMsgs = messageCaptor.getAllValues();
+        assertEquals("NAK 7 Prattle 42 Either Illegal name or useralready exists.", capturedMsgs.get(0).toString());
     }
 
     @Test
     public void testFailedLogin(){
+        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
         Message testMessage1 = Message.makeSimpleLoginMessage("y","z");;
         List<Message> nameList = new ArrayList();
         nameList.add(testMessage1);
@@ -530,6 +543,9 @@ public class ClientRunnableTest {
 
         when(connection.iterator()).thenReturn(itr);
         clientRunnable.run();
+        verify(connection).sendMessage(messageCaptor.capture());
+        List<Message> capturedMsgs = messageCaptor.getAllValues();
+        assertEquals("NAK 7 Prattle 28 Invalid username or password", capturedMsgs.get(0).toString());
     }
 
 
