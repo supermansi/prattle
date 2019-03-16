@@ -129,7 +129,7 @@ public class GroupToUserDAOTest {
     isException = true;
     groupToUserDAO.addUserToGroup(2, group1.getGrpID());
   }
-  @Test(expected = NullPointerException.class)
+  @Test(expected = DatabaseConnectionException.class)
   public void testAddUserFailException() throws NoSuchFieldException, IllegalAccessException, SQLException {
     Class clazz = GroupToUserDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");
@@ -139,7 +139,7 @@ public class GroupToUserDAOTest {
     groupToUserDAO.addUserToGroup(0, 1);
   }
 
-  @Test(expected = DatabaseConnectionException.class)
+  @Test(expected = NullPointerException.class)
   public void testCheckIfUserInGroupException() throws NoSuchFieldException, IllegalAccessException, SQLException {
     Class clazz = GroupToUserDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");
