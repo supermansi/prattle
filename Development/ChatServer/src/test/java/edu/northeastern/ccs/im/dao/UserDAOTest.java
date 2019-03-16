@@ -321,4 +321,9 @@ class ConnectionTest implements IConnectionManager {
   public java.sql.Connection getConnection() throws SQLException {
     throw new SQLException("Connection failed");
   }
+
+  @Test
+  public void foo(){
+    assert true;
+  }
 }
