@@ -177,7 +177,7 @@ public class GroupDAO {
    * Method to check if a given user is the admin of a given group.
    *
    * @param groupName string representing the group name
-   * @param adminID  string representing the user ID
+   * @param adminID   string representing the user ID
    * @return true if the user is the admin of the group, false otherwise
    */
   public boolean validateGroupAdmin(String groupName, int adminID) throws SQLException {
