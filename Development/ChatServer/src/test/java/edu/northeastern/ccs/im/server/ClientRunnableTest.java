@@ -562,7 +562,7 @@ public class ClientRunnableTest {
   public void testRegisteration() throws SQLException {
     Message testMessage1 = Message.makeRegisterationMessage("t", "t t t t t");
     mockStatic(UserServices.class);
-    when(UserServices.register("r", "r", "r", "r", "r")).thenReturn(false);
+    when(UserServices.register("r", "r", "r", "r", "r")).thenReturn(true);
 
     List<Message> nameList = new ArrayList();
     nameList.add(testMessage1);
