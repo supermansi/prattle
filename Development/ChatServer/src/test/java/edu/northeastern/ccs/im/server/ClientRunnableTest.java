@@ -1,24 +1,17 @@
 package edu.northeastern.ccs.im.server;
 
-import com.sun.xml.internal.ws.api.message.Messages;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.DataTruncation;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
  * This is a test class for the ClientRunnable class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ClientRunnable.class, UserServices.class, MessageServices.class, GroupServices.class})
+@PrepareForTest({UserServices.class, MessageServices.class, GroupServices.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class ClientRunnableTest {
 
@@ -506,26 +499,6 @@ public class ClientRunnableTest {
 
     met.setAccessible(true);
     Message msg = Message.makePrivateMessage("test", "/pvt r hello world");
-    met.invoke(clientRunnable, msg);
-  }
-
-  @Test
-  public void testProcessMessageGRPNotExist() throws Exception {
-    clientRunnable.setName("test");
-    mockStatic(MessageServices.class);
-    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
-
-    Class<ClientRunnable> clazz = ClientRunnable.class;
-    Method method[] = clazz.getDeclaredMethods();
-    Method met = null;
-    for (Method m : method) {
-      if (m.getName().contains("processMessage")) {
-        met = m;
-      }
-    }
-
-    met.setAccessible(true);
-    Message msg = Message.makeGroupMessage("test", "/grp ZZZ hello world");
     met.invoke(clientRunnable, msg);
   }
 

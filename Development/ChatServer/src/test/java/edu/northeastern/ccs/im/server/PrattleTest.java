@@ -46,7 +46,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * Test class for the methods in the Prattle class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ClientRunnable.class, GroupServices.class})
+@PrepareForTest({GroupServices.class})
 @PowerMockIgnore("javax.net.ssl.*")
 
 public class PrattleTest {
