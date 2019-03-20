@@ -8,7 +8,6 @@ import java.sql.Statement;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
-import edu.northeastern.ccs.im.model.User;
 
 /**
  * This class is the DAO for groups.
@@ -29,11 +28,11 @@ public class GroupDAO {
   /**
    * Method to ensure the groupDAO is a singleton and returns the same instance.
    *
-   * @return the singleton instance of teh GroupDAO
+   * @return the singleton instance of the GroupDAO
    */
   public static GroupDAO getInstance() {
     if (groupDAO == null) {
-      connectionManager = new ConnectionManager();
+      //connectionManager = new ConnectionManager();
       userDAO = UserDAO.getInstance();
       groupDAO = new GroupDAO();
     }
@@ -178,11 +177,11 @@ public class GroupDAO {
    * Method to check if a given user is the admin of a given group.
    *
    * @param groupName string representing the group name
-   * @param userName  string representing the user name
+   * @param adminID  string representing the user ID
    * @return true if the user is the admin of the group, false otherwise
    */
-  public boolean validateGroupAdmin(String groupName, String userName) throws SQLException {
-    User admin = userDAO.getUserByUsername(userName);
+  public boolean validateGroupAdmin(String groupName, int adminID) throws SQLException {
+    //User admin = userDAO.getUserByUsername(userName);
     String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
@@ -190,7 +189,7 @@ public class GroupDAO {
     try {
       preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, groupName);
-      preparedStatement.setInt(2, admin.getUserID());
+      preparedStatement.setInt(2, adminID);
       try {
         result = preparedStatement.executeQuery();
         return result.next();
