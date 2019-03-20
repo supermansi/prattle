@@ -51,8 +51,8 @@ public class GroupServices {
      */
 	public static void addUserToGroup(String groupName, String adminName, String userName) throws SQLException {
 		groupDAO.checkGroupExists(groupName);
-		groupDAO.validateGroupAdmin(groupName, adminName);
 		User user = userDAO.getUserByUsername(userName);
+		groupDAO.validateGroupAdmin(groupName, user.getUserID());
 		Groups group = groupDAO.getGroupByGroupName(groupName);
 		if(!groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID()))
 			groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
@@ -79,8 +79,8 @@ public class GroupServices {
      * @param userName string representing the user name
      */
 	public static void removeUserFromGroup(String groupName, String adminName, String userName) throws SQLException {
-		groupDAO.validateGroupAdmin(groupName, adminName);
 		User user = userDAO.getUserByUsername(userName);
+		groupDAO.validateGroupAdmin(groupName, user.getUserID());
 		Groups group = groupDAO.getGroupByGroupName(groupName);
 		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
 	}
