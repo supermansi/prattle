@@ -32,7 +32,7 @@ public class GroupDAO {
    */
   public static GroupDAO getInstance() {
     if (groupDAO == null) {
-      //connectionManager = new ConnectionManager();
+      connectionManager = new ConnectionManager();
       userDAO = UserDAO.getInstance();
       groupDAO = new GroupDAO();
     }
