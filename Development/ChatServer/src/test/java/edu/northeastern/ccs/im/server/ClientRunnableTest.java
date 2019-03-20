@@ -7,6 +7,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -21,6 +24,8 @@ import java.util.concurrent.ScheduledFuture;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.services.GroupServices;
+import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
 
 import static junit.framework.TestCase.assertEquals;
@@ -32,11 +37,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * This is a test class for the ClientRunnable class.
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ClientRunnable.class,UserServices.class, MessageServices.class, GroupServices.class})
+@PowerMockIgnore("javax.net.ssl.*")
 public class ClientRunnableTest {
 
   private static NetworkConnection clientSocket;
@@ -535,9 +543,10 @@ public class ClientRunnableTest {
   }
 
   @Test
-  public void testDuplicateRegisteration() {
+  public void testDuplicateRegisteration() throws SQLException {
     when(connection.sendMessage(any())).thenReturn(true);
-
+    mockStatic(UserServices.class);
+    when(UserServices.register("r","r","r","r","r")).thenReturn(false);
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     Message testMessage1 = Message.makeRegisterationMessage("a", "r r r r r");
     ;
@@ -554,11 +563,29 @@ public class ClientRunnableTest {
     assertEquals("NAK 7 Prattle 42 Either Illegal name or useralready exists.", capturedMsgs.get(0).toString());
   }
 
+//  @Test
+//  public void testFailedLogin() {
+//    ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+//    Message testMessage1 = Message.makeSimpleLoginMessage("y", "z");
+//    ;
+//    List<Message> nameList = new ArrayList();
+//    nameList.add(testMessage1);
+//    GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
+//
+//    when(connection.iterator()).thenReturn(itr);
+//    clientRunnable.run();
+//    verify(connection).sendMessage(messageCaptor.capture());
+//    List<Message> capturedMsgs = messageCaptor.getAllValues();
+//    assertEquals("NAK 7 Prattle 28 Invalid username or password", capturedMsgs.get(0).toString());
+//  }
+
   @Test
-  public void testFailedLogin() {
+  public void testFailedLoginStaticMock() throws SQLException {
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     Message testMessage1 = Message.makeSimpleLoginMessage("y", "z");
-    ;
+
+    mockStatic(UserServices.class);
+    when(UserServices.login(any(),any())).thenReturn(false);
     List<Message> nameList = new ArrayList();
     nameList.add(testMessage1);
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);

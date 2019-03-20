@@ -5,9 +5,13 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
+import edu.northeastern.ccs.im.services.GroupServices;
+import edu.northeastern.ccs.im.services.MessageServices;
+import edu.northeastern.ccs.im.services.UserServices;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +24,8 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -28,13 +34,21 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * Test class for the methods in the Prattle class.
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ClientRunnable.class, GroupServices.class})
+@PowerMockIgnore("javax.net.ssl.*")
+
 public class PrattleTest {
   private static final int PORT = 4546;
   private static final int CLIENT_CHECK_DELAY = 200;
@@ -66,7 +80,7 @@ public class PrattleTest {
     field.setAccessible(true);
     //queue = (ConcurrentLinkedQueue<ClientRunnable>) field.get("Prattle");
     queue = new ConcurrentLinkedQueue<ClientRunnable>();
-    field.set(clientRunnable,queue);
+    field.set(clientRunnable, queue);
     queue.add(clientRunnable);
   }
 
@@ -280,6 +294,12 @@ public class PrattleTest {
    */
   @Test
   public void testGrpMessage() throws IOException, SQLException {
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    when(GroupServices.getAllUsersInGroup("MSD")).thenReturn(list);
+
     Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");
     when(clientRunnable.getName()).thenReturn("j");
     Prattle.sendGroupMessage(message, "MSD");
@@ -293,6 +313,12 @@ public class PrattleTest {
    */
   @Test
   public void testGrpMessageFalseCondn() throws IOException, SQLException {
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    when(GroupServices.getAllUsersInGroup("MSD")).thenReturn(list);
+
     Message message = Message.makeGroupMessage("j", "/grp MSD Hello");
     when(clientRunnable.getName()).thenReturn("j");
     Prattle.sendGroupMessage(message, "MSD");
@@ -300,13 +326,21 @@ public class PrattleTest {
     assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
+
   /**
    * Test for broadcastMessage method failure.
    */
   @Test
   public void testGrpMessageFalse() throws IOException, SQLException {
+    //Return R, J
     when(clientRunnable.isInitialized()).thenReturn(false);
     when(clientRunnable.getName()).thenReturn("a");
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    when(GroupServices.getAllUsersInGroup("MSD")).thenReturn(list);
+
     Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");
     Prattle.sendGroupMessage(message, "MSD");
     assertEquals(false, clientRunnable.isInitialized());
