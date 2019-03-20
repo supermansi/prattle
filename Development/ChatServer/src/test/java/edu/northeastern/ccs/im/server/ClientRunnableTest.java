@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
+import com.sun.xml.internal.ws.api.message.Messages;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.sql.DataTruncation;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -24,6 +28,7 @@ import java.util.concurrent.ScheduledFuture;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
@@ -31,19 +36,21 @@ import edu.northeastern.ccs.im.services.UserServices;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotSame;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * This is a test class for the ClientRunnable class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({ClientRunnable.class,UserServices.class, MessageServices.class, GroupServices.class})
+@PrepareForTest({ClientRunnable.class, UserServices.class, MessageServices.class, GroupServices.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class ClientRunnableTest {
 
@@ -65,28 +72,18 @@ public class ClientRunnableTest {
     UserDAO.getInstance().deleteUser("t");
   }
 
-  private void register() {
-    Message testMessage1 = Message.makeRegisterationMessage("t", "t t t t t");
-    ;
-    List<Message> nameList = new ArrayList();
-    nameList.add(testMessage1);
-
-    clientRunnable.enqueueMessage(testMessage1);
-
-    GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
-    when(connection.iterator()).thenReturn(itr);
-    clientRunnable.run();
-  }
-
 
   /**
    * Test for the getUserId method.
    */
   @Test
-  public void testGetUserId() {
+  public void testGetUserId() throws SQLException {
     List<Message> nameList = new ArrayList();
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
     Message testMsg0 = Message.makeSimpleLoginMessage("r", "a");
-    ;
+
+
     Message testMsg1 = Message.makeBroadcastMessage("Rohan", "Test");
     nameList.add(testMsg0);
     nameList.add(testMsg1);
@@ -142,9 +139,12 @@ public class ClientRunnableTest {
    * Test for making a quit message to terminate connection.
    */
   @Test
-  public void testTerminateMessage() {
+  public void testTerminateMessage() throws SQLException {
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     List<Message> nameList = new ArrayList();
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
     Message testMessage1 = Message.makeSimpleLoginMessage("r", "a");
     ;
     Message testMessage2 = Message.makeQuitMessage("Rohan");
@@ -171,9 +171,12 @@ public class ClientRunnableTest {
    * Testing for more than one login message being enqueued.
    */
   @Test
-  public void testDualHelloMessage() {
+  public void testDualHelloMessage() throws SQLException {
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     List<Message> nameList = new ArrayList();
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
     Message testMessage1 = Message.makeSimpleLoginMessage("r", "a");
     ;
     Message testMessage2 = Message.makeSimpleLoginMessage("r", "a");
@@ -200,11 +203,14 @@ public class ClientRunnableTest {
    * Test for the run method to enqueue and send messages.
    */
   @Test
-  public void testRun() {
+  public void testRun() throws SQLException {
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     Message testMessage1 = Message.makeBroadcastMessage("Rohan", "Random1");
     Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
     List<Message> nameList = new ArrayList();
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
     Message testMsg0 = Message.makeSimpleLoginMessage("r", "a");
     Message testMsg1 = Message.makeBroadcastMessage("Rohan", "Test");
     nameList.add(testMsg0);
@@ -246,10 +252,13 @@ public class ClientRunnableTest {
    * Test for when messages are sent from different users.
    */
   @Test
-  public void testRunForDifferentNames() {
+  public void testRunForDifferentNames() throws SQLException {
     when(connection.sendMessage(any())).thenReturn(true);
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     //when(connection.sendMessage(testMsg)).thenReturn(true);
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
     Message testMessage1 = Message.makeSimpleLoginMessage("r", "a");
     ;
     Message testMessage2 = Message.makeBroadcastMessage("r", "Random2");
@@ -278,9 +287,12 @@ public class ClientRunnableTest {
    * Test run method when message sender is null.
    */
   @Test
-  public void testRunForNullMessageName() {
+  public void testRunForNullMessageName() throws SQLException {
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     List<Message> nameList = new ArrayList();
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
     Message testMessage1 = Message.makeSimpleLoginMessage("r", "a");
     ;
     Message testMessage2 = Message.makeBroadcastMessage(null, "Random");
@@ -302,10 +314,13 @@ public class ClientRunnableTest {
    * Test for the run method.
    */
   @Test
-  public void testBasicRunMethod() {
+  public void testBasicRunMethod() throws SQLException {
     when(connection.sendMessage(any())).thenReturn(true);
 
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
     Message testMessage1 = Message.makeSimpleLoginMessage("r", "a");
     ;
     Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
@@ -329,7 +344,10 @@ public class ClientRunnableTest {
    * Test method to terminate a ClientRunnable.
    */
   @Test
-  public void testTerminate() {
+  public void testTerminate() throws SQLException {
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
     when(connection.iterator()).thenReturn(new Iterator<Message>() {
       @Override
       public boolean hasNext() {
@@ -390,7 +408,13 @@ public class ClientRunnableTest {
   }
 
   @Test
-  public void testRetrieveMessageForUser() throws InvocationTargetException, IllegalAccessException {
+  public void testRetrieveMessageForUser() throws InvocationTargetException, IllegalAccessException, SQLException {
+    List<String> msgList = new ArrayList<>();
+    msgList.add("r /pvt j Hii");
+    msgList.add("j /pvt r hello back");
+    mockStatic(MessageServices.class);
+    when(MessageServices.retrieveUserMessages("r", "j")).thenReturn(msgList);
+
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -406,7 +430,14 @@ public class ClientRunnableTest {
   }
 
   @Test
-  public void testRetrieveMessageForGRP() throws InvocationTargetException, IllegalAccessException {
+  public void testRetrieveMessageForGRP() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    List<String> msgList = new ArrayList<>();
+    msgList.add("r /grp MSD Hello");
+    msgList.add("j /grp MSD hello to the group");
+    mockStatic(MessageServices.class);
+    when(MessageServices.retrieveGroupMessages("MSD")).thenReturn(msgList);
+
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -422,7 +453,9 @@ public class ClientRunnableTest {
   }
 
   @Test
-  public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+  public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
+    mockStatic(MessageServices.class);
+    when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -435,17 +468,53 @@ public class ClientRunnableTest {
 
     met.setAccessible(true);
     Message msg = Message.makePrivateMessage("test", "/pvt r hello world");
-    try {
-      met.invoke(clientRunnable, msg);
-    } catch (Exception e) {
-      assert true;
-    }
-
+    met.invoke(clientRunnable, msg);
   }
 
   @Test
-  public void testProcessMessageGRPNotExist() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+  public void testProcessMessagePVTDBException() throws Exception {
+    mockStatic(MessageServices.class);
+    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
     clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    Message msg = Message.makePrivateMessage("test", "/pvt r hello world");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testProcessMessagePVTSQLException() throws Exception {
+    mockStatic(MessageServices.class);
+    PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
+    clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    Message msg = Message.makePrivateMessage("test", "/pvt r hello world");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testProcessMessageGRPNotExist() throws Exception {
+    clientRunnable.setName("test");
+    mockStatic(MessageServices.class);
+    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
+
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -461,8 +530,15 @@ public class ClientRunnableTest {
   }
 
   @Test
-  public void testProcessMessageGRP() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+  public void testProcessMessageGRP() throws Exception {
     clientRunnable.setName("test");
+    mockStatic(MessageServices.class);
+    mockStatic(GroupServices.class);
+//    when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);
+//    when(GroupServices.deleteGroup(anyString(),anyString())).thenReturn(true);
+//    PowerMockito.doNothing().when(GroupServices.class,"createGroup",any(),any());
+//    PowerMockito.doNothing().when(GroupServices.class,"removeUserFromGroup",any(),any(),any());
+//    PowerMockito.doNothing().when(GroupServices.class,"addUserToGroup",any(),any(),any());
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -488,6 +564,7 @@ public class ClientRunnableTest {
   @Test
   public void testUserFunctions() throws InvocationTargetException, IllegalAccessException {
     clientRunnable.setName("test");
+    mockStatic(UserServices.class);
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -511,7 +588,9 @@ public class ClientRunnableTest {
   @Test
   public void testRegisteration() throws SQLException {
     Message testMessage1 = Message.makeRegisterationMessage("t", "t t t t t");
-    ;
+    mockStatic(UserServices.class);
+    when(UserServices.register("r", "r", "r", "r", "r")).thenReturn(false);
+
     List<Message> nameList = new ArrayList();
     nameList.add(testMessage1);
 
@@ -520,12 +599,14 @@ public class ClientRunnableTest {
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
     when(connection.iterator()).thenReturn(itr);
     clientRunnable.run();
-    UserDAO.getInstance().deleteUser("t");
   }
 
   @Test
-  public void processUsrGrpRet() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException {
+  public void processUsrGrpRet() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
     clientRunnable.setName("r");
+    mockStatic(MessageServices.class);
+    when(MessageServices.retrieveGroupMessages(any())).thenReturn(new ArrayList<>());
+    when(MessageServices.retrieveUserMessages(any(),any())).thenReturn(new ArrayList<>());
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -544,9 +625,9 @@ public class ClientRunnableTest {
 
   @Test
   public void testDuplicateRegisteration() throws SQLException {
-    when(connection.sendMessage(any())).thenReturn(true);
+    Mockito.when(connection.sendMessage(any())).thenReturn(true);
     mockStatic(UserServices.class);
-    when(UserServices.register("r","r","r","r","r")).thenReturn(false);
+    when(UserServices.register("r", "r", "r", "r", "r")).thenReturn(false);
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     Message testMessage1 = Message.makeRegisterationMessage("a", "r r r r r");
     ;
@@ -585,7 +666,7 @@ public class ClientRunnableTest {
     Message testMessage1 = Message.makeSimpleLoginMessage("y", "z");
 
     mockStatic(UserServices.class);
-    when(UserServices.login(any(),any())).thenReturn(false);
+    when(UserServices.login(any(), any())).thenReturn(false);
     List<Message> nameList = new ArrayList();
     nameList.add(testMessage1);
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
@@ -596,7 +677,7 @@ public class ClientRunnableTest {
     List<Message> capturedMsgs = messageCaptor.getAllValues();
     assertEquals("NAK 7 Prattle 28 Invalid username or password", capturedMsgs.get(0).toString());
   }
-  
+
   /**
    * Message Iterator for use in testing the ClientRunnable class.
    */
