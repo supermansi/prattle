@@ -1,9 +1,10 @@
 package edu.northeastern.ccs.im.dao;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+import edu.northeastern.ccs.im.model.User;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -12,28 +13,40 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
+import org.mockito.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupToUserDAOTest {
 
-  static GroupToUserDAO groupToUserDAO;
-  GroupDAO groupDAO;
-  Groups group1;
-  boolean isException;
+  private static GroupToUserDAO groupToUserDAO;
+  private Groups group1;
+  private boolean isException;
 
-  @AfterClass
+  @Mock
+  private ConnectionManager mockManager;
+  @Mock
+  private Connection mockConnection;
+  @Mock
+  private PreparedStatement mockStatement;
+  @Mock
+  private ResultSet mockResultSet;
+
+/*  @AfterClass
   public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
     groupToUserDAO = GroupToUserDAO.getInstance();
     Class clazz = GroupToUserDAO.class;
     Field connectionManager = clazz.getDeclaredField("connectionManager");
     connectionManager.setAccessible(true);
     connectionManager.set(groupToUserDAO, new ConnectionManager());
-
-  }
+  }*/
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
@@ -42,142 +55,173 @@ public class GroupToUserDAOTest {
     Field connectionManager = clazz.getDeclaredField("connectionManager");
     connectionManager.setAccessible(true);
     connectionManager.set(groupToUserDAO, new ConnectionManager());
-    groupDAO = GroupDAO.getInstance();
+    MockitoAnnotations.initMocks(this);
+    assertNotNull(mockManager);
+    groupToUserDAO.connectionManager = mockManager;
+    groupToUserDAO = GroupToUserDAO.getInstance();
     group1 = new Groups("testGroupBlah", 2);
-    groupDAO.createGroup(group1);
     isException = false;
+
+    //when(mockGroupDAO.getInstance()).thenReturn(null);
+    when(mockManager.getConnection()).thenReturn(mockConnection);
+    when(mockConnection.prepareStatement(any(String.class), any(Integer.class))).thenReturn(mockStatement);
+    when(mockConnection.prepareStatement(any(String.class))).thenReturn(mockStatement);
+    when(mockStatement.getGeneratedKeys()).thenReturn(mockResultSet);
+    when(mockStatement.executeQuery()).thenReturn(mockResultSet);
   }
 
   @Test
-  public void testAddUser() throws SQLException {
-    Groups group = new Groups("testGroup", 2);
-    group = groupDAO.createGroup(group);
-    groupToUserDAO.addUserToGroup(2, group.getGrpID());
-    groupDAO.deleteGroupByID(group.getGrpID());
+  public void testAddUser() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.checkGroupExists(1)).thenReturn(true);
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.isUserExists(2)).thenReturn(true);
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    Class clazz = GroupToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(groupToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(groupToUserDAO, mockUserDAO);
+    groupToUserDAO.addUserToGroup(2, 1);
   }
 
   @Test(expected = DatabaseConnectionException.class)
-  public void testAddUserFail() throws SQLException {
-    Groups group = new Groups("testGroup", 2);
-    group = groupDAO.createGroup(group);
-    groupToUserDAO.addUserToGroup(0, 1);
-    groupDAO.deleteGroupByID(group.getGrpID());
+  public void testAddUserFail() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.checkGroupExists(1)).thenReturn(false);
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.isUserExists(2)).thenReturn(false);
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    Class clazz = GroupToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(groupToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(groupToUserDAO, mockUserDAO);
+    groupToUserDAO.addUserToGroup(2, 1);
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testAddUserFail2() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.checkGroupExists(1)).thenReturn(true);
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.isUserExists(2)).thenReturn(false);
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    Class clazz = GroupToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(groupToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(groupToUserDAO, mockUserDAO);
+    groupToUserDAO.addUserToGroup(2, 1);
   }
 
   @Test
   public void testCheckIfUserInGroup() throws SQLException {
-
-    Groups group = new Groups("testGroup", 2);
-    group = groupDAO.createGroup(group);
-    groupToUserDAO.addUserToGroup(2, group.getGrpID());
-    assertTrue(groupToUserDAO.checkIfUserInGroup(2, group.getGrpID()));
-    groupDAO.deleteGroupByID(group.getGrpID());
+    when(mockResultSet.next()).thenReturn(true);
+    assertTrue(groupToUserDAO.checkIfUserInGroup(1,2));
   }
 
   @Test
   public void testCheckIfUserInGroupFalse() throws SQLException {
-    assertFalse(groupToUserDAO.checkIfUserInGroup(1, 1));
+    when(mockResultSet.next()).thenReturn(false);
+    assertFalse(groupToUserDAO.checkIfUserInGroup(1,1));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testCheckIfUserInGroupException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    groupToUserDAO.checkIfUserInGroup(1,2);
   }
 
   @Test
-  public void testDeleteUser() throws SQLException {
-
-    Groups group = new Groups("testGroup", 2);
-    group = groupDAO.createGroup(group);
-    groupToUserDAO.addUserToGroup(2, group.getGrpID());
+  public void testDeleteUserFromAllGroups() throws SQLException {
+    when(mockStatement.executeUpdate()).thenReturn(1);
     groupToUserDAO.deleteUserFromAllGroups(1);
-    assertFalse(groupToUserDAO.checkIfUserInGroup(1, group.getGrpID()));
-    groupDAO.deleteGroupByID(group.getGrpID());
-  }
-
-  @Test
-  public void testDeleteUserFail() throws SQLException {
-    groupToUserDAO.deleteUserFromGroup(0, 1);
   }
 
   @Test
   public void testDeleteUserFromGroup() throws SQLException {
-
-    Groups group = new Groups("testGroup", 2);
-    group = groupDAO.createGroup(group);
-    groupToUserDAO.addUserToGroup(2, group.getGrpID());
-    groupToUserDAO.deleteUserFromGroup(0, group.getGrpID());
-    groupDAO.deleteGroupByID(group.getGrpID());
-    //assertFalse(groupToUserDAO.checkIfUserInGroup(1, group.getGrpID()));
-  }
-
-  @Test(expected = DatabaseConnectionException.class)
-  public void testCreateException() throws SQLException {
-    groupToUserDAO.addUserToGroup(4, 5);
+    GroupToUserDAO mockDAO = Mockito.spy(groupToUserDAO);
+    doReturn(true).when(mockDAO).checkIfUserInGroup(1,2);
+    mockDAO.deleteUserFromGroup(1,2);
   }
 
   @Test
-  public void testGetAllUsers() throws SQLException {
-
-    Groups group = new Groups("testGroup", 2);
-    group = groupDAO.createGroup(group);
-    assertNotNull(groupToUserDAO.getAllUsersInGroup(group.getGrpName()));
-    groupDAO.deleteGroupByID(group.getGrpID());
+  public void testDeleteUserFromGroupFail() throws SQLException {
+    GroupToUserDAO mockDAO = Mockito.spy(groupToUserDAO);
+    doReturn(false).when(mockDAO).checkIfUserInGroup(1,2);
+    mockDAO.deleteUserFromGroup(1,2);
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testAddUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  @Test
+  public void testGetAllUsersInGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group",123));
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r","r","r","r","r"));
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     Class clazz = GroupToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(groupToUserDAO, new ConnectionTest());
-    isException = true;
-    groupToUserDAO.addUserToGroup(2, group1.getGrpID());
-  }
-  @Test(expected = DatabaseConnectionException.class)
-  public void testAddUserFailException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    Class clazz = GroupToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(groupToUserDAO, new ConnectionTest());
-    isException = true;
-    groupToUserDAO.addUserToGroup(0, 1);
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(groupToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(groupToUserDAO, mockUserDAO);
+
+    List<String> groups = groupToUserDAO.getAllUsersInGroup("Group");
+    assertEquals(2, groups.size());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testCheckIfUserInGroupException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  @Test(expected = SQLException.class)
+  public void testGetAllUsersException() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group",123));
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     Class clazz = GroupToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(groupToUserDAO, new ConnectionTest());
-    isException = true;
-    groupToUserDAO.addUserToGroup(2, group1.getGrpID());
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(groupToUserDAO, mockGroupDAO);
+
+    List<String> groups = groupToUserDAO.getAllUsersInGroup("Group");
+    assertEquals(2, groups.size());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testDeleteUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    Class clazz = GroupToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(groupToUserDAO, new ConnectionTest());
-    isException = true;
-    groupToUserDAO.addUserToGroup(2, group1.getGrpID());
-    groupToUserDAO.deleteUserFromAllGroups(1);
-  }
+  @Test(expected = SQLException.class)
+  public void testGetAllUsersException2() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
 
-  @Test(expected = NullPointerException.class)
-  public void testDeleteUserFromGroupException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    Class clazz = GroupToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(groupToUserDAO, new ConnectionTest());
-    isException = true;
-    groupToUserDAO.addUserToGroup(2, group1.getGrpID());
-    groupToUserDAO.deleteUserFromGroup(0, group1.getGrpID());
-  }
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group",123));
 
-  @Test(expected = NullPointerException.class)
-  public void testGetAllUsersException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     Class clazz = GroupToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(groupToUserDAO, new ConnectionTest());
-    isException = true;
-    groupToUserDAO.getAllUsersInGroup(group1.getGrpName());
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(groupToUserDAO, mockGroupDAO);
+
+    List<String> groups = groupToUserDAO.getAllUsersInGroup("Group");
+    assertEquals(2, groups.size());
   }
 }
