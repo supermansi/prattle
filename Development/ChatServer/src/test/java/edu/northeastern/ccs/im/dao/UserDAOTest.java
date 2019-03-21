@@ -27,8 +27,6 @@ public class UserDAOTest {
   private static UserDAO userDAO;
   private User user;
 
-  private boolean isException;
-
   @Mock
   private ConnectionManager mockManager;
   @Mock
@@ -41,10 +39,6 @@ public class UserDAOTest {
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
     userDAO = UserDAO.getInstance();
-    Class clazz = UserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(userDAO, new ConnectionManager());
     MockitoAnnotations.initMocks(this);
 
     user = new User("Karl", "Karl", "Frisk", "abc@gmail.com", "1234");
@@ -86,7 +80,7 @@ public class UserDAOTest {
 
     User createdUser = userDAO.createUser(user);
 
-    assertEquals(22, user.getUserID());
+    assertEquals(mockResultSet.getInt(1), createdUser.getUserID());
     assertEquals("Karl", createdUser.getUsername());
     assertEquals("Karl", createdUser.getUserFN());
     assertEquals("Frisk", createdUser.getUserLN());

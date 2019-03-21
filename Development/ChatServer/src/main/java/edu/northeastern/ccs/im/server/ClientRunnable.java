@@ -116,6 +116,7 @@ public class ClientRunnable implements Runnable {
           } else {
             sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
             initialized = false;
+            terminate = true;
           }
         } else {
           initialized = false;
@@ -138,6 +139,7 @@ public class ClientRunnable implements Runnable {
       initialized = false;
       sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
               "already exists."));
+      terminate = true;
     }
   }
 
@@ -324,16 +326,16 @@ public class ClientRunnable implements Runnable {
         } else if (msg.isRetrieveUser()) {
           retrieveMessagesForUser(msg);
         } else if (msg.isUpdateFirstName()) {
-          UserServices.updateFN(msg.getName(), msg.getText());
+          UserServices.updateFN(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated First name");
         } else if (msg.isUpdateLastName()) {
-          UserServices.updateLN(msg.getName(), msg.getText());
+          UserServices.updateLN(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Last name");
         } else if (msg.isUpdateEmail()) {
-          UserServices.updateEmail(msg.getName(), msg.getText());
+          UserServices.updateEmail(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Email");
         } else if (msg.isUpdatePassword()) {
-          UserServices.updatePassword(msg.getName(), msg.getText());
+          UserServices.updatePassword(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
         } else if (msg.isRemoveUser()) {
 
@@ -448,6 +450,6 @@ public class ClientRunnable implements Runnable {
     // Remove the client from our client listing.
     Prattle.removeClient(this);
     // And remove the client from our client pool.
-    runnableMe.cancel(false);
+    runnableMe.cancel(true);
   }
 }
