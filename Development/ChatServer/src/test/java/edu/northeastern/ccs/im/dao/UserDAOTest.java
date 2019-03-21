@@ -7,7 +7,6 @@ import org.junit.runners.MethodSorters;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +36,7 @@ public class UserDAOTest {
   private ResultSet mockResultSet;
 
   @Before
-  public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void setUp() throws SQLException {
     userDAO = UserDAO.getInstance();
     MockitoAnnotations.initMocks(this);
 
@@ -211,14 +210,14 @@ public class UserDAOTest {
   public void testUpdatePassword() throws SQLException {
     when(mockResultSet.next()).thenReturn(true);
     when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-    userDAO.updatePassword(user.getUsername(),"asdf");
+    userDAO.updatePassword(user.getUsername(), "asdf");
   }
 
   @Test
   public void testUpdateEmail() throws SQLException {
     when(mockResultSet.next()).thenReturn(true);
     when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-    userDAO.updateFirstName(user.getUsername(),"asdf@gmail.com");
+    userDAO.updateFirstName(user.getUsername(), "asdf@gmail.com");
   }
 
   @Test
@@ -226,150 +225,151 @@ public class UserDAOTest {
     String time = Long.toString(System.currentTimeMillis());
     when(mockResultSet.next()).thenReturn(true);
     when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-    userDAO.updateFirstName(user.getUsername(),time);
+    userDAO.updateFirstName(user.getUsername(), time);
   }
 
   @Test(expected = SQLException.class)
-  public void testGetUserByUsernameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testGetUserByUsernameException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.getUserByUsername(user.getUsername());
   }
 
   @Test(expected = SQLException.class)
-  public void testGetUserByUsernameExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testGetUserByUsernameExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     userDAO.getUserByUsername(user.getUsername());
   }
 
   @Test(expected = SQLException.class)
-  public void testGetUserByUserIDException1() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testGetUserByUserIDException1() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.getUserByUserID(user.getUserID());
   }
 
   @Test(expected = SQLException.class)
-  public void testGetUserByUserIDExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testGetUserByUserIDExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     userDAO.getUserByUserID(user.getUserID());
   }
 
   @Test(expected = SQLException.class)
-  public void testIsUserExistsUserNameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testIsUserExistsUserNameException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.isUserExists(user.getUsername());
   }
 
   @Test(expected = SQLException.class)
-  public void testIsUserExistsUserNameExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testIsUserExistsUserNameExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     userDAO.isUserExists(user.getUsername());
   }
 
   @Test(expected = SQLException.class)
-  public void testIsUserExistsUserIDException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testIsUserExistsUserIDException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.isUserExists(user.getUserID());
   }
 
   @Test(expected = SQLException.class)
-  public void testIsUserExistsUserIDExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testIsUserExistsUserIDExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     userDAO.isUserExists(user.getUserID());
   }
 
   @Test(expected = SQLException.class)
-  public void testValidateUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testValidateUserException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.validateUser(user.getUsername(), user.getPassword());
   }
 
   @Test(expected = SQLException.class)
-  public void testValidateUserExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();userDAO.validateUser(user.getUsername(), user.getPassword());
+  public void testValidateUserExceptionResultSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    userDAO.validateUser(user.getUsername(), user.getPassword());
   }
 
   @Test(expected = SQLException.class)
-  public void testDeleteUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testDeleteUserException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.deleteUser(user.getUsername());
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateFirstNameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testUpdateFirstNameException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.updateFirstName(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateFirstNameExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testUpdateFirstNameExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     userDAO.updateFirstName(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateLastNameException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testUpdateLastNameException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.updateLastName(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateLastNameExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testUpdateLastNameExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     userDAO.updateLastName(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateEmailException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testUpdateEmailException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.updateEmail(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateEmailExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testUpdateEmailExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     userDAO.updateEmail(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdatePasswordException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testUpdatePasswordException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.updatePassword(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdatePasswordExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testUpdatePasswordExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     userDAO.updatePassword(user.getUsername(), "a");
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateLastSeenException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testUpdateLastSeenException() throws SQLException {
     String time = Long.toString(System.currentTimeMillis());
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.updateLastSeen(user.getUsername(), time);
   }
 
   @Test(expected = SQLException.class)
-  public void testUpdateLastSeenExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testUpdateLastSeenExceptionResultSet() throws SQLException {
     String time = Long.toString(System.currentTimeMillis());
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     userDAO.updateLastSeen(user.getUsername(), time);
   }
 
   @Test(expected = SQLException.class)
-  public void testCreateUserException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+  public void testCreateUserException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     userDAO.createUser(user);
   }
 
   @Test(expected = SQLException.class)
-  public void testCreateUserExceptionKeys() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testCreateUserExceptionKeys() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).getGeneratedKeys();
     userDAO.createUser(user);
   }
 
   @Test(expected = SQLException.class)
-  public void testCreateUserExceptionResultSet() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void testCreateUserExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     userDAO.createUser(user);
   }
