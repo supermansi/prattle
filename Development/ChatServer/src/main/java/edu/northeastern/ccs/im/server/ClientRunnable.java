@@ -326,16 +326,16 @@ public class ClientRunnable implements Runnable {
         } else if (msg.isRetrieveUser()) {
           retrieveMessagesForUser(msg);
         } else if (msg.isUpdateFirstName()) {
-          UserServices.updateFN(msg.getName(), msg.getText());
+          UserServices.updateFN(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated First name");
         } else if (msg.isUpdateLastName()) {
-          UserServices.updateLN(msg.getName(), msg.getText());
+          UserServices.updateLN(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Last name");
         } else if (msg.isUpdateEmail()) {
-          UserServices.updateEmail(msg.getName(), msg.getText());
+          UserServices.updateEmail(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Email");
         } else if (msg.isUpdatePassword()) {
-          UserServices.updatePassword(msg.getName(), msg.getText());
+          UserServices.updatePassword(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
         } else if (msg.isRemoveUser()) {
 
