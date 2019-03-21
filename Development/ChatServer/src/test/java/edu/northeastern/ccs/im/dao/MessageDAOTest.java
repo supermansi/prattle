@@ -3,20 +3,13 @@ package edu.northeastern.ccs.im.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -26,7 +19,6 @@ import org.mockito.MockitoAnnotations;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
-import edu.northeastern.ccs.im.model.User;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MessageDAOTest {
@@ -45,16 +37,12 @@ public class MessageDAOTest {
   private ResultSet mockResultSet;
 
   @Before
-  public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
+  public void setUp() throws SQLException {
     messageDAO = MessageDAO.getInstance();
-//    Class clazz = MessageDAO.class;
-//    Field connectionManager = clazz.getDeclaredField("connectionManager");
-//    connectionManager.setAccessible(true);
-//    connectionManager.set(messageDAO, new ConnectionManager());
     MockitoAnnotations.initMocks(this);
 
     time = Long.toString(System.currentTimeMillis());
-    message = new Message(Message.MsgType.PVT,2, "hello there", time);
+    message = new Message(Message.MsgType.PVT, 2, "hello there", time);
     assertNotNull(mockManager);
     messageDAO.connectionManager = mockManager;
 
@@ -105,7 +93,7 @@ public class MessageDAOTest {
     when(mockResultSet.getString("message")).thenReturn(message.getMessageText());
     when(mockResultSet.getString("timestamp")).thenReturn(message.getTimestamp());
 
-    assertEquals(1,messageDAO.getMessagesBySender(message.getSenderID()).size());
+    assertEquals(1, messageDAO.getMessagesBySender(message.getSenderID()).size());
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -120,7 +108,7 @@ public class MessageDAOTest {
     when(mockResultSet.getString("message")).thenReturn(message.getMessageText());
     when(mockResultSet.getString("timestamp")).thenReturn(message.getTimestamp());
 
-    assertEquals(0,messageDAO.getMessagesBySender(message.getSenderID()).size());
+    assertEquals(0, messageDAO.getMessagesBySender(message.getSenderID()).size());
   }
 
 
@@ -132,7 +120,7 @@ public class MessageDAOTest {
 
   @Test(expected = SQLException.class)
   public void testGetMessageByIDException() throws SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     messageDAO.getMessageByID(22);
   }
 
@@ -150,7 +138,7 @@ public class MessageDAOTest {
 
   @Test(expected = SQLException.class)
   public void testCreateMessageException() throws SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     Message message1 = messageDAO.createMessage(message);
   }
 
@@ -174,7 +162,7 @@ public class MessageDAOTest {
 
   @Test(expected = SQLException.class)
   public void testGetMessageBySenderException() throws SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     messageDAO.getMessagesBySender(2);
   }
 
