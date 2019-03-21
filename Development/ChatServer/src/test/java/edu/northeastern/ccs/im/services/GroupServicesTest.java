@@ -14,7 +14,6 @@ import java.util.List;
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
-import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
@@ -77,6 +76,13 @@ public class GroupServicesTest {
   public void testAddUserToGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
     groupServices.addUserToGroup("g1", "a","u");
     assertTrue(groupServices.validateUserExistsInGroup("user1", "group1"));
+  }
+
+  @Test
+  public void testAddUserToGgroupFalse() throws SQLException {
+    when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(false);
+    groupServices.addUserToGroup("g1", "a", "u");
+
   }
 
   @Test
