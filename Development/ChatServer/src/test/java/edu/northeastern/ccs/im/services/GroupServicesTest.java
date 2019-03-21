@@ -95,9 +95,30 @@ public class GroupServicesTest {
   }
 
   @Test
-  public void testDeleteGroup() throws SQLException {
+  public void testDeleteGroupTT() throws SQLException {
     doNothing().when(mockGroupDAO).deleteGroupByID(any(Integer.class));
-    when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
     assertTrue(groupServices.deleteGroup("Group", "r"));
+  }
+
+  @Test
+  public void testDeleteGroupFT() throws SQLException {
+    when(mockGroupDAO.checkGroupExists(any())).thenReturn(false);
+    doNothing().when(mockGroupDAO).deleteGroupByID(any(Integer.class));
+    assertFalse(groupServices.deleteGroup("Group", "r"));
+  }
+
+  @Test
+  public void testDeleteGroupTF() throws SQLException {
+    when(mockUserDAO.isUserExists(any())).thenReturn(false);
+    doNothing().when(mockGroupDAO).deleteGroupByID(any(Integer.class));
+    assertFalse(groupServices.deleteGroup("Group", "r"));
+  }
+
+  @Test
+  public void testDeleteGroupFF() throws SQLException {
+    when(mockGroupDAO.checkGroupExists(any())).thenReturn(false);
+    when(mockUserDAO.isUserExists(any())).thenReturn(false);
+    doNothing().when(mockGroupDAO).deleteGroupByID(any(Integer.class));
+    assertFalse(groupServices.deleteGroup("Group", "r"));
   }
 }
