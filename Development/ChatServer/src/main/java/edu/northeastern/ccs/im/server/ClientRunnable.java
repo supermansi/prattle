@@ -116,6 +116,7 @@ public class ClientRunnable implements Runnable {
           } else {
             sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
             initialized = false;
+            terminate = true;
           }
         } else {
           initialized = false;
@@ -138,6 +139,7 @@ public class ClientRunnable implements Runnable {
       initialized = false;
       sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
               "already exists."));
+      terminate = true;
     }
   }
 
@@ -448,6 +450,6 @@ public class ClientRunnable implements Runnable {
     // Remove the client from our client listing.
     Prattle.removeClient(this);
     // And remove the client from our client pool.
-    runnableMe.cancel(false);
+    runnableMe.cancel(true);
   }
 }

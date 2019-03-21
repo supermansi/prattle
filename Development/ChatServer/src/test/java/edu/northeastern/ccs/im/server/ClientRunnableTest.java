@@ -355,7 +355,7 @@ public class ClientRunnableTest {
     clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
     clientRunnable.terminateClient();
-    verify(connection).close();
+    verify(connection,times(2)).close();
   }
 
   @Test
@@ -562,7 +562,7 @@ public class ClientRunnableTest {
   public void testRegisteration() throws SQLException {
     Message testMessage1 = Message.makeRegisterationMessage("t", "t t t t t");
     mockStatic(UserServices.class);
-    when(UserServices.register("r", "r", "r", "r", "r")).thenReturn(true);
+    when(UserServices.register("t", "t", "t", "t", "t")).thenReturn(true);
 
     List<Message> nameList = new ArrayList();
     nameList.add(testMessage1);
@@ -611,6 +611,7 @@ public class ClientRunnableTest {
 
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
     when(connection.iterator()).thenReturn(itr);
+    clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
     verify(connection).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
@@ -645,7 +646,9 @@ public class ClientRunnableTest {
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
 
     when(connection.iterator()).thenReturn(itr);
+    clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
+    clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     verify(connection).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
     assertEquals("NAK 7 Prattle 28 Invalid username or password", capturedMsgs.get(0).toString());
