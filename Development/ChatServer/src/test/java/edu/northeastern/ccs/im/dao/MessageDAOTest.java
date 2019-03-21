@@ -1,6 +1,5 @@
 package edu.northeastern.ccs.im.dao;
 
-import static edu.northeastern.ccs.im.dao.MessageToUserDAOTest.messageToUserDAO;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
