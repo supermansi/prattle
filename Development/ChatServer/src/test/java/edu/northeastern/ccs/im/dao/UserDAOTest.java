@@ -15,6 +15,8 @@ import java.sql.SQLException;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
+import javax.xml.crypto.Data;
+
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -228,6 +230,13 @@ public class UserDAOTest {
     userDAO.updateFirstName(user.getUsername(), time);
   }
 
+  @Test
+  public void testGetLastSeen() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true);
+    when(mockResultSet.getString(any())).thenReturn("0000000000");
+    assertEquals("0000000000", userDAO.getLastSeen("admin"));
+  }
+
   @Test(expected = SQLException.class)
   public void testGetUserByUsernameException() throws SQLException {
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
@@ -372,5 +381,29 @@ public class UserDAOTest {
   public void testCreateUserExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     userDAO.createUser(user);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetLastSeenException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    userDAO.getLastSeen("admin");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetLastSeenExceptionKeys() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).getGeneratedKeys();
+    userDAO.getLastSeen("admin");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetLastSeenExceptionSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    userDAO.getLastSeen("admin");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetLastSeenFalse() throws SQLException{
+    when(mockResultSet.next()).thenReturn(false);
+    userDAO.getLastSeen("admin");
   }
 }

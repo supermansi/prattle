@@ -115,4 +115,9 @@ public class UserServices {
     String lastSeen = Long.toString(time);
     userDAO.updateLastSeen(username, lastSeen);
   }
+
+  public static Long getLastSeen(String username) throws SQLException {
+    String lastSeen = userDAO.getLastSeen(username);
+    return Long.parseLong(lastSeen);
+  }
 }

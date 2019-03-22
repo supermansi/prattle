@@ -359,4 +359,33 @@ public class UserDAO {
     PreparedStatement preparedStatement = null;
     updateUserDetail(userName, lastSeen, updateLastSeen, connection, preparedStatement);
   }
+
+  public String getLastSeen(String username) throws SQLException {
+    String getLastSeen = "SELECT lastSeen FROM User WHERE username=?";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getLastSeen, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      preparedStatement.executeUpdate();
+      try {
+        resultSet = preparedStatement.getGeneratedKeys();
+        if (resultSet.next()) {
+          return resultSet.getString("lastSeen");
+        } else {
+          throw new DatabaseConnectionException("User not found.");
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }
