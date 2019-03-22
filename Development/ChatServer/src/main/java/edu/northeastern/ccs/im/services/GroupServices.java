@@ -25,9 +25,9 @@ public class GroupServices {
 		//empty private constructor
 	}
 	static {
-		groupDAO = GroupDAO.getInstance();
-		groupUserDAO = GroupToUserDAO.getInstance();
-		userDAO = UserDAO.getInstance();
+		//groupDAO = GroupDAO.getInstance();
+		//groupUserDAO = GroupToUserDAO.getInstance();
+		//userDAO = UserDAO.getInstance();
 	}
 
     /**
@@ -52,7 +52,8 @@ public class GroupServices {
 	public static void addUserToGroup(String groupName, String adminName, String userName) throws SQLException {
 		groupDAO.checkGroupExists(groupName);
 		User user = userDAO.getUserByUsername(userName);
-		groupDAO.validateGroupAdmin(groupName, user.getUserID());
+		User admin = userDAO.getUserByUsername(adminName);
+		groupDAO.validateGroupAdmin(groupName, admin.getUserID());
 		Groups group = groupDAO.getGroupByGroupName(groupName);
 		if(!groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID()))
 			groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
@@ -104,7 +105,7 @@ public class GroupServices {
      * @return true if the group is deleted, false otherwise
      */
 	public static boolean deleteGroup(String grpName, String adminName) throws SQLException {
-		if(groupDAO.checkGroupExists(groupDAO.getGroupByGroupName(grpName).getGrpID()) &&
+		if(groupDAO.checkGroupExists(grpName) &&
 				userDAO.isUserExists(adminName)) {
 				groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName(grpName).getGrpID());
 				return true;
