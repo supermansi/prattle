@@ -60,7 +60,7 @@ public class GroupsDAOTest {
     connectionManager.setAccessible(true);
     connectionManager.set(groupDAO, new ConnectionManager());
     MockitoAnnotations.initMocks(this);
-    group1 = new Groups("g1", 5);
+    group1 = new Groups("g1", "admin1");
     assertNotNull(mockManager);
     groupDAO.connectionManager = mockManager;
 
@@ -211,19 +211,25 @@ public class GroupsDAOTest {
       met.invoke(groupDAO, mockStatement);
   }
 
-    @Test(expected = InvocationTargetException.class)
-    public void testGetGroupNull()throws InvocationTargetException, IllegalAccessException, SQLException {
-        when(mockResultSet.next()).thenReturn(false);
-        Class<GroupDAO> clazz = GroupDAO.class;
-        Method method[] = clazz.getDeclaredMethods();
-        Method met = null;
-        for (Method m : method) {
-            if (m.getName().contains("getGroups")) {
-                met = m;
-            }
-        }
-        met.setAccessible(true);
-        met.invoke(groupDAO, mockStatement);
-    }
+  @Test(expected = InvocationTargetException.class)
+  public void testGetGroupNull()throws InvocationTargetException, IllegalAccessException, SQLException {
+      when(mockResultSet.next()).thenReturn(false);
+      Class<GroupDAO> clazz = GroupDAO.class;
+      Method method[] = clazz.getDeclaredMethods();
+      Method met = null;
+      for (Method m : method) {
+          if (m.getName().contains("getGroups")) {
+              met = m;
+          }
+      }
+      met.setAccessible(true);
+      met.invoke(groupDAO, mockStatement);
+  }
 
+  @Test
+  public void testUpdateAdmins() throws SQLException {
+      when(mockResultSet.next()).thenReturn(true);
+      when(mockStatement.executeUpdate()).thenReturn(1);
+      groupDAO.updateAdmin(group1.getGrpName(), "admin1");
+  }
 }

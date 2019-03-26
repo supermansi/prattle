@@ -59,7 +59,7 @@ public class GroupToUserDAOTest {
     assertNotNull(mockManager);
     groupToUserDAO.connectionManager = mockManager;
     groupToUserDAO = GroupToUserDAO.getInstance();
-    group1 = new Groups("testGroupBlah", 2);
+    group1 = new Groups("testGroupBlah", "admin1");
     isException = false;
 
     //when(mockGroupDAO.getInstance()).thenReturn(null);
@@ -172,7 +172,7 @@ public class GroupToUserDAOTest {
   @Test
   public void testGetAllUsersInGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
     GroupDAO mockGroupDAO = mock(GroupDAO.class);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group",123));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group","admin1 admin2"));
 
     UserDAO mockUserDAO = mock(UserDAO.class);
     when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r","r","r","r","r"));
@@ -196,7 +196,7 @@ public class GroupToUserDAOTest {
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
 
     GroupDAO mockGroupDAO = mock(GroupDAO.class);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group",123));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group","admin1 admin2"));
 
     when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     Class clazz = GroupToUserDAO.class;
@@ -213,7 +213,7 @@ public class GroupToUserDAOTest {
     doThrow(new SQLException()).when(mockStatement).executeQuery();
 
     GroupDAO mockGroupDAO = mock(GroupDAO.class);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group",123));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group","admin1 admin2"));
 
     when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
     Class clazz = GroupToUserDAO.class;

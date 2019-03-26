@@ -37,7 +37,7 @@ public class GroupServicesTest {
     mockGroupDAO = mock(GroupDAO.class);
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
     when(mockGroupDAO.validateGroupAdmin("g1", 1)).thenReturn(true);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group",123));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group","admin1 admin2"));
 
     mockGroupUserDAO = mock(GroupToUserDAO.class);
     when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(true);

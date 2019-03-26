@@ -103,8 +103,8 @@ public class MessageServiceTest {
     userDAO.createUser(user);
     userDAO.createUser(user1);
 
-    Groups groupMSD = new Groups("groupMSD1", user.getUserID());
-    Groups groupMSDOther = new Groups("groupMSD2", user.getUserID());
+    Groups groupMSD = new Groups("groupMSD1", user.getUsername());
+    Groups groupMSDOther = new Groups("groupMSD2", user.getUsername());
     if (groupDAO.checkGroupExists("groupMSD1")) {
       groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName("groupMSD1").getGrpID());
     }
@@ -151,8 +151,8 @@ public class MessageServiceTest {
     userDAO.createUser(user);
     userDAO.createUser(user1);
 
-    Groups groupMSD = new Groups("groupMSD11", user.getUserID());
-    Groups groupMSDOther = new Groups("groupMSD21", user.getUserID());
+    Groups groupMSD = new Groups("groupMSD11", user.getUsername());
+    Groups groupMSDOther = new Groups("groupMSD21", user.getUsername());
     if (groupDAO.checkGroupExists("groupMSD11")) {
       groupDAO.deleteGroupByID(groupDAO.getGroupByGroupName("groupMSD11").getGrpID());
     }
