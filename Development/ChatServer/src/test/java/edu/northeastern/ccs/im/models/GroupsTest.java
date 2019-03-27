@@ -34,4 +34,10 @@ public class GroupsTest {
 		assertEquals("admin1 admin2 admin3", group.getAdmins());
 	}
 
+	@Test
+	public void testRestricted() {
+		group.setRestricted(Groups.Restricted.valueOf("H"));
+		assertEquals("H", group.getRestricted().name());
+	}
+
 }
