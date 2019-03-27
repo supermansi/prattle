@@ -446,6 +446,68 @@ public class ClientRunnableTest {
   }
 
   @Test
+  public void testProcessDeactivateUser() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    mockStatic(UserServices.class);
+
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    ClientRunnable clientRunnable = new ClientRunnable(connection);
+    met.setAccessible(true);
+    clientRunnable.setName("J");
+    Message msg = Message.makeDeactivateUserMessage("J", "/deactivateACT");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testProcessUserExistsTrue() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    mockStatic(UserServices.class);
+    when(UserServices.userExists("j")).thenReturn(true);
+
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    ClientRunnable clientRunnable = new ClientRunnable(connection);
+    clientRunnable.setName("r");
+    met.setAccessible(true);
+    Message msg = Message.makeUserExistsMessage("r", "/search j");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testProcessUserExistsFalse() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    mockStatic(UserServices.class);
+    when(UserServices.userExists("a")).thenReturn(false);
+
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    ClientRunnable clientRunnable = new ClientRunnable(connection);
+    clientRunnable.setName("r");
+    met.setAccessible(true);
+    Message msg = Message.makeUserExistsMessage("r", "/search a");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
   public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
     mockStatic(MessageServices.class);
     when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);
