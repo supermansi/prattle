@@ -5,8 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import edu.northeastern.ccs.im.model.User;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -38,15 +36,6 @@ public class GroupToUserDAOTest {
   private PreparedStatement mockStatement;
   @Mock
   private ResultSet mockResultSet;
-
-/*  @AfterClass
-  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
-    groupToUserDAO = GroupToUserDAO.getInstance();
-    Class clazz = GroupToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(groupToUserDAO, new ConnectionManager());
-  }*/
 
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
@@ -116,6 +105,7 @@ public class GroupToUserDAOTest {
     when(mockGroupDAO.checkGroupExists(1)).thenReturn(true);
 
     UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUserID(2)).thenThrow(DatabaseConnectionException.class);
     when(mockUserDAO.isUserExists(2)).thenReturn(false);
 
     when(mockResultSet.next()).thenReturn(true).thenReturn(false);
