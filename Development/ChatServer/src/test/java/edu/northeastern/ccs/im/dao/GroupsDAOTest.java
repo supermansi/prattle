@@ -18,6 +18,7 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyByte;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -261,6 +262,47 @@ public class GroupsDAOTest {
         groupDAO.updateAdmin(group1.getGrpName(), "admin1");
     }
 
+    @Test
+    public void testGetGroupRestriction() throws SQLException {
+      when(mockResultSet.next()).thenReturn(true);
+      when(mockResultSet.getString(1)).thenReturn("H");
+      assertEquals("H", groupDAO.getGroupRestriction("group1"));
+    }
 
+    @Test
+    public void testGetGroupRestrictionNullSet() throws SQLException {
+        when(mockResultSet.next()).thenReturn(false);
+        when(mockResultSet.getString(1)).thenReturn("H");
+        assertNull(groupDAO.getGroupRestriction("group1"));
+    }
+
+    @Test(expected = SQLException.class)
+    public void testGetGroupRestrictionStatementException() throws SQLException {
+      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class),any(Integer.class));
+      groupDAO.getGroupRestriction("group1");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testGetGroupRestrictionQueryException() throws SQLException {
+      doThrow(new SQLException()).when(mockStatement).executeQuery();
+      groupDAO.getGroupRestriction("group1");
+    }
+
+    @Test
+    public void testChangeGroupRestrictions() throws SQLException {
+      groupDAO.changeGroupRestriction("group1", "L");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testChangeGroupRestrictionsNullStatement() throws SQLException {
+      when(mockConnection.prepareStatement(any(String.class),any(Integer.class))).thenReturn(null);
+      groupDAO.changeGroupRestriction("group1", "L");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testChangeGroupRestrictionsException() throws SQLException {
+      doThrow(new SQLException()).when(mockStatement).executeUpdate();
+      groupDAO.changeGroupRestriction("group1", "L");
+    }
 
 }
