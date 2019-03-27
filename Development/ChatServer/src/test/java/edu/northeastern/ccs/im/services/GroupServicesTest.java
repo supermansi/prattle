@@ -127,4 +127,50 @@ public class GroupServicesTest {
     doNothing().when(mockGroupDAO).deleteGroupByID(any(Integer.class));
     assertFalse(groupServices.deleteGroup("Group", "r"));
   }
+
+  @Test
+  public void testGetGroupRestrictions() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction(any())).thenReturn("L");
+    assertEquals("L", mockGroupDAO.getGroupRestriction("groupName"));
+  }
+
+  @Test
+  public void testChangeGroupRestrictions() throws SQLException {
+    User mockUser = mock(User.class);
+    when(mockUserDAO.getUserByUsername(any())).thenReturn(mockUser);
+    when(mockUser.getUserID()).thenReturn(1);
+    when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(true);
+    mockGroupDAO.changeGroupRestriction("group1", "H");
+  }
+
+  @Test
+  public void testChangeGroupRestrictionsTF() throws SQLException {
+    User mockUser = mock(User.class);
+    when(mockUserDAO.getUserByUsername(any())).thenReturn(mockUser);
+    when(mockUser.getUserID()).thenReturn(1);
+    when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(false);
+    mockGroupDAO.changeGroupRestriction("group1", "H");
+  }
+
+  @Test
+  public void testChangeGroupRestrictionsFT() throws SQLException {
+    User mockUser = mock(User.class);
+    when(mockUserDAO.getUserByUsername(any())).thenReturn(mockUser);
+    when(mockUser.getUserID()).thenReturn(1);
+    when(mockGroupDAO.checkGroupExists(any())).thenReturn(false);
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(true);
+    mockGroupDAO.changeGroupRestriction("group1", "H");
+  }
+
+  @Test
+  public void testChangeGroupRestrictionsFF() throws SQLException {
+    User mockUser = mock(User.class);
+    when(mockUserDAO.getUserByUsername(any())).thenReturn(mockUser);
+    when(mockUser.getUserID()).thenReturn(1);
+    when(mockGroupDAO.checkGroupExists(any())).thenReturn(false);
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(false);
+    mockGroupDAO.changeGroupRestriction("group1", "H");
+  }
 }
