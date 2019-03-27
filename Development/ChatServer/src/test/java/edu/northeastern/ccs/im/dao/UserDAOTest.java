@@ -397,7 +397,7 @@ public class UserDAOTest {
 
   @Test(expected = SQLException.class)
   public void testGetLastSeenExceptionSet() throws SQLException {
-    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     userDAO.getLastSeen("admin");
   }
 
