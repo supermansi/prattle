@@ -43,7 +43,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
  * This is a test class for the ClientRunnable class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({UserServices.class, MessageServices.class, GroupServices.class})
+@PrepareForTest({UserServices.class, MessageServices.class, GroupServices.class,Prattle.class})
 @PowerMockIgnore("javax.net.ssl.*")
 public class ClientRunnableTest {
 
@@ -565,10 +565,32 @@ public class ClientRunnableTest {
   }
 
   @Test
+  public void testProcessMessageGrpFalse() throws Exception {
+
+    clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    mockStatic(Prattle.class);
+    when(Prattle.sendGroupMessage(any(),any())).thenReturn(false);
+    Message msg = Message.makeGroupMessage("test", "/grp r hello world");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
   public void testProcessMessageGRP() throws Exception {
     clientRunnable.setName("test");
     mockStatic(MessageServices.class);
     mockStatic(GroupServices.class);
+    mockStatic(Prattle.class);
+    when(Prattle.sendGroupMessage(any(),any())).thenReturn(true);
 //    when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);
 //    when(GroupServices.deleteGroup(anyString(),anyString())).thenReturn(true);
 //    PowerMockito.doNothing().when(GroupServices.class,"createGroup",any(),any());
@@ -595,6 +617,8 @@ public class ClientRunnableTest {
     met.invoke(clientRunnable, msg4);
     met.invoke(clientRunnable, msg5);
   }
+
+
 
   @Test
   public void testUserFunctions() throws InvocationTargetException, IllegalAccessException {

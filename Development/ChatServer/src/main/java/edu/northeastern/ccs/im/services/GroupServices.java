@@ -3,6 +3,7 @@ package edu.northeastern.ccs.im.services;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
@@ -125,7 +126,7 @@ public class GroupServices {
 		//return false;
 	}
 
-	public Map<String,List<String>> getListOfAllUsersForAllGroups(){
+	public static ConcurrentMap<String,List<String>> getListOfAllUsersForAllGroups(){
 		return null;
 	}
 }

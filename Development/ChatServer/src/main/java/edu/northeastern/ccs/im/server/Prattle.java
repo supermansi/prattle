@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -47,10 +48,14 @@ public abstract class Prattle {
    */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
+  private static ConcurrentMap<String, List<String>> groupToUserMapping;
+
+
   /** All of the static initialization occurs in this "method" */
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
+    initialiseCache();
   }
 
   /**
@@ -139,6 +144,10 @@ public abstract class Prattle {
     }
   }
 
+  private static void initialiseCache() {
+    groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
+  }
+
   /**
    * Create a new thread to handle the client for which a request is received.
    *
@@ -170,7 +179,7 @@ public abstract class Prattle {
   /**
    * Method to send private message to specified receiver.
    *
-   * @param msg message to be sent
+   * @param msg      message to be sent
    * @param receiver receiver name to send to
    */
   public static void sendPrivateMessage(Message msg, String receiver) {
@@ -186,16 +195,24 @@ public abstract class Prattle {
   /**
    * Method to send private message to specified receiver.
    *
-   * @param msg message to be sent
+   * @param msg       message to be sent
    * @param groupName receiver name to send to
    */
-  public static void sendGroupMessage(Message msg, String groupName) throws SQLException {
-    List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(groupName);
-    for(ClientRunnable cr : active){
-      if(listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName())){
-        cr.enqueueMessage(msg);
+  public static boolean sendGroupMessage(Message msg, String groupName) throws SQLException {
+    if (groupToUserMapping.containsKey(groupName)) {
+      if (groupToUserMapping.get(groupName).contains(msg.getName())) {
+        List listOfUsersInGroup = groupToUserMapping.get(groupName);
+        for (ClientRunnable cr : active) {
+          if (listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName())) {
+            cr.enqueueMessage(msg);
+          }
+        }
+        return true;
+      }else{
+        return false;
       }
+    } else {
+      return false;
     }
-
   }
 }

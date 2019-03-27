@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -25,8 +26,11 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -293,17 +297,27 @@ public class PrattleTest {
    * Test for broadcastMessage method.
    */
   @Test
-  public void testGrpMessage() throws IOException, SQLException {
+  public void testGrpMessage() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("a");
     mockStatic(GroupServices.class);
     List<String> list = new ArrayList();
     list.add("r");
     list.add("j");
-    when(GroupServices.getAllUsersInGroup("MSD")).thenReturn(list);
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
 
-    Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");
-    when(clientRunnable.getName()).thenReturn("j");
-    Prattle.sendGroupMessage(message, "MSD");
-    assertEquals(true, clientRunnable.isInitialized());
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp PIKACHU Hello");
+    assertFalse(Prattle.sendGroupMessage(message, "PDP"));
+    assertEquals(false, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
@@ -312,17 +326,28 @@ public class PrattleTest {
    * Test for broadcastMessage method.
    */
   @Test
-  public void testGrpMessageFalseCondn() throws IOException, SQLException {
+  public void testGrpMessageClientRunnableNotInList() throws IOException, SQLException, IllegalAccessException, NoSuchFieldException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("a");
     mockStatic(GroupServices.class);
     List<String> list = new ArrayList();
+    list.add("z");
     list.add("r");
-    list.add("j");
-    when(GroupServices.getAllUsersInGroup("MSD")).thenReturn(list);
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
 
-    Message message = Message.makeGroupMessage("j", "/grp MSD Hello");
-    when(clientRunnable.getName()).thenReturn("j");
-    Prattle.sendGroupMessage(message, "MSD");
-    assertEquals(true, clientRunnable.isInitialized());
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp MSD Hello");
+    assertTrue(Prattle.sendGroupMessage(message, "MSD"));
+    assertEquals(false, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
@@ -331,18 +356,140 @@ public class PrattleTest {
    * Test for broadcastMessage method failure.
    */
   @Test
-  public void testGrpMessageFalse() throws IOException, SQLException {
+  public void testGrpMessageClientRunnableInListSelf() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
     //Return R, J
     when(clientRunnable.isInitialized()).thenReturn(false);
-    when(clientRunnable.getName()).thenReturn("a");
+    when(clientRunnable.getName()).thenReturn("r");
     mockStatic(GroupServices.class);
     List<String> list = new ArrayList();
     list.add("r");
     list.add("j");
-    when(GroupServices.getAllUsersInGroup("MSD")).thenReturn(list);
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp MSD Hello");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testGrpMessageClientRunnableInListNonSelf() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp MSD Hello");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testGrpMessageUserNameNotInGrp() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
 
     Message message = Message.makeGroupMessage("abcd", "/grp MSD Hello");
     Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGrpMessageGroupNameNotPresent() throws IOException, SQLException, IllegalAccessException, NoSuchFieldException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    List<String> l = new ArrayList<>();
+    l.add("r");
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp ZZZ Hello");
+    assertFalse(Prattle.sendGroupMessage(message, "ZZZ"));
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGrpMessageSameUser() throws IOException, SQLException, IllegalAccessException, NoSuchFieldException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    List<String> l = new ArrayList<>();
+    l.add("r");
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp MSD Hello");
+    assertTrue(Prattle.sendGroupMessage(message, "MSD"));
     assertEquals(false, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
     serverSocketChannel.close();

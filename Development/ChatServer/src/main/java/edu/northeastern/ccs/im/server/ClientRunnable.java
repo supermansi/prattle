@@ -313,8 +313,11 @@ public class ClientRunnable implements Runnable {
           MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
         } else if (msg.isGroupMessage()) {
           String receiverId = getReceiverName(msg.getText());
-          Prattle.sendGroupMessage(msg, receiverId);
-          MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+          if(Prattle.sendGroupMessage(msg, receiverId)){
+            MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+          }
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
+                  "do not have permission to send message to the group");
         } else if (msg.isCreateGroup()) {
           GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
