@@ -8,6 +8,11 @@ public class Groups {
 	private int grpID;
 	private String grpName;
 	private String admins;
+	private Restricted restricted;
+
+	public enum Restricted {
+		H, L;
+	}
 
 	/**
 	 * Constructor for group object.
@@ -87,4 +92,11 @@ public class Groups {
 		this.admins = admins;
 	}
 
+	public Restricted getRestricted() {
+		return restricted;
+	}
+
+	public void setRestricted(Restricted restricted) {
+		this.restricted = restricted;
+	}
 }
