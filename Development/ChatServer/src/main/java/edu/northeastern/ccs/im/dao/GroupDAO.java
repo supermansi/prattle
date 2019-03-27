@@ -15,7 +15,6 @@ import edu.northeastern.ccs.im.model.Groups;
 public class GroupDAO {
 
   protected static IConnectionManager connectionManager;
-  private static UserDAO userDAO;
   private static GroupDAO groupDAO;
 
   /**
@@ -33,7 +32,6 @@ public class GroupDAO {
   public static GroupDAO getInstance() {
     if (groupDAO == null) {
       connectionManager = new ConnectionManager();
-      userDAO = UserDAO.getInstance();
       groupDAO = new GroupDAO();
     }
     return groupDAO;
@@ -172,7 +170,6 @@ public class GroupDAO {
    * @return true if the user is the admin of the group, false otherwise
    */
   public boolean validateGroupAdmin(String groupName, int adminID) throws SQLException {
-    //User admin = userDAO.getUserByUsername(userName);
     String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;

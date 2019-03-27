@@ -232,4 +232,17 @@ public class GroupsDAOTest {
       when(mockStatement.executeUpdate()).thenReturn(1);
       groupDAO.updateAdmin(group1.getGrpName(), "admin1");
   }
+
+    @Test(expected = SQLException.class)
+    public void testUpdateAdminsEx() throws SQLException {
+        doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+        groupDAO.updateAdmin(group1.getGrpName(), "admin1");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testUpdateAdminsExUpdate() throws SQLException {
+        doThrow(new SQLException()).when(mockStatement).executeUpdate();
+        groupDAO.updateAdmin(group1.getGrpName(), "admin1");
+    }
+
 }
