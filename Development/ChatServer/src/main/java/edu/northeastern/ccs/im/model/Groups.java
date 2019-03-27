@@ -15,7 +15,7 @@ public class Groups {
 	 * @param grpName name of the group
 	 * @param admins id for the admin of the group
 	 */
-	public Groups(String grpName, String admin) {
+	public Groups(String grpName, String admins) {
 		this.grpName = grpName;
 		this.admins = admins;
 	}
