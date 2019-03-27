@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 
@@ -179,6 +181,45 @@ public class GroupToUserDAO {
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public ConcurrentMap<String, List<String>> getAllUsersByGroup() throws SQLException {
+    ConcurrentMap<String, List<String>> map = new ConcurrentHashMap<>();
+    String selectQuery = "SELECT G.GRPNAME, U.USERNAME FROM GROUPTOUSERMAP M JOIN USER U ON M.USERID = U.USERID JOIN GROUPS G ON M.GROUPID = G.GRPID WHERE M.USERID = U.USERID;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    ResultSet resultSet = null;
+    try {
+      statement = connection.prepareStatement(selectQuery);
+      try {
+        resultSet = statement.executeQuery();
+        String groupName = "";
+        List<String> groupMembers = new ArrayList<>();
+        while (resultSet.next()) {
+          if (!resultSet.getString(1).equals(groupName)) {
+            if (!groupName.equals("")) {
+              map.put(groupName, groupMembers);
+            }
+            groupName = resultSet.getString(1);
+            groupMembers = new ArrayList<>();
+          }
+          groupMembers.add(resultSet.getString(2));
+          if (resultSet.isLast()) {
+            map.put(groupName, groupMembers);
+          }
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+      return map;
+    } finally {
+      if (statement != null) {
+        statement.close();
       }
       connection.close();
     }
