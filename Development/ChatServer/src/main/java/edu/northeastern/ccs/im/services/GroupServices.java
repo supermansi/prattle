@@ -2,6 +2,7 @@ package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
@@ -122,5 +123,9 @@ public class GroupServices {
 			//return true;
 		//}
 		//return false;
+	}
+
+	public Map<String,List<String>> getListOfAllUsersForAllGroups(){
+		return null;
 	}
 }
