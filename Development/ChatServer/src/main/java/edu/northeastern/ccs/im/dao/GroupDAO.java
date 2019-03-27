@@ -116,19 +116,23 @@ public class GroupDAO {
     try {
       statement = connection.prepareStatement(checkGroup);
       statement.setString(1, groupName);
-      try {
-        result = statement.executeQuery();
-        return result.next();
-      } finally {
-        if (result != null) {
-          result.close();
-        }
-      }
+      return checkGroup(statement, result);
     } finally {
       if (statement != null) {
         statement.close();
       }
       connection.close();
+    }
+  }
+
+  private boolean checkGroup(PreparedStatement statement, ResultSet result) throws SQLException {
+    try {
+      result = statement.executeQuery();
+      return result.next();
+    } finally {
+      if (result != null) {
+        result.close();
+      }
     }
   }
 
@@ -146,14 +150,7 @@ public class GroupDAO {
     try {
       statement = connection.prepareStatement(checkGroup);
       statement.setInt(1, groupID);
-      try {
-        result = statement.executeQuery();
-        return result.next();
-      } finally {
-        if (result != null) {
-          result.close();
-        }
-      }
+      return checkGroup(statement, result);
     } finally {
       if (statement != null) {
         statement.close();
@@ -178,15 +175,7 @@ public class GroupDAO {
       preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, groupName);
       preparedStatement.setInt(2, adminID);
-      try {
-        result = preparedStatement.executeQuery();
-        return result.next();
-      } finally {
-        if (result != null) {
-          result.close();
-        }
-
-      }
+      return checkGroup(preparedStatement, result);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -210,7 +199,6 @@ public class GroupDAO {
       preparedStatement.setString(1, groupName);
       return getGroups(preparedStatement);
     } finally {
-
       if (preparedStatement != null) {
         preparedStatement.close();
       }
