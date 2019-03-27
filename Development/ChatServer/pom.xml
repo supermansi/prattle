@@ -42,7 +42,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.1</version>
                     <configuration>
-                        <skipTests>true</skipTests>
+                        <!--<skipTests>true</skipTests>-->
                         <parallel>none</parallel>
                         <perCoreThreadCount>false</perCoreThreadCount>
                         <threadCount>1</threadCount>
@@ -86,7 +86,7 @@
                         <parallel>none</parallel>
                         <perCoreThreadCount>false</perCoreThreadCount>
                         <threadCount>1</threadCount>
-                        <skipTests>true</skipTests>
+                        <!--<skipTests>true</skipTests>-->
                     </configuration>
                 </plugin>
             </plugins>
