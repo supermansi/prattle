@@ -173,6 +173,13 @@ public class MessageTest {
         assertEquals(false, uex.isRegistration());
     }
 
+    @Test
+    public void testLastSeen() {
+        Message lsn = Message.makeMessage("LSN", "J", "/getLastSeen J");
+        assertEquals(true, lsn.isLastSeen());
+        assertEquals(false, lsn.isCreateGroup());
+    }
+
 
 
     /**

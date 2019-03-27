@@ -133,6 +133,8 @@ public class Message {
         result = makeDeactivateUserMessage(srcName, text);
     } else if (handle.compareTo(MessageType.USER_EXISTS.toString()) == 0) {
         result = makeUserExistsMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.LAST_SEEN.toString()) == 0) {
+        result = makeLastSeenMessage(srcName, text);
     }
     return result;
   }
@@ -320,6 +322,10 @@ public class Message {
         return new Message(MessageType.USER_EXISTS, srcName,text);
     }
 
+    public static Message makeLastSeenMessage(String srcName, String text) {
+      return new Message(MessageType.LAST_SEEN, srcName, text);
+    }
+
   /**
    * Return the name of the sender of this message.
    *
@@ -475,6 +481,8 @@ public class Message {
   public boolean isDeactivateUser() {return (msgType == MessageType.DEACTIVATE_USER);}
 
   public boolean isUserExists() { return (msgType == MessageType.USER_EXISTS);}
+
+  public boolean isLastSeen() { return (msgType == MessageType.LAST_SEEN); }
 
 
     /**

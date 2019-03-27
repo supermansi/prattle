@@ -91,7 +91,9 @@ public enum MessageType {
 
   DEACTIVATE_USER("DUS"),
 
-  USER_EXISTS("UEX");
+  USER_EXISTS("UEX"),
+
+  LAST_SEEN("LSN");
 
   /**
    * Store the short name of this message type.

@@ -508,6 +508,27 @@ public class ClientRunnableTest {
   }
 
   @Test
+  public void testProcessLastSeen() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    mockStatic(UserServices.class);
+    when(UserServices.getLastSeen("a")).thenReturn(new Long(0));
+
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    ClientRunnable clientRunnable = new ClientRunnable(connection);
+    clientRunnable.setName("r");
+    met.setAccessible(true);
+    Message msg = Message.makeLastSeenMessage("r", "/getLastSeen J");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
   public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
     mockStatic(MessageServices.class);
     when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);

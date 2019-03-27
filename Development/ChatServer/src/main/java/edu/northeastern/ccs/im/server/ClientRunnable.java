@@ -1,10 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
@@ -346,17 +344,23 @@ public class ClientRunnable implements Runnable {
           GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
         } else if(msg.isDeactivateUser()) {
-          //todo check if this comes through before user is deleted in db
           sendMessageToClient(ServerConstants.SERVER_NAME, "Account successfully deleted.");
           UserServices.deleteUser(msg.getName());
           terminate = true;
         } else if (msg.isUserExists()) {
-          String[] split = msg.getText().split(" ");
-          if(UserServices.userExists(split[1])) {
+          if(UserServices.userExists(getReceiverName(msg.getText()))) {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user exists");
           } else {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
           }
+        } else if(msg.isLastSeen()) {
+          String receiver = getReceiverName(msg.getText());
+          Long lastSeen = UserServices.getLastSeen(receiver);
+          Date resultDate = new Date(lastSeen);
+          SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+          sendMessageToClient(ServerConstants.SERVER_NAME, receiver + " last viewed messages at "
+                  + sdf.format(resultDate));
+
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
