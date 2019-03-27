@@ -128,4 +128,15 @@ public class GroupServices {
 	public Map<String,List<String>> getListOfAllUsersForAllGroups(){
 		return null;
 	}
+
+	public static String getGroupRestrictions(String grpName) throws SQLException{
+		return groupDAO.getGroupRestriction(grpName);
+	}
+
+	public static void changeGroupRestrictions(String groupName, String adminName, String restriction) throws SQLException {
+		int adminID = userDAO.getUserByUsername(adminName).getUserID();
+		if(groupDAO.checkGroupExists(groupName) && groupDAO.validateGroupAdmin(groupName, adminID)){
+			groupDAO.changeGroupRestriction(groupName, restriction);
+		}
+	}
 }

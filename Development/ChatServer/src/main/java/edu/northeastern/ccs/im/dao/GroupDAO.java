@@ -265,4 +265,50 @@ public class GroupDAO {
       connection.close();
     }
   }
+
+  public String getGroupRestriction(String grpName) throws SQLException {
+    String getRestriction = "SELECT restricted FROM Groups WHERE grpName=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    String restriction = null;
+    try {
+      preparedStatement = connection.prepareStatement(getRestriction, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, grpName);
+      try{
+        resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()) {
+          restriction = resultSet.getString(1);
+        }
+      }
+      finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return restriction;
+  }
+
+  public void changeGroupRestriction(String grpName, String restriction) throws SQLException {
+    String updateRestriction = "UPDATE Groups SET restricted=? WHERE grpName=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(updateRestriction, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, restriction);
+      preparedStatement.setString(2, grpName);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }

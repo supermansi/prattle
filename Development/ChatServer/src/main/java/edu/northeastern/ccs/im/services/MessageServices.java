@@ -91,5 +91,4 @@ public class MessageServices {
 
   public List<String> getPushNotifications(String username) {return null;}
 
-  public void changeGroupRestrictions(String groupName, String adminName, String restriction) {}
 }
