@@ -159,6 +159,20 @@ public class MessageTest {
         assertEquals(false, rgp.isRetrieveUser());
     }
 
+    @Test
+    public void testDeleteUser() {
+        Message dus = Message.makeMessage("DUS", "A", "A");
+        assertEquals(true, dus.isDeactivateUser());
+        assertEquals(false, dus.isCreateGroup());
+    }
+
+    @Test
+    public void testUserExists() {
+        Message uex = Message.makeMessage("UEX", "M", "M");
+        assertEquals(true, uex.isUserExists());
+        assertEquals(false, uex.isRegistration());
+    }
+
 
 
     /**

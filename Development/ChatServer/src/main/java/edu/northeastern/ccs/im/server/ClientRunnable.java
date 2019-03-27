@@ -345,6 +345,18 @@ public class ClientRunnable implements Runnable {
         } else if (msg.isAddUserToGroup()) {
           GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
+        } else if(msg.isDeactivateUser()) {
+          //todo check if this comes through before user is deleted in db
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Account successfully deleted.");
+          UserServices.deleteUser(msg.getName());
+          terminate = true;
+        } else if (msg.isUserExists()) {
+          String[] split = msg.getText().split(" ");
+          if(UserServices.userExists(split[1])) {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "This user exists");
+          } else {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
+          }
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
