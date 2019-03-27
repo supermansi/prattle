@@ -91,16 +91,20 @@ public class GroupToUserDAO {
       statement = connection.prepareStatement(checkUser);
       statement.setInt(1, userID);
       statement.setInt(2, groupID);
-      result = statement.executeQuery();
-      flag = result.next();
+      try{
+        result = statement.executeQuery();
+        flag = result.next();
+      }
+      finally {
+        if(result != null) {
+          result.close();
+        }
+      }
     } finally {
-      if(result != null) {
-        result.close();
-      }
-      if (statement != null) {
-        statement.close();
-      }
-      connection.close();
+        if (statement != null) {
+          statement.close();
+        }
+        connection.close();
     }
     return flag;
   }
