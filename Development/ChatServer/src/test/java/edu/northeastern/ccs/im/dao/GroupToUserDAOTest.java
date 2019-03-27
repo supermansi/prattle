@@ -27,6 +27,7 @@ public class GroupToUserDAOTest {
   private static GroupToUserDAO groupToUserDAO;
   private Groups group1;
   private boolean isException;
+  private User createdUser;
 
   @Mock
   private ConnectionManager mockManager;
@@ -50,6 +51,7 @@ public class GroupToUserDAOTest {
     groupToUserDAO = GroupToUserDAO.getInstance();
     group1 = new Groups("testGroupBlah", "admin1");
     isException = false;
+    createdUser = new User(2,"blah","blah","blah","blah@gmail.com","blah");
 
     //when(mockGroupDAO.getInstance()).thenReturn(null);
     when(mockManager.getConnection()).thenReturn(mockConnection);
@@ -65,9 +67,12 @@ public class GroupToUserDAOTest {
     when(mockGroupDAO.checkGroupExists(1)).thenReturn(true);
 
     UserDAO mockUserDAO = mock(UserDAO.class);
+
+    when(mockUserDAO.getUserByUserID(2)).thenReturn(createdUser);
+    when(mockUserDAO.isUserExists(createdUser.getUsername())).thenReturn(true);
     when(mockUserDAO.isUserExists(2)).thenReturn(true);
 
-    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(true);
     Class clazz = GroupToUserDAO.class;
     Field grpDao = clazz.getDeclaredField("groupDAO");
     grpDao.setAccessible(true);
