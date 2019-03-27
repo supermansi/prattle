@@ -86,4 +86,10 @@ public class MessageServices {
   public static List<String> retrieveGroupMessages(String groupName) throws SQLException {
     return messageUserDAO.getMessagesFromGroup(groupName);
   }
+
+  public boolean recallMessage(String sender, String receiver) {return true;}
+
+  public List<String> getPushNotifications(String username) {return null;}
+
+  public void changeGroupRestrictions(String groupName, String adminName, String restriction) {}
 }
