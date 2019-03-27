@@ -37,6 +37,8 @@ public class UserServicesTest {
     when(mockUserDAO.getUserByUserID(user.getUserID())).thenReturn(createdUser);
     when(mockUserDAO.isUserExists(user.getUsername())).thenReturn(true);
     when(mockUserDAO.isUserExists(user.getUserID())).thenReturn(true);
+    when(mockUserDAO.isUserExists("JUser")).thenReturn(true);
+    when(mockUserDAO.isUserExists("RUser")).thenReturn(false);
     when(mockUserDAO.validateUser(user.getUsername(), user.getPassword())).thenReturn(true);
     doNothing().when(mockUserDAO).deleteUser(user.getUsername());
     doNothing().when(mockUserDAO).updateFirstName(user.getUsername(), "abc");
@@ -108,6 +110,16 @@ public class UserServicesTest {
   @Test
   public void testUpdateLastSeen() throws SQLException {
     UserServices.updateLastSeen(user.getUsername(), System.currentTimeMillis());
+  }
+
+  @Test
+  public void testUserExistsTrue() throws SQLException {
+    assertEquals(true, UserServices.userExists("JUser"));
+  }
+
+  @Test
+  public void testUserExistsFalse() throws SQLException {
+    assertEquals(false, UserServices.userExists("RUser"));
   }
 
 }

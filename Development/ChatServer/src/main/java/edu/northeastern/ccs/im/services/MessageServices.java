@@ -70,7 +70,7 @@ public class MessageServices {
    * Method to return a list of messages between users.
    *
    * @param sender sender's user name
-   * @param receiver reciever's user name
+   * @param receiver receiver's user name
    * @return a list of strings with the message text sent between users
    */
   public static List<String> retrieveUserMessages(String sender, String receiver) throws SQLException {

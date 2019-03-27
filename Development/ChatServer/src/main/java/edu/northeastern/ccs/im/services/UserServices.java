@@ -120,4 +120,11 @@ public class UserServices {
     String lastSeen = userDAO.getLastSeen(username);
     return Long.parseLong(lastSeen);
   }
+
+  public static boolean userExists(String username) throws SQLException {
+    if (userDAO.isUserExists(username)){
+      return true;
+    }
+    return false;
+  }
 }

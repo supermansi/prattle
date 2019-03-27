@@ -129,6 +129,10 @@ public class Message {
         result = makeRetrieveGroupMessage(srcName, text);
     }else if (handle.compareTo(MessageType.ADD_USER_TO_GRP.toString()) == 0){
       result = makeAddUserToGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.DEACTIVATE_USER.toString()) == 0){
+        result = makeDeactivateUserMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.USER_EXISTS.toString()) == 0) {
+        result = makeUserExistsMessage(srcName,text);
     }
     return result;
   }
@@ -308,6 +312,14 @@ public class Message {
     return new Message(MessageType.HELLO, myName,text);
   }
 
+    public static Message makeDeactivateUserMessage(String srcName, String text){
+        return new Message(MessageType.DEACTIVATE_USER, srcName, text);
+    }
+
+    public static Message makeUserExistsMessage(String srcName, String text) {
+        return new Message(MessageType.USER_EXISTS, srcName,text);
+    }
+
   /**
    * Return the name of the sender of this message.
    *
@@ -459,6 +471,10 @@ public class Message {
    * @return True if the message is an add user to group message; false otherwise
    */
   public boolean isAddUserToGroup() {return (msgType == MessageType.ADD_USER_TO_GRP); }
+
+  public boolean isDeactivateUser() {return (msgType == MessageType.DEACTIVATE_USER);}
+
+  public boolean isUserExists() { return (msgType == MessageType.USER_EXISTS);}
 
 
     /**

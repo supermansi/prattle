@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im;
 
 import java.util.Base64;
+//import javax.crypto.*;
 
 /**
  * Class for encoding a given string for storage in the database.
