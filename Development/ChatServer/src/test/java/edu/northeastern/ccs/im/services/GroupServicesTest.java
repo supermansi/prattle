@@ -131,7 +131,7 @@ public class GroupServicesTest {
   @Test
   public void testGetGroupRestrictions() throws SQLException {
     when(mockGroupDAO.getGroupRestriction(any())).thenReturn("L");
-    assertEquals("L", mockGroupDAO.getGroupRestriction("groupName"));
+    assertEquals("L", groupServices.getGroupRestrictions("groupName"));
   }
 
   @Test
@@ -141,7 +141,7 @@ public class GroupServicesTest {
     when(mockUser.getUserID()).thenReturn(1);
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
     when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(true);
-    mockGroupDAO.changeGroupRestriction("group1", "H");
+    groupServices.changeGroupRestrictions("group1", "admin", "H");
   }
 
   @Test
@@ -151,7 +151,7 @@ public class GroupServicesTest {
     when(mockUser.getUserID()).thenReturn(1);
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
     when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(false);
-    mockGroupDAO.changeGroupRestriction("group1", "H");
+    groupServices.changeGroupRestrictions("group1", "admin", "H");
   }
 
   @Test
@@ -161,7 +161,7 @@ public class GroupServicesTest {
     when(mockUser.getUserID()).thenReturn(1);
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(false);
     when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(true);
-    mockGroupDAO.changeGroupRestriction("group1", "H");
+    groupServices.changeGroupRestrictions("group1", "admin", "H");
   }
 
   @Test
@@ -171,6 +171,6 @@ public class GroupServicesTest {
     when(mockUser.getUserID()).thenReturn(1);
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(false);
     when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(false);
-    mockGroupDAO.changeGroupRestriction("group1", "H");
+    groupServices.changeGroupRestrictions("group1", "admin", "H");
   }
 }
