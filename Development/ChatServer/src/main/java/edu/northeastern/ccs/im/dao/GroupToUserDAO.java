@@ -97,6 +97,9 @@ public class GroupToUserDAO {
       if (statement != null) {
         statement.close();
       }
+      if(result != null) {
+        result.close();
+      }
       connection.close();
     }
     return flag;
