@@ -2,7 +2,9 @@ package edu.northeastern.ccs.im.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
@@ -13,12 +15,14 @@ import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.experimental.theories.suppliers.TestedOn;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
+import org.mockito.internal.matchers.Null;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MessageDAOTest {
@@ -170,5 +174,78 @@ public class MessageDAOTest {
   public void testGetMessageBySenderExceptionResultSet() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     messageDAO.getMessagesBySender(2);
+  }
+
+  @Test
+  public void testTimeStamp() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true);
+    when(mockResultSet.getString(1)).thenReturn("00000000");
+    assertEquals("00000000", messageDAO.getTimeStampOfLastMessage(82, 72));
+  }
+
+  @Test
+  public void testTimeStampNullSet() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    when(mockResultSet.getString(1)).thenReturn("00000000");
+    assertNull(messageDAO.getTimeStampOfLastMessage(82, 72));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testTimeStampQueryException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    when(mockResultSet.getString(1)).thenReturn("00000000");
+    assertNull(messageDAO.getTimeStampOfLastMessage(82, 72));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testTimeStampConnectionException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    when(mockResultSet.getString(1)).thenReturn("00000000");
+    assertNull(messageDAO.getTimeStampOfLastMessage(82, 72));
+  }
+
+  @Test
+  public void testIdLastMessage() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true);
+    when(mockResultSet.getInt(1)).thenReturn(1);
+    assertEquals(1, messageDAO.getIdOfLastMessage(82, 72));
+  }
+
+  @Test
+  public void testIdLastMessageNullSet() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    when(mockResultSet.getInt(1)).thenReturn(1);
+    assertEquals(0, messageDAO.getIdOfLastMessage(82, 72));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testIdLastMessageQueryException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    when(mockResultSet.getInt(1)).thenReturn(1);
+    assertEquals(0, messageDAO.getIdOfLastMessage(82, 72));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testIdLastMessageConnectionException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    when(mockResultSet.getInt(1)).thenReturn(1);
+    assertEquals(0, messageDAO.getIdOfLastMessage(82, 72));
+  }
+
+  @Test
+  public void testDeleteMessage() throws SQLException {
+    messageDAO.deleteMessageByID("Message", 1);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testDeleteException() throws SQLException {
+    when(mockConnection.prepareStatement(any(String.class))).thenReturn(null);
+    messageDAO.deleteMessageByID("Message", 1);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testDeleteQueryException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    messageDAO.deleteMessageByID("Message", 1);
   }
 }

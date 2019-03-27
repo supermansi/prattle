@@ -94,7 +94,6 @@ public class MessageServices {
     String messageLastSeen = messageDAO.getTimeStampOfLastMessage(senderID, receiverID);
     boolean flag = false;
     if(Long.parseLong(userLastSeen) < Long.parseLong(messageLastSeen)) {
-      System.out.println(userLastSeen + " " + messageLastSeen);
       int msgID = messageDAO.getIdOfLastMessage(senderID, receiverID);
       messageDAO.deleteMessageByID("Message", msgID);
       messageDAO.deleteMessageByID("MessageToUserMap", msgID);
