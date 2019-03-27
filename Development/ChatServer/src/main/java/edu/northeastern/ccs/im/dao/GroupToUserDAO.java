@@ -94,11 +94,11 @@ public class GroupToUserDAO {
       result = statement.executeQuery();
       flag = result.next();
     } finally {
-      if (statement != null) {
-        statement.close();
-      }
       if(result != null) {
         result.close();
+      }
+      if (statement != null) {
+        statement.close();
       }
       connection.close();
     }
