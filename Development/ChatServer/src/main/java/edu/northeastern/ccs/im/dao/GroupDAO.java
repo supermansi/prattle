@@ -46,17 +46,14 @@ public class GroupDAO {
    * @return a group model object
    */
   public Groups createGroup(Groups group) throws SQLException {
-    String insertGroup = "INSERT INTO Groups(grpName, adminID) VALUES (?,?);";
-    String insertGroupToUserMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?, ?);";
+    String insertGroup = "INSERT INTO Groups(grpName, admins) VALUES (?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement insertStmt1 = null;
-    PreparedStatement insertStmt2 = null;
     ResultSet resultSet = null;
     try {
       insertStmt1 = connection.prepareStatement(insertGroup, Statement.RETURN_GENERATED_KEYS);
-      insertStmt2 = connection.prepareStatement(insertGroupToUserMap, Statement.RETURN_GENERATED_KEYS);
       insertStmt1.setString(1, group.getGrpName());
-      insertStmt1.setInt(2, group.getAdminID());
+      insertStmt1.setString(2, group.getAdmins());
       insertStmt1.executeUpdate();
       try {
         resultSet = insertStmt1.getGeneratedKeys();
@@ -67,9 +64,6 @@ public class GroupDAO {
           throw new DatabaseConnectionException("Group ID could not be generated.");
         }
         group.setGrpID(groupID);
-        insertStmt2.setInt(1, group.getAdminID());
-        insertStmt2.setInt(2, group.getGrpID());
-        insertStmt2.executeUpdate();
         return group;
       } finally {
         if (resultSet != null) {
@@ -84,11 +78,8 @@ public class GroupDAO {
 
 
       } finally {
-        if (insertStmt2 != null) {
-          insertStmt2.close();
-        }
+        connection.close();
       }
-      connection.close();
     }
   }
 
@@ -260,8 +251,8 @@ public class GroupDAO {
       if (resultSet.next()) {
         int grpID = resultSet.getInt("grpID");
         String grpName = resultSet.getString("grpName");
-        int adminID = resultSet.getInt("adminID");
-        group = new Groups(grpID, grpName, adminID);
+        String admins = resultSet.getString("admins");
+        group = new Groups(grpID, grpName, admins);
         return group;
       } else {
         throw new SQLException("Group not found.");
@@ -270,6 +261,23 @@ public class GroupDAO {
       if (resultSet != null) {
         resultSet.close();
       }
+    }
+  }
+
+  public void updateAdmin(String groupName, String adminName) throws SQLException {
+    String updateAdmin = "UPDATE Groups SET admins=? WHERE grpName=?";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(updateAdmin, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, adminName);
+      preparedStatement.setString(2, groupName);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
     }
   }
 }

@@ -25,9 +25,9 @@ public class GroupServices {
 		//empty private constructor
 	}
 	static {
-		//groupDAO = GroupDAO.getInstance();
-		//groupUserDAO = GroupToUserDAO.getInstance();
-		//userDAO = UserDAO.getInstance();
+		groupDAO = GroupDAO.getInstance();
+		groupUserDAO = GroupToUserDAO.getInstance();
+		userDAO = UserDAO.getInstance();
 	}
 
     /**
@@ -38,8 +38,9 @@ public class GroupServices {
      */
 	public static void createGroup(String groupName, String adminUsername) throws SQLException {
 		User admin = userDAO.getUserByUsername(adminUsername);
-		Groups group = new Groups(groupName, admin.getUserID());
+		Groups group = new Groups(groupName, admin.getUsername());
 		groupDAO.createGroup(group);
+		groupUserDAO.addUserToGroup(admin.getUserID(), group.getGrpID());
 	}
 
     /**
@@ -111,5 +112,15 @@ public class GroupServices {
 				return true;
 		}
 		return false;
+	}
+
+	public static void makeAdmin(String grpName, String newAdminName) throws SQLException {
+		// if(groupDAO.checkGroupExists(grpName) && userDAO.isUserExists(newAdminName)){
+			String adminName = groupDAO.getGroupByGroupName(grpName).getAdmins();
+			newAdminName = adminName + " " + newAdminName;
+			groupDAO.updateAdmin(grpName, newAdminName);
+			//return true;
+		//}
+		//return false;
 	}
 }

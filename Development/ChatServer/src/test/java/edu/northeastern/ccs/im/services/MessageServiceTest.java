@@ -71,8 +71,8 @@ public class MessageServiceTest {
 
     updatedTime = Long.toString(System.currentTimeMillis());
 
-    group = new Groups("MSD", 52);
-    createdGroup = new Groups(2, "MSD", 52);
+    group = new Groups("MSD", createdUser.getUsername());
+    createdGroup = new Groups(2, "MSD", createdUser.getUsername());
     when(mockGroupDAO.checkGroupExists("MSD")).thenReturn(true);
     when(mockGroupDAO.getGroupByGroupName("MSD")).thenReturn(createdGroup);
     when(mockGroupDAO.getGroupByGroupID(createdGroup.getGrpID())).thenReturn(createdGroup);

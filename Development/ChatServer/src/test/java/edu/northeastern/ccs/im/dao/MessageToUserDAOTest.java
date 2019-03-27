@@ -74,7 +74,7 @@ public class MessageToUserDAOTest {
   @Test
   public void testGetMessageFromGroups() throws SQLException, NoSuchFieldException, IllegalAccessException {
     GroupDAO mockGroupDAO = mock(GroupDAO.class);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", 123));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", "admin1 admin2"));
 
     UserDAO mockUserDAO = mock(UserDAO.class);
     when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
@@ -104,7 +104,7 @@ public class MessageToUserDAOTest {
   @Test(expected = DatabaseConnectionException.class)
   public void testGetMessageFromGroupsExceptionResultSet() throws SQLException, NoSuchFieldException, IllegalAccessException {
     GroupDAO mockGroupDAO = mock(GroupDAO.class);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", 123));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", "admin1 admin2"));
 
     UserDAO mockUserDAO = mock(UserDAO.class);
     when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
