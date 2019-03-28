@@ -92,7 +92,7 @@ public class MessageToUserDAOTest {
 
     List<String> testList = messageToUserDAO.getMessagesFromGroup("Group 123");
 
-    assertEquals(testList.get(0),"r Test GRP MSG");
+    assertEquals("r Test GRP MSG", testList.get(0));
   }
 
   @Test(expected = DatabaseConnectionException.class)
