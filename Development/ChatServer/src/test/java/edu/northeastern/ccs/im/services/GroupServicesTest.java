@@ -25,6 +25,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.*;
 
+import javax.xml.crypto.Data;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupServicesTest {
 
@@ -73,7 +75,7 @@ public class GroupServicesTest {
     groupServices.createGroup("group1", "user1");
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testAddUserToGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
     groupServices.addUserToGroup("g1", "a","u");
     assertTrue(groupServices.validateUserExistsInGroup("user1", "group1"));
@@ -97,7 +99,7 @@ public class GroupServicesTest {
     groupServices.removeUserFromGroup("g1", "admin", "user");
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testRemoveUserFromGroupFalse() throws SQLException {
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(false);
     groupServices.removeUserFromGroup("group", "admin", "user");
@@ -152,7 +154,7 @@ public class GroupServicesTest {
     groupServices.changeGroupRestrictions("group1", "admin", "H");
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testChangeGroupRestrictionsTF() throws SQLException {
     User mockUser = mock(User.class);
     when(mockUserDAO.getUserByUsername(any())).thenReturn(mockUser);
@@ -162,7 +164,7 @@ public class GroupServicesTest {
     groupServices.changeGroupRestrictions("group1", "admin", "H");
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testChangeGroupRestrictionsFT() throws SQLException {
     User mockUser = mock(User.class);
     when(mockUserDAO.getUserByUsername(any())).thenReturn(mockUser);
@@ -172,7 +174,7 @@ public class GroupServicesTest {
     groupServices.changeGroupRestrictions("group1", "admin", "H");
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testChangeGroupRestrictionsFF() throws SQLException {
     User mockUser = mock(User.class);
     when(mockUserDAO.getUserByUsername(any())).thenReturn(mockUser);

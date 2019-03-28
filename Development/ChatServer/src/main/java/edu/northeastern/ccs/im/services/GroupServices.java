@@ -60,6 +60,8 @@ public class GroupServices {
 		Groups group = groupDAO.getGroupByGroupName(groupName);
 		if(!groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID()))
 			groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
+		else
+			throw new DatabaseConnectionException("Unable to add user to group.");
 	}
 
     /**
@@ -88,6 +90,9 @@ public class GroupServices {
 		if(groupDAO.validateGroupAdmin(groupName, admin.getUserID())){
 			Groups group = groupDAO.getGroupByGroupName(groupName);
 			groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
+		}
+		else {
+			throw new DatabaseConnectionException("Unable to remove user from group.");
 		}
 	}
 
@@ -142,6 +147,9 @@ public class GroupServices {
 		int adminID = userDAO.getUserByUsername(adminName).getUserID();
 		if(groupDAO.checkGroupExists(groupName) && groupDAO.validateGroupAdmin(groupName, adminID)){
 			groupDAO.changeGroupRestriction(groupName, restriction);
+		}
+		else {
+			throw new DatabaseConnectionException("Unable to change group restrictions.");
 		}
 	}
 }
