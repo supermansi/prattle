@@ -127,7 +127,15 @@ public class GroupServices {
     //return false;
   }
 
-  public ConcurrentMap<String, List<String>> getListOfAllUsersForAllGroups() throws SQLException {
+  public static ConcurrentMap<String, List<String>> getListOfAllUsersForAllGroups() throws SQLException {
     return groupUserDAO.getAllUsersByGroup();
+  }
+
+  public static boolean leaveGroup(String username, String groupname) throws SQLException {
+    if(groupUserDAO.checkIfUserInGroup(userDAO.getUserByUsername(username).getUserID(),groupDAO.getGroupByGroupName(groupname).getGrpID())) {
+      groupUserDAO.deleteUserFromGroup(userDAO.getUserByUsername(username).getUserID(),groupDAO.getGroupByGroupName(groupname).getGrpID());
+      return true;
+    }
+    return false;
   }
 }

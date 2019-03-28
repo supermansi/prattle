@@ -79,7 +79,7 @@ public class GroupServicesTest {
   }
 
   @Test
-  public void testAddUserToGgroupFalse() throws SQLException {
+  public void testAddUserToGroupFalse() throws SQLException {
     when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(false);
     groupServices.addUserToGroup("g1", "a", "u");
 
