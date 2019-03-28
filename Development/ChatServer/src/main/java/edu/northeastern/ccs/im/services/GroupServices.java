@@ -83,9 +83,11 @@ public class GroupServices {
      */
 	public static void removeUserFromGroup(String groupName, String adminName, String userName) throws SQLException {
 		User user = userDAO.getUserByUsername(userName);
-		groupDAO.validateGroupAdmin(groupName, user.getUserID());
-		Groups group = groupDAO.getGroupByGroupName(groupName);
-		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
+		User admin = userDAO.getUserByUsername(adminName);
+		if(groupDAO.validateGroupAdmin(groupName, admin.getUserID())){
+			Groups group = groupDAO.getGroupByGroupName(groupName);
+			groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
+		}
 	}
 
     /**

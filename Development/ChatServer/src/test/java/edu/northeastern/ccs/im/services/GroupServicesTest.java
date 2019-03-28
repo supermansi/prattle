@@ -42,7 +42,7 @@ public class GroupServicesTest {
     mockGroupUserDAO = mock(GroupToUserDAO.class);
     when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(true);
     doNothing().when(mockGroupUserDAO).addUserToGroup(1,2);
-    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(1,2);
+    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(any(Integer.class),any(Integer.class));
     List<String> users = new ArrayList<>();
     users.add("user1");
     users.add("user2");
@@ -92,7 +92,14 @@ public class GroupServicesTest {
 
   @Test
   public void testRemoveUserFromGroup() throws SQLException {
-    groupServices.removeUserFromGroup("group", "user", "admin");
+    when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(true);
+    groupServices.removeUserFromGroup("group", "admin", "user");
+  }
+
+  @Test
+  public void testRemoveUserFromGroupFalse() throws SQLException {
+    when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(false);
+    groupServices.removeUserFromGroup("group", "admin", "user");
   }
 
   @Test

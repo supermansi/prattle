@@ -173,4 +173,32 @@ public class MessageToUserDAOTest {
     List<String> chat = messageToUserDAO.retrieveUserMsg("r", "j");
 
   }
+
+  @Test
+  public void testGetNotifications() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(any())).thenReturn("admin");
+    when(mockResultSet.getInt(any())).thenReturn(1);
+    assertEquals(1, messageToUserDAO.getNotifications(1).size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetNotificationsEx() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    doThrow(new SQLException()).when(mockResultSet).getString(any());
+    when(mockResultSet.getInt(any())).thenReturn(1);
+    assertEquals(1, messageToUserDAO.getNotifications(1).size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetNotifEx() throws SQLException{
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    messageToUserDAO.getNotifications(1);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetNotifExSet() throws SQLException{
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    messageToUserDAO.getNotifications(1);
+  }
 }

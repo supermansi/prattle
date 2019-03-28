@@ -162,4 +162,12 @@ public class MessageServiceTest {
     when(mockMessageDAO.getIdOfLastMessage(anyInt(), anyInt())).thenReturn(1);
     assertFalse(MessageServices.recallMessage("Daba", "Daba11"));
   }
+
+  @Test
+  public void testPushNotifications() throws SQLException {
+    List<String> notifications = new ArrayList<>();
+    notifications.add("user1 5");
+    when(mockMessageToUserDAO.getNotifications(52)).thenReturn(notifications);
+    assertEquals(1, MessageServices.getPushNotifications("Daba").size());
+  }
 }

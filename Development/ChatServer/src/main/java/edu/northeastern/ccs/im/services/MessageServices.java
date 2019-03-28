@@ -102,6 +102,8 @@ public class MessageServices {
     return flag;
   }
 
-  public static List<String> getPushNotifications(String username) {return null;}
+  public static List<String> getPushNotifications(String username) throws SQLException {
+    return messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID());
+  }
 
 }
