@@ -7,6 +7,7 @@ import java.util.Map;
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
@@ -117,14 +118,16 @@ public class GroupServices {
 		return false;
 	}
 
-	public static void makeAdmin(String grpName, String newAdminName) throws SQLException {
-		// if(groupDAO.checkGroupExists(grpName) && userDAO.isUserExists(newAdminName)){
+	public static void makeAdmin(String grpName, String oldAdminName, String newAdminName) throws SQLException {
+		int adminID = userDAO.getUserByUsername(oldAdminName).getUserID();
+		if(groupDAO.validateGroupAdmin(grpName, adminID) && userDAO.isUserExists(newAdminName)){
 			String adminName = groupDAO.getGroupByGroupName(grpName).getAdmins();
 			newAdminName = adminName + " " + newAdminName;
 			groupDAO.updateAdmin(grpName, newAdminName);
-			//return true;
-		//}
-		//return false;
+		}
+		else {
+			throw new DatabaseConnectionException("Unable to make admin.");
+		}
 	}
 
 	public Map<String,List<String>> getListOfAllUsersForAllGroups(){

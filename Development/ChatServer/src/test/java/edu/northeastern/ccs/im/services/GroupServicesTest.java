@@ -15,6 +15,7 @@ import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 import org.junit.After;
@@ -179,5 +180,45 @@ public class GroupServicesTest {
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(false);
     when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(false);
     groupServices.changeGroupRestrictions("group1", "admin", "H");
+  }
+
+  @Test
+  public void makeAdminTest() throws SQLException {
+    when(mockUserDAO.getUserByUsername(any(String.class))).thenReturn(new User(123,"r","r","r","r","r"));
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(true);
+    when(mockUserDAO.isUserExists(any(String.class))).thenReturn(true);
+    when(mockGroupDAO.getGroupByGroupName(any(String.class))).thenReturn(new Groups("group1", "admin1"));
+    doNothing().when(mockGroupDAO).updateAdmin(any(String.class), any(String.class));
+    GroupServices.makeAdmin("group1", "oldAdmin", "newAdmin");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void makeAdminTestFT() throws SQLException {
+    when(mockUserDAO.getUserByUsername(any(String.class))).thenReturn(new User(123,"r","r","r","r","r"));
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(false);
+    when(mockUserDAO.isUserExists(any(String.class))).thenReturn(true);
+    when(mockGroupDAO.getGroupByGroupName(any(String.class))).thenReturn(new Groups("group1", "admin1"));
+    doNothing().when(mockGroupDAO).updateAdmin(any(String.class), any(String.class));
+    GroupServices.makeAdmin("group1", "oldAdmin", "newAdmin");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void makeAdminTestTF() throws SQLException {
+    when(mockUserDAO.getUserByUsername(any(String.class))).thenReturn(new User(123,"r","r","r","r","r"));
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(true);
+    when(mockUserDAO.isUserExists(any(String.class))).thenReturn(false);
+    when(mockGroupDAO.getGroupByGroupName(any(String.class))).thenReturn(new Groups("group1", "admin1"));
+    doNothing().when(mockGroupDAO).updateAdmin(any(String.class), any(String.class));
+    GroupServices.makeAdmin("group1", "oldAdmin", "newAdmin");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void makeAdminTestFF() throws SQLException {
+    when(mockUserDAO.getUserByUsername(any(String.class))).thenReturn(new User(123,"r","r","r","r","r"));
+    when(mockGroupDAO.validateGroupAdmin(any(String.class), any(Integer.class))).thenReturn(false);
+    when(mockUserDAO.isUserExists(any(String.class))).thenReturn(false);
+    when(mockGroupDAO.getGroupByGroupName(any(String.class))).thenReturn(new Groups("group1", "admin1"));
+    doNothing().when(mockGroupDAO).updateAdmin(any(String.class), any(String.class));
+    GroupServices.makeAdmin("group1", "oldAdmin", "newAdmin");
   }
 }
