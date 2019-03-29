@@ -201,9 +201,9 @@ public class GroupToUserDAO {
     PreparedStatement statement = null;
     ResultSet resultSet = null;
     try {
-      statement = connection.prepareStatement(selectQuery);
+      statement = connection.prepareStatement(selectQuery,Statement.RETURN_GENERATED_KEYS);
+      resultSet = statement.executeQuery();
       try {
-        resultSet = statement.executeQuery();
         String groupName = "";
         List<String> groupMembers = new ArrayList<>();
         while (resultSet.next()) {
