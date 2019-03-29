@@ -34,16 +34,16 @@ public class PasswordHash {
         byte[] saltBytes = salt.getBytes();
         SecretKeyFactory skf;
         PBEKeySpec spec;
-        SecretKey key = null;
+        SecretKey key;
 
         try{
             skf = SecretKeyFactory.getInstance( "PBKDF2WithHmacSHA512" );
             spec = new PBEKeySpec( passChars, saltBytes, iterations, keyLength );
             key = skf.generateSecret( spec );
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-
+            return Hex.encodeHexString(key.getEncoded());
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | NullPointerException e) {
+            ChatLogger.error(e.getMessage());
         }
-
-        return Hex.encodeHexString(key.getEncoded());
+        return "pass hash failed";
     }
 }
