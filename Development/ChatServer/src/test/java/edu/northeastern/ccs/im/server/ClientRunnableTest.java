@@ -74,6 +74,11 @@ public class ClientRunnableTest {
   public void testGetUserId() throws SQLException {
     List<Message> nameList = new ArrayList();
     mockStatic(UserServices.class);
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     when(UserServices.login("r", "a")).thenReturn(true);
     Message testMsg0 = Message.makeSimpleLoginMessage("r", "a");
 
@@ -134,6 +139,11 @@ public class ClientRunnableTest {
    */
   @Test
   public void testTerminateMessage() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     List<Message> nameList = new ArrayList();
     mockStatic(UserServices.class);
@@ -154,9 +164,9 @@ public class ClientRunnableTest {
     clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
     clientRunnable.run();
-    verify(connection, times(3)).sendMessage(messageCaptor.capture());
+    verify(connection, times(4)).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
-    assertEquals(3, capturedMsgs.size());
+    assertEquals(4, capturedMsgs.size());
     assertEquals(false, capturedMsgs.get(1).terminate());
     verify(connection).close();
   }
@@ -166,6 +176,11 @@ public class ClientRunnableTest {
    */
   @Test
   public void testDualHelloMessage() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     List<Message> nameList = new ArrayList();
     mockStatic(UserServices.class);
@@ -186,9 +201,9 @@ public class ClientRunnableTest {
     when(connection.iterator()).thenReturn(itr);
     clientRunnable.run();
     clientRunnable.run();
-    verify(connection, times(2)).sendMessage(messageCaptor.capture());
+    verify(connection, times(3)).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
-    assertEquals(2, capturedMsgs.size());
+    assertEquals(3, capturedMsgs.size());
     assertEquals(true, capturedMsgs.get(0).isInitialization());
 
   }
@@ -198,6 +213,11 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRun() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     Message testMessage1 = Message.makeBroadcastMessage("Rohan", "Random1");
     Message testMessage2 = Message.makeBroadcastMessage("Rohan", "Random2");
@@ -219,9 +239,9 @@ public class ClientRunnableTest {
     clientRunnable.run();
     clientRunnable.run();
     clientRunnable.run();
-    verify(connection, times(4)).sendMessage(messageCaptor.capture());
+    verify(connection, times(5)).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
-    assertEquals(4, capturedMsgs.size());
+    assertEquals(5, capturedMsgs.size());
     assertEquals("Rohan", capturedMsgs.get(0).getName());
     assertEquals("Random1", capturedMsgs.get(0).getText());
     assertEquals("Rohan", capturedMsgs.get(1).getName());
@@ -247,6 +267,11 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRunForDifferentNames() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     when(connection.sendMessage(any())).thenReturn(true);
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     //when(connection.sendMessage(testMsg)).thenReturn(true);
@@ -267,11 +292,10 @@ public class ClientRunnableTest {
     clientRunnable.run();
     clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
-
     clientRunnable.run();
-    verify(connection, times(2)).sendMessage(messageCaptor.capture());
+    verify(connection, times(3)).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
-    assertEquals(2, capturedMsgs.size());
+    assertEquals(3, capturedMsgs.size());
     assertEquals("Prattle", capturedMsgs.get(0).getName());
     clientRunnable.terminateClient();
     verify(connection).close();
@@ -282,6 +306,11 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRunForNullMessageName() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     List<Message> nameList = new ArrayList();
     mockStatic(UserServices.class);
@@ -297,9 +326,9 @@ public class ClientRunnableTest {
     clientRunnable.run();
     clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
-    verify(connection, times(2)).sendMessage(messageCaptor.capture());
+    verify(connection, times(3)).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
-    assertEquals(2, capturedMsgs.size());
+    assertEquals(3, capturedMsgs.size());
     assertEquals("Prattle", capturedMsgs.get(0).getName());
     //Mockito.verify(connection).close();
   }
@@ -309,6 +338,11 @@ public class ClientRunnableTest {
    */
   @Test
   public void testBasicRunMethod() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     when(connection.sendMessage(any())).thenReturn(true);
 
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -328,9 +362,9 @@ public class ClientRunnableTest {
     when(connection.iterator()).thenReturn(itr);
     clientRunnable.run();
     clientRunnable.run();
-    verify(connection, times(3)).sendMessage(messageCaptor.capture());
+    verify(connection, times(4)).sendMessage(messageCaptor.capture());
     List<Message> capturedMsgs = messageCaptor.getAllValues();
-    assertEquals(3, capturedMsgs.size());
+    assertEquals(4, capturedMsgs.size());
     assertEquals("Rohan", capturedMsgs.get(0).getName());
   }
 
@@ -339,6 +373,11 @@ public class ClientRunnableTest {
    */
   @Test
   public void testTerminate() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     mockStatic(UserServices.class);
     when(UserServices.login("r", "a")).thenReturn(true);
 
@@ -808,6 +847,11 @@ public class ClientRunnableTest {
 
   @Test
   public void testFailedLoginStaticMock() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
     Message testMessage1 = Message.makeSimpleLoginMessage("y", "z");
 

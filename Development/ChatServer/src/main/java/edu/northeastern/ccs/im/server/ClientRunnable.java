@@ -111,6 +111,8 @@ public class ClientRunnable implements Runnable {
             // Set that the client is initialized.
             initialized = true;
             enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
+            String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
+            enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
           } else {
             sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
             initialized = false;
@@ -123,6 +125,14 @@ public class ClientRunnable implements Runnable {
         ChatLogger.error("Error in connecting to database");
       }
     }
+  }
+
+  private String getMessagesInFormat(List<String> pushNotifications) {
+    StringBuilder msgs = new StringBuilder();
+    for (String msg : pushNotifications) {
+      msgs.append(new StringBuilder(msg + "\n"));
+    }
+    return msgs.toString().trim();
   }
 
   private void processRegisteration(List<String> regInfo, Message msg) throws SQLException {
@@ -320,7 +330,7 @@ public class ClientRunnable implements Runnable {
           GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
           List<String> usrList = new ArrayList<>();
           usrList.add(msg.getName());
-          Prattle.groupToUserMapping.put(getReceiverName(msg.getText()),usrList);
+          Prattle.groupToUserMapping.put(getReceiverName(msg.getText()), usrList);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
         } else if (msg.isDeleteGroup()) {
           GroupServices.deleteGroup(getReceiverName(msg.getText()), msg.getName()); //to do
@@ -378,12 +388,19 @@ public class ClientRunnable implements Runnable {
           GroupServices.changeGroupRestrictions(split[1], msg.getName(), split[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Group restriction set successfully");
         } else if (msg.isLeaveGroup()) {
-          //todo message text processing and call for change group restriction service
-
+          GroupServices.leaveGroup(msg.getName(), getReceiverName(msg.getText()));
+          Prattle.groupToUserMapping.get(getReceiverName(msg.getText())).remove(msg.getName());
         } else if (msg.isMakeAdmin()) {
           String[] split = msg.getText().split(" ");
           GroupServices.makeAdmin(split[1], msg.getName(), split[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Admin added successfully");
+        } else if (msg.isRecall()) {
+          if (!Prattle.isUserOnline(getReceiverName(msg.getText())) && MessageServices.recallMessage(msg.getName(), getReceiverName(msg.getText()))) {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Successful");
+          }else{
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Failed");
+          }
+
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
@@ -484,6 +501,12 @@ public class ClientRunnable implements Runnable {
    * request or due to system need.
    */
   public void terminateClient() {
+
+    try {
+      UserServices.updateLastSeen(this.getName(), System.currentTimeMillis());
+    } catch (SQLException e) {
+      ChatLogger.error("Could Not Update LastSeen on DB");
+    }
     // Once the communication is done, close this connection.
     connection.close();
     // Remove the client from our client listing.
