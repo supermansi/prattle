@@ -84,25 +84,27 @@ public class GroupServicesTest {
 
   @Test
   public void testAddUserToGroupTrue() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("L");
     groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testAddUserToGroupExists() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("L");
     when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class), anyInt())).thenReturn(false);
     groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test
   public void testAddUserToGroupRestricted() throws SQLException {
-    group.setRestricted(Groups.Restricted.valueOf("H"));
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(true);
     groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testAddUserNotAdmin() throws SQLException {
-    group.setRestricted(Groups.Restricted.valueOf("H"));
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(false);
     groupServices.addUserToGroup("g1", "a", "u");
   }

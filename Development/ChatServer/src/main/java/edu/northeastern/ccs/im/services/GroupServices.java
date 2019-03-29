@@ -57,7 +57,7 @@ public class GroupServices {
       Groups group = groupDAO.getGroupByGroupName(groupName);
       User user = userDAO.getUserByUsername(userName);
       User admin = userDAO.getUserByUsername(adminName);
-      if(group.getRestricted().name().equals("L")) {
+      if(groupDAO.getGroupRestriction(groupName).equals("L")) {
         if(groupUserDAO.checkIfUserInGroup(admin.getUserID(), group.getGrpID())){
           groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
         }
