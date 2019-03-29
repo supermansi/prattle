@@ -101,7 +101,9 @@ public enum MessageType {
 
   LEAVE_GROUP("LGR"),
 
-  MAKE_ADMIN("MAD");
+  MAKE_ADMIN("MAD"),
+
+  RECALL("RCL");
 
   /**
    * Store the short name of this message type.

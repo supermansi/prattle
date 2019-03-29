@@ -145,7 +145,11 @@ public abstract class Prattle {
   }
 
   private static void initialiseCache() {
-    groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
+    try {
+      groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
+    } catch (SQLException e) {
+      ChatLogger.error("Failed to retrieve data from database");
+    }
   }
 
   /**
@@ -214,5 +218,16 @@ public abstract class Prattle {
     } else {
       return false;
     }
+  }
+
+  public static boolean isUserOnline(String receiverName) {
+    boolean flag = false;
+    for(ClientRunnable cr : active){
+      if(cr.getName().equals(receiverName)){
+        flag = true;
+        break;
+      }
+    }
+    return flag;
   }
 }

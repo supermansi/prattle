@@ -96,7 +96,7 @@ public class Message {
     if (handle.compareTo(MessageType.QUIT.toString()) == 0) {
       result = makeQuitMessage(srcName);
     } else if (handle.compareTo(MessageType.HELLO.toString()) == 0) {
-      result = makeSimpleLoginMessage(srcName,text);
+      result = makeSimpleLoginMessage(srcName, text);
     } else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
       result = makeBroadcastMessage(srcName, text);
     } else if (handle.compareTo(MessageType.ACKNOWLEDGEMENT.toString()) == 0) {
@@ -107,44 +107,50 @@ public class Message {
       result = makePrivateMessage(srcName, text);
     } else if (handle.compareTo(MessageType.GROUP.toString()) == 0) {
       result = makeGroupMessage(srcName, text);
-    }else if (handle.compareTo(MessageType.REGISTRATION.toString()) == 0) {
+    } else if (handle.compareTo(MessageType.REGISTRATION.toString()) == 0) {
       result = makeRegisterationMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_FN.toString()) == 0){
-        result = makeUpdateFirstNameMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_LN.toString()) == 0){
-        result = makeUpdateLastNameMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_PW.toString()) == 0){
-        result = makeUpdatePasswordMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_EM.toString()) == 0){
-        result = makeUpdateEmailMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.CREATE_GROUP.toString()) == 0){
-        result = createGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.DELETE_GROUP.toString()) == 0){
-        result = deleteGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.REMOVE_USER.toString()) == 0){
-        result = makeRemoveUserMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.RETRIEVE_USER.toString()) == 0){
-        result = makeRetrieveUserMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.RETRIEVE_GROUP.toString()) == 0){
-        result = makeRetrieveGroupMessage(srcName, text);
-    }else if (handle.compareTo(MessageType.ADD_USER_TO_GRP.toString()) == 0){
+    } else if (handle.compareTo(MessageType.UPDATE_FN.toString()) == 0) {
+      result = makeUpdateFirstNameMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.UPDATE_LN.toString()) == 0) {
+      result = makeUpdateLastNameMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.UPDATE_PW.toString()) == 0) {
+      result = makeUpdatePasswordMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.UPDATE_EM.toString()) == 0) {
+      result = makeUpdateEmailMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.CREATE_GROUP.toString()) == 0) {
+      result = createGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.DELETE_GROUP.toString()) == 0) {
+      result = deleteGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.REMOVE_USER.toString()) == 0) {
+      result = makeRemoveUserMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.RETRIEVE_USER.toString()) == 0) {
+      result = makeRetrieveUserMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.RETRIEVE_GROUP.toString()) == 0) {
+      result = makeRetrieveGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.ADD_USER_TO_GRP.toString()) == 0) {
       result = makeAddUserToGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.DEACTIVATE_USER.toString()) == 0){
-        result = makeDeactivateUserMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.DEACTIVATE_USER.toString()) == 0) {
+      result = makeDeactivateUserMessage(srcName, text);
     } else if (handle.compareTo(MessageType.USER_EXISTS.toString()) == 0) {
-        result = makeUserExistsMessage(srcName,text);
-    }else if (handle.compareTo(MessageType.ATTACHMENT.toString()) == 0) {
+      result = makeUserExistsMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.ATTACHMENT.toString()) == 0) {
       result = makeAttachmentMessage(srcName, text);
     } else if (handle.compareTo(MessageType.LAST_SEEN.toString()) == 0) {
-        result = makeLastSeenMessage(srcName, text);
+      result = makeLastSeenMessage(srcName, text);
     } else if (handle.compareTo(MessageType.LEAVE_GROUP.toString()) == 0) {
-        result = makeLeaveGroupMessage(srcName, text);
+      result = makeLeaveGroupMessage(srcName, text);
     } else if (handle.compareTo(MessageType.SET_GROUP_RESTRICTION.toString()) == 0) {
-        result = makeSetGroupRestrictionMessage(srcName,text);
+      result = makeSetGroupRestrictionMessage(srcName, text);
     } else if (handle.compareTo(MessageType.MAKE_ADMIN.toString()) == 0) {
-        result = makeMakeAdminMessage(srcName,text);
+      result = makeMakeAdminMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.RECALL.toString()) == 0) {
+      result = makeRecallMessage(srcName, text);
     }
     return result;
+  }
+
+  private static Message makeRecallMessage(String srcName, String text) {
+    return new Message(MessageType.RECALL, srcName, text);
   }
 
   private static Message makeAttachmentMessage(String srcName, String text) {
@@ -155,7 +161,7 @@ public class Message {
    * Method to create a registration message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a registration message
    */
   public static Message makeRegisterationMessage(String srcName, String text) {
@@ -166,7 +172,7 @@ public class Message {
    * Method to create a group message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a group message
    */
   public static Message makeGroupMessage(String srcName, String text) {
@@ -177,7 +183,7 @@ public class Message {
    * Method to create a private message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a private message
    */
   public static Message makePrivateMessage(String srcName, String text) {
@@ -188,7 +194,7 @@ public class Message {
    * Method to create a no acknowledge message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a no acknowledge message
    */
   public static Message makeNackMessage(String srcName, String text) {
@@ -199,7 +205,7 @@ public class Message {
    * Method to create an acknowledge message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return an acknowledge message
    */
   public static Message makeAckMessage(String srcName, String text) {
@@ -210,10 +216,10 @@ public class Message {
    * Method to create an update first name message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return an update first name message
    */
-  public static Message makeUpdateFirstNameMessage(String srcName, String text){
+  public static Message makeUpdateFirstNameMessage(String srcName, String text) {
     return new Message(MessageType.UPDATE_FN, srcName, text);
   }
 
@@ -221,10 +227,10 @@ public class Message {
    * Method to create an update last name message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return an update last name message
    */
-  public static Message makeUpdateLastNameMessage(String srcName, String text){
+  public static Message makeUpdateLastNameMessage(String srcName, String text) {
     return new Message(MessageType.UPDATE_LN, srcName, text);
   }
 
@@ -232,10 +238,10 @@ public class Message {
    * Method to create an update password message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return an update password message
    */
-  public static Message makeUpdatePasswordMessage(String srcName, String text){
+  public static Message makeUpdatePasswordMessage(String srcName, String text) {
     return new Message(MessageType.UPDATE_PW, srcName, text);
   }
 
@@ -243,10 +249,10 @@ public class Message {
    * Method to create an update email message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return an update email message
    */
-  public static Message makeUpdateEmailMessage(String srcName, String text){
+  public static Message makeUpdateEmailMessage(String srcName, String text) {
     return new Message(MessageType.UPDATE_EM, srcName, text);
   }
 
@@ -254,32 +260,32 @@ public class Message {
    * Method to create a create group message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a create group message
    */
-  public static Message createGroupMessage(String srcName, String text){
-    return new Message(MessageType.CREATE_GROUP, srcName,text);
+  public static Message createGroupMessage(String srcName, String text) {
+    return new Message(MessageType.CREATE_GROUP, srcName, text);
   }
 
   /**
    * Method to create a delete group message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a delete group message
    */
-  public static Message deleteGroupMessage(String srcName, String text){
-    return new Message(MessageType.DELETE_GROUP, srcName,text);
+  public static Message deleteGroupMessage(String srcName, String text) {
+    return new Message(MessageType.DELETE_GROUP, srcName, text);
   }
 
   /**
    * Method to create a remove user message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a remove user message
    */
-  public static Message makeRemoveUserMessage(String srcName, String text){
+  public static Message makeRemoveUserMessage(String srcName, String text) {
     return new Message(MessageType.REMOVE_USER, srcName, text);
   }
 
@@ -287,10 +293,10 @@ public class Message {
    * Method to create a retrieve user message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a retrieve user message
    */
-  public static Message makeRetrieveUserMessage(String srcName, String text){
+  public static Message makeRetrieveUserMessage(String srcName, String text) {
     return new Message(MessageType.RETRIEVE_USER, srcName, text);
   }
 
@@ -298,10 +304,10 @@ public class Message {
    * Method to create a retrieve group message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return a retrieve group message
    */
-  public static Message makeRetrieveGroupMessage(String srcName, String text){
+  public static Message makeRetrieveGroupMessage(String srcName, String text) {
     return new Message(MessageType.RETRIEVE_GROUP, srcName, text);
   }
 
@@ -309,10 +315,10 @@ public class Message {
    * Method to create an add user to group message.
    *
    * @param srcName sender's user name
-   * @param text text of the message
+   * @param text    text of the message
    * @return an add user to group message
    */
-  public static Message makeAddUserToGroupMessage(String srcName, String text){
+  public static Message makeAddUserToGroupMessage(String srcName, String text) {
     return new Message(MessageType.ADD_USER_TO_GRP, srcName, text);
   }
 
@@ -322,25 +328,25 @@ public class Message {
    * @param myName Name of the user who has just logged in.
    * @return Instance of Message specifying a new friend has just logged in.
    */
-  public static Message makeSimpleLoginMessage(String myName,String text) {
-    return new Message(MessageType.HELLO, myName,text);
+  public static Message makeSimpleLoginMessage(String myName, String text) {
+    return new Message(MessageType.HELLO, myName, text);
   }
 
-    public static Message makeDeactivateUserMessage(String srcName, String text){
-        return new Message(MessageType.DEACTIVATE_USER, srcName, text);
-    }
+  public static Message makeDeactivateUserMessage(String srcName, String text) {
+    return new Message(MessageType.DEACTIVATE_USER, srcName, text);
+  }
 
-    public static Message makeUserExistsMessage(String srcName, String text) {
-        return new Message(MessageType.USER_EXISTS, srcName,text);
-    }
+  public static Message makeUserExistsMessage(String srcName, String text) {
+    return new Message(MessageType.USER_EXISTS, srcName, text);
+  }
 
-    public static Message makeLastSeenMessage(String srcName, String text) {
-      return new Message(MessageType.LAST_SEEN, srcName, text);
-    }
+  public static Message makeLastSeenMessage(String srcName, String text) {
+    return new Message(MessageType.LAST_SEEN, srcName, text);
+  }
 
-    public static Message makeLeaveGroupMessage(String srcName, String text) {
-      return new Message(MessageType.LEAVE_GROUP, srcName, text);
-    }
+  public static Message makeLeaveGroupMessage(String srcName, String text) {
+    return new Message(MessageType.LEAVE_GROUP, srcName, text);
+  }
 
   public static Message makeSetGroupRestrictionMessage(String srcName, String text) {
     return new Message(MessageType.SET_GROUP_RESTRICTION, srcName, text);
@@ -401,28 +407,36 @@ public class Message {
    *
    * @return True if the message is a private message; false otherwise
    */
-  public boolean isPrivateMessage() { return (msgType == MessageType.PRIVATE); }
+  public boolean isPrivateMessage() {
+    return (msgType == MessageType.PRIVATE);
+  }
 
   /**
    * Determine if this message is an acknowledge message.
    *
    * @return True if the message is an acknowledge message; false otherwise
    */
-  public boolean isAcknowledge() { return (msgType == MessageType.ACKNOWLEDGEMENT);}
+  public boolean isAcknowledge() {
+    return (msgType == MessageType.ACKNOWLEDGEMENT);
+  }
 
   /**
    * Determine if this message is a non acknowledge message.
    *
    * @return True if the message is a non acknowledge message; false otherwise
    */
-  public boolean isNonAcknowledge() { return (msgType == MessageType.NO_ACKNOWLEDGEMENT);}
+  public boolean isNonAcknowledge() {
+    return (msgType == MessageType.NO_ACKNOWLEDGEMENT);
+  }
 
   /**
    * Determine if this message is a group message.
    *
    * @return True if the message is a group; false otherwise
    */
-  public boolean isGroupMessage() { return (msgType == MessageType.GROUP); }
+  public boolean isGroupMessage() {
+    return (msgType == MessageType.GROUP);
+  }
 
   /**
    * Determine if this message is a registration message.
@@ -430,95 +444,133 @@ public class Message {
    * @return True if the message is a registration message; false otherwise
    */
   public boolean isRegistration() {
-        return (msgType == MessageType.REGISTRATION);
-    }
+    return (msgType == MessageType.REGISTRATION);
+  }
 
   /**
    * Determine if this message is an update first name message.
    *
    * @return True if the message is an update first name message; false otherwise
    */
-  public boolean isUpdateFirstName() {return (msgType == MessageType.UPDATE_FN); }
+  public boolean isUpdateFirstName() {
+    return (msgType == MessageType.UPDATE_FN);
+  }
 
   /**
    * Determine if this message is an update last name message.
    *
    * @return True if the message is an update last name message; false otherwise
    */
-  public boolean isUpdateLastName() {return (msgType == MessageType.UPDATE_LN); }
+  public boolean isUpdateLastName() {
+    return (msgType == MessageType.UPDATE_LN);
+  }
 
   /**
    * Determine if this message is an update password message.
    *
    * @return True if the message is an update password message; false otherwise
    */
-  public boolean isUpdatePassword() {return (msgType == MessageType.UPDATE_PW); }
+  public boolean isUpdatePassword() {
+    return (msgType == MessageType.UPDATE_PW);
+  }
 
   /**
    * Determine if this message is an update email message.
    *
    * @return True if the message is an update email message; false otherwise
    */
-  public boolean isUpdateEmail() {return (msgType == MessageType.UPDATE_EM); }
+  public boolean isUpdateEmail() {
+    return (msgType == MessageType.UPDATE_EM);
+  }
 
   /**
    * Determine if this message is a create group message.
    *
    * @return True if the message is a create group message; false otherwise
    */
-  public boolean isCreateGroup() {return (msgType == MessageType.CREATE_GROUP); }
+  public boolean isCreateGroup() {
+    return (msgType == MessageType.CREATE_GROUP);
+  }
 
   /**
    * Determine if this message is a delete group message.
    *
    * @return True if the message is a delete group message; false otherwise
    */
-  public boolean isDeleteGroup() {return (msgType == MessageType.DELETE_GROUP); }
+  public boolean isDeleteGroup() {
+    return (msgType == MessageType.DELETE_GROUP);
+  }
 
   /**
    * Determine if this message is a remove user message.
    *
    * @return True if the message is a remove user message; false otherwise
    */
-  public boolean isRemoveUser() {return (msgType == MessageType.REMOVE_USER); }
+  public boolean isRemoveUser() {
+    return (msgType == MessageType.REMOVE_USER);
+  }
 
   /**
    * Determine if this message is a retrieve user message.
    *
    * @return True if the message is a retrieve user message; false otherwise
    */
-  public boolean isRetrieveUser() {return (msgType == MessageType.RETRIEVE_USER); }
+  public boolean isRetrieveUser() {
+    return (msgType == MessageType.RETRIEVE_USER);
+  }
 
   /**
    * Determine if this message is a retrieve group message.
    *
    * @return True if the message is a retrieve group message; false otherwise
    */
-  public boolean isRetrieveGroup() {return (msgType == MessageType.RETRIEVE_GROUP); }
+  public boolean isRetrieveGroup() {
+    return (msgType == MessageType.RETRIEVE_GROUP);
+  }
 
   /**
    * Determine if this message is an add user to group message.
    *
    * @return True if the message is an add user to group message; false otherwise
    */
-  public boolean isAddUserToGroup() {return (msgType == MessageType.ADD_USER_TO_GRP); }
+  public boolean isAddUserToGroup() {
+    return (msgType == MessageType.ADD_USER_TO_GRP);
+  }
 
-  public boolean isDeactivateUser() {return (msgType == MessageType.DEACTIVATE_USER);}
+  public boolean isDeactivateUser() {
+    return (msgType == MessageType.DEACTIVATE_USER);
+  }
 
-  public boolean isUserExists() { return (msgType == MessageType.USER_EXISTS);}
+  public boolean isUserExists() {
+    return (msgType == MessageType.USER_EXISTS);
+  }
 
-  public boolean isAttachmentMessage() {return (msgType == MessageType.ATTACHMENT);}
+  public boolean isAttachmentMessage() {
+    return (msgType == MessageType.ATTACHMENT);
+  }
 
-  public boolean isLastSeen() { return (msgType == MessageType.LAST_SEEN); }
+  public boolean isLastSeen() {
+    return (msgType == MessageType.LAST_SEEN);
+  }
 
-  public boolean isChangeGroupRestriction() { return (msgType == MessageType.SET_GROUP_RESTRICTION); }
+  public boolean isChangeGroupRestriction() {
+    return (msgType == MessageType.SET_GROUP_RESTRICTION);
+  }
 
-  public boolean isLeaveGroup() { return (msgType == MessageType.LEAVE_GROUP); }
+  public boolean isLeaveGroup() {
+    return (msgType == MessageType.LEAVE_GROUP);
+  }
 
-  public boolean isMakeAdmin() { return (msgType == MessageType.MAKE_ADMIN); }
+  public boolean isMakeAdmin() {
+    return (msgType == MessageType.MAKE_ADMIN);
+  }
+
+  public boolean isRecall() {
+    return (msgType == MessageType.RECALL);
+  }
 
 
-    /**
+  /**
    * Representation of this message as a String. This begins with the message handle and then
    * contains the length (as an integer) and the value of the next two arguments.
    *

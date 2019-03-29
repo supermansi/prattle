@@ -394,6 +394,13 @@ public class ClientRunnable implements Runnable {
           String[] split = msg.getText().split(" ");
           GroupServices.makeAdmin(split[1], msg.getName(), split[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Admin added successfully");
+        } else if (msg.isRecall()) {
+          if (!Prattle.isUserOnline(getReceiverName(msg.getText())) && MessageServices.recallMessage(msg.getName(), getReceiverName(msg.getText()))) {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Successful");
+          }else{
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Failed");
+          }
+
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
@@ -496,7 +503,7 @@ public class ClientRunnable implements Runnable {
   public void terminateClient() {
 
     try {
-      UserServices.updateLastSeen(name, System.currentTimeMillis());
+      UserServices.updateLastSeen(this.getName(), System.currentTimeMillis());
     } catch (SQLException e) {
       ChatLogger.error("Could Not Update LastSeen on DB");
     }
