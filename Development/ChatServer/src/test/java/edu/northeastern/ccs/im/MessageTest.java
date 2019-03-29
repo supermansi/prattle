@@ -181,6 +181,26 @@ public class MessageTest {
     }
 
 
+    @Test
+    public void testMakeAdmin() {
+        Message mam = Message.makeMessage("MAD", "A", "/makeAdmin MSD R");
+        assertEquals(true, mam.isMakeAdmin());
+        assertEquals(false, mam.isLastSeen());
+    }
+
+    @Test
+    public void testLeaveGroup() {
+        Message lgm = Message.makeMessage("LGR", "A", "/leaveGroup MSD");
+        assertEquals(true, lgm.isLeaveGroup());
+        assertEquals(false, lgm.isLastSeen());
+    }
+
+    @Test
+    public void testChangeGroupRestriction() {
+        Message cgrm = Message.makeMessage("SGR", "M", "/setGroupRestriction MSD H");
+        assertEquals(true, cgrm.isChangeGroupRestriction());
+        assertEquals(false, cgrm.isCreateGroup());
+    }
 
     /**
      * Test to instantiate a login message.

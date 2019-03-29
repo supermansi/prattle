@@ -361,6 +361,19 @@ public class ClientRunnable implements Runnable {
           sendMessageToClient(ServerConstants.SERVER_NAME, receiver + " last viewed messages at "
                   + sdf.format(resultDate));
 
+        } else if(msg.isChangeGroupRestriction()) {
+          //todo logic for change group restriction
+
+          String[] split = msg.getText().split(" ");
+
+          GroupServices.changeGroupRestrictions(split[1], msg.getName(), split[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Group restriction set successfully");
+        } else if (msg.isLeaveGroup()) {
+          //todo message text processing and call for change group restriction service
+
+        } else if (msg.isMakeAdmin()) {
+          String[] split = msg.getText().split(" ");
+          GroupServices.makeAdmin(split[1],msg.getName(), split[2]);
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());

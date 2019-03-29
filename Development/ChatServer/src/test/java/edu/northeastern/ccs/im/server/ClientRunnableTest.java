@@ -29,14 +29,11 @@ import edu.northeastern.ccs.im.services.UserServices;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotSame;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.doNothing;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
@@ -524,7 +521,67 @@ public class ClientRunnableTest {
     ClientRunnable clientRunnable = new ClientRunnable(connection);
     clientRunnable.setName("r");
     met.setAccessible(true);
-    Message msg = Message.makeLastSeenMessage("r", "/getLastSeen J");
+    Message msg = Message.makeLastSeenMessage("r", "/lastSeen J");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testProcessMakeAdmin() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    mockStatic(GroupServices.class);
+
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    ClientRunnable clientRunnable = new ClientRunnable(connection);
+    clientRunnable.setName("r");
+    met.setAccessible(true);
+    Message msg = Message.makeMakeAdminMessage("r", "/makeAdmin MSD J");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testProcessSetGroupRestriction() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    mockStatic(GroupServices.class);
+
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    ClientRunnable clientRunnable = new ClientRunnable(connection);
+    clientRunnable.setName("r");
+    met.setAccessible(true);
+    Message msg = Message.makeSetGroupRestrictionMessage("r", "/setGroupRestriction MSD H");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testProcessLeaveGroup() throws InvocationTargetException, IllegalAccessException, SQLException {
+
+    mockStatic(GroupServices.class);
+
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    ClientRunnable clientRunnable = new ClientRunnable(connection);
+    clientRunnable.setName("r");
+    met.setAccessible(true);
+    Message msg = Message.makeLeaveGroupMessage("r", "/leaveGroup MSD");
     met.invoke(clientRunnable, msg);
   }
 

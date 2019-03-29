@@ -135,6 +135,12 @@ public class Message {
         result = makeUserExistsMessage(srcName,text);
     } else if (handle.compareTo(MessageType.LAST_SEEN.toString()) == 0) {
         result = makeLastSeenMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.LEAVE_GROUP.toString()) == 0) {
+        result = makeLeaveGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.SET_GROUP_RESTRICTION.toString()) == 0) {
+        result = makeSetGroupRestrictionMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.MAKE_ADMIN.toString()) == 0) {
+        result = makeMakeAdminMessage(srcName,text);
     }
     return result;
   }
@@ -326,6 +332,19 @@ public class Message {
       return new Message(MessageType.LAST_SEEN, srcName, text);
     }
 
+    public static Message makeLeaveGroupMessage(String srcName, String text) {
+      return new Message(MessageType.LEAVE_GROUP, srcName, text);
+    }
+
+  public static Message makeSetGroupRestrictionMessage(String srcName, String text) {
+    return new Message(MessageType.SET_GROUP_RESTRICTION, srcName, text);
+  }
+
+  public static Message makeMakeAdminMessage(String srcName, String text) {
+    return new Message(MessageType.MAKE_ADMIN, srcName, text);
+  }
+
+
   /**
    * Return the name of the sender of this message.
    *
@@ -483,6 +502,12 @@ public class Message {
   public boolean isUserExists() { return (msgType == MessageType.USER_EXISTS);}
 
   public boolean isLastSeen() { return (msgType == MessageType.LAST_SEEN); }
+
+  public boolean isChangeGroupRestriction() { return (msgType == MessageType.SET_GROUP_RESTRICTION); }
+
+  public boolean isLeaveGroup() { return (msgType == MessageType.LEAVE_GROUP); }
+
+  public boolean isMakeAdmin() { return (msgType == MessageType.MAKE_ADMIN); }
 
 
     /**

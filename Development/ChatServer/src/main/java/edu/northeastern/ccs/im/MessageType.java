@@ -93,7 +93,13 @@ public enum MessageType {
 
   USER_EXISTS("UEX"),
 
-  LAST_SEEN("LSN");
+  LAST_SEEN("LSN"),
+
+  SET_GROUP_RESTRICTION("SGR"),
+
+  LEAVE_GROUP("LGR"),
+
+  MAKE_ADMIN("MAD");
 
   /**
    * Store the short name of this message type.
