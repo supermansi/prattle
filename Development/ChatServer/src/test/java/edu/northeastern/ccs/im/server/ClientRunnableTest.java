@@ -749,8 +749,6 @@ public class ClientRunnableTest {
     list.add("r");
     list.add("j");
     ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
-    List<String> l = new ArrayList<>();
-    l.add("r");
     hm.put("MSD",list);
 
     Whitebox.setInternalState(Prattle.class,"groupToUserMapping",hm);
@@ -777,6 +775,32 @@ public class ClientRunnableTest {
     met.invoke(clientRunnable, msg5);
   }
 
+  @Test
+  public void testProcessGetUsersInGroupMessage() throws Exception {
+    clientRunnable.setName("test");
+    mockStatic(MessageServices.class);
+    mockStatic(GroupServices.class);
+    mockStatic(Prattle.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String, List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD", list);
+
+    Whitebox.setInternalState(Prattle.class, "groupToUserMapping", hm);
+    when(Prattle.sendGroupMessage(any(), any())).thenReturn(true);
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+    Message msg = Message.makeGetUsersInGroupMessage("R", "/getUsersInGroup MSD");
+    met.setAccessible(true);
+    met.invoke(clientRunnable, msg);
+  }
 
 
   @Test

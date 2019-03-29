@@ -202,6 +202,34 @@ public class MessageTest {
         assertEquals(false, cgrm.isCreateGroup());
     }
 
+    @Test
+    public void testRecallMessage() {
+        Message rm = Message.makeRecallMessage("J", "/recall");
+        assertEquals(true, rm.isRecall());
+        assertEquals(false, rm.isCreateGroup());
+    }
+
+    @Test
+    public void testReadAttachmentMessage() {
+        Message ram = Message.makeReadAttachmentMessage("R", "filepath.txt");
+        assertEquals(true, ram.isReadAttachmentMessage());
+        assertEquals(false, ram.isLastSeen());
+    }
+
+    @Test
+    public void testGetUsersInGroupMessage() {
+        Message gum = Message.makeGetUsersInGroupMessage("A", "/getUsersInGroup MSD");
+        assertEquals(true, gum.isGetUsersInGroup());
+        assertEquals(false, gum.isCreateGroup());
+    }
+
+    @Test
+    public void testAttachmentMessage() {
+        Message am = Message.makeAttachmentMessage("R", "filepath.txt");
+        assertEquals(true, am.isAttachmentMessage());
+        assertEquals(false, am. isCreateGroup());
+    }
+
     /**
      * Test to instantiate a login message.
      */

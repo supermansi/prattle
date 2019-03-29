@@ -402,6 +402,13 @@ public class ClientRunnable implements Runnable {
             sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Failed");
           }
 
+        } else if (msg.isGetUsersInGroup()) {
+          List<String> users = Prattle.groupToUserMapping.getOrDefault(getReceiverName(msg.getText()),new ArrayList<>());
+          StringBuilder sb = new StringBuilder();
+          for (String s : users) {
+            sb.append(s + " ");
+          }
+          sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());

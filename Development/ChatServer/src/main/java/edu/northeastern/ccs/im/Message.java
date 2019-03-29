@@ -145,8 +145,10 @@ public class Message {
       result = makeMakeAdminMessage(srcName, text);
     } else if (handle.compareTo(MessageType.RECALL.toString()) == 0) {
       result = makeRecallMessage(srcName, text);
-    }else if (handle.compareTo(MessageType.READ_ATTACHMENT_MESSAGE.toString()) == 0) {
+    } else if (handle.compareTo(MessageType.READ_ATTACHMENT_MESSAGE.toString()) == 0) {
       result = makeReadAttachmentMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_GROUP_USERS.toString()) == 0) {
+      result = makeGetUsersInGroupMessage(srcName, text);
     }
     return result;
   }
@@ -360,6 +362,10 @@ public class Message {
 
   public static Message makeMakeAdminMessage(String srcName, String text) {
     return new Message(MessageType.MAKE_ADMIN, srcName, text);
+  }
+
+  public static Message makeGetUsersInGroupMessage(String srcName, String text) {
+    return new Message(MessageType.GET_GROUP_USERS,srcName,text);
   }
 
 
@@ -578,6 +584,8 @@ public class Message {
   public boolean isReadAttachmentMessage() {
     return (msgType == MessageType.READ_ATTACHMENT_MESSAGE);
   }
+
+  public boolean isGetUsersInGroup() { return (msgType == MessageType.GET_GROUP_USERS); }
 
   /**
    * Representation of this message as a String. This begins with the message handle and then
