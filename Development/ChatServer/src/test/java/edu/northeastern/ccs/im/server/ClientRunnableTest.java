@@ -9,6 +9,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -16,6 +18,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ScheduledFuture;
 
 import edu.northeastern.ccs.im.Message;
@@ -668,12 +672,16 @@ public class ClientRunnableTest {
     mockStatic(MessageServices.class);
     mockStatic(GroupServices.class);
     mockStatic(Prattle.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    List<String> l = new ArrayList<>();
+    l.add("r");
+    hm.put("MSD",list);
+
+    Whitebox.setInternalState(Prattle.class,"groupToUserMapping",hm);
     when(Prattle.sendGroupMessage(any(),any())).thenReturn(true);
-//    when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);
-//    when(GroupServices.deleteGroup(anyString(),anyString())).thenReturn(true);
-//    PowerMockito.doNothing().when(GroupServices.class,"createGroup",any(),any());
-//    PowerMockito.doNothing().when(GroupServices.class,"removeUserFromGroup",any(),any(),any());
-//    PowerMockito.doNothing().when(GroupServices.class,"addUserToGroup",any(),any(),any());
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;

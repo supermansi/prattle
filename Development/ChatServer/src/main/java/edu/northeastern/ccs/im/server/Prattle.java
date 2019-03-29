@@ -48,7 +48,7 @@ public abstract class Prattle {
    */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
-  private static ConcurrentMap<String, List<String>> groupToUserMapping;
+  protected static ConcurrentMap<String, List<String>> groupToUserMapping;
 
 
   /** All of the static initialization occurs in this "method" */

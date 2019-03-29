@@ -311,16 +311,20 @@ public class ClientRunnable implements Runnable {
           MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
         } else if (msg.isGroupMessage()) {
           String receiverId = getReceiverName(msg.getText());
-          if(Prattle.sendGroupMessage(msg, receiverId)){
+          if (Prattle.sendGroupMessage(msg, receiverId)) {
             MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
           }
           sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
                   "do not have permission to send message to the group");
         } else if (msg.isCreateGroup()) {
           GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
+          List<String> usrList = new ArrayList<>();
+          usrList.add(msg.getName());
+          Prattle.groupToUserMapping.put(getReceiverName(msg.getText()),usrList);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
         } else if (msg.isDeleteGroup()) {
           GroupServices.deleteGroup(getReceiverName(msg.getText()), msg.getName()); //to do
+          Prattle.groupToUserMapping.remove(getReceiverName(msg.getText()));
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
         } else if (msg.isRetrieveGroup()) {
           retrieveGroupMessagesForGroup(msg);
@@ -339,26 +343,26 @@ public class ClientRunnable implements Runnable {
           UserServices.updatePassword(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
         } else if (msg.isRemoveUser()) {
-
           GroupServices.removeUserFromGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
+          Prattle.groupToUserMapping.get(getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
-
         } else if (msg.isAddUserToGroup()) {
           GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
+          Prattle.groupToUserMapping.get(getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
-        } else if(msg.isDeactivateUser()) {
+        } else if (msg.isDeactivateUser()) {
           sendMessageToClient(ServerConstants.SERVER_NAME, "Account successfully deleted.");
           UserServices.deleteUser(msg.getName());
           terminate = true;
         } else if (msg.isUserExists()) {
-          if(UserServices.userExists(getReceiverName(msg.getText()))) {
+          if (UserServices.userExists(getReceiverName(msg.getText()))) {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user exists");
           } else {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
           }
-        } else if(msg.isAttachmentMessage()){
-          Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
-        } else if(msg.isLastSeen()) {
+        } else if (msg.isAttachmentMessage()) {
+          Prattle.sendPrivateMessage(msg, getReceiverName(msg.getText()));
+        } else if (msg.isLastSeen()) {
           String receiver = getReceiverName(msg.getText());
           Long lastSeen = UserServices.getLastSeen(receiver);
           Date resultDate = new Date(lastSeen);
@@ -366,7 +370,7 @@ public class ClientRunnable implements Runnable {
           sendMessageToClient(ServerConstants.SERVER_NAME, receiver + " last viewed messages at "
                   + sdf.format(resultDate));
 
-        } else if(msg.isChangeGroupRestriction()) {
+        } else if (msg.isChangeGroupRestriction()) {
           //todo logic for change group restriction
 
           String[] split = msg.getText().split(" ");
@@ -378,7 +382,7 @@ public class ClientRunnable implements Runnable {
 
         } else if (msg.isMakeAdmin()) {
           String[] split = msg.getText().split(" ");
-          GroupServices.makeAdmin(split[1],msg.getName(), split[2]);
+          GroupServices.makeAdmin(split[1], msg.getName(), split[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Admin added successfully");
         }
       } catch (DatabaseConnectionException e) {
