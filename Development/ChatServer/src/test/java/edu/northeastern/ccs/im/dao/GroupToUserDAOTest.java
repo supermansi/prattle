@@ -15,7 +15,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
@@ -305,4 +308,67 @@ public class GroupToUserDAOTest {
     List<String> groups = groupToUserDAO.getAllUsersInGroup("Group");
     assertEquals(2, groups.size());
   }
+
+  @Test
+  public void testGetGroupMemberCount() throws SQLException {
+    when(mockResultSet.getInt(1)).thenReturn(3);
+    when(mockResultSet.next()).thenReturn(true);
+    assertEquals(3,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetGroupMemberCountZero() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    assertEquals(0,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetGroupMemberCountExceptionResultSet() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    when(mockStatement.executeQuery()).thenReturn(mockResultSet);
+    assertEquals(0,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetGroupMemberCountExceptionConnection() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    assertEquals(0,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetAllUsersByGroupExceptionConnection() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    assertEquals(new ConcurrentHashMap<String,List<String>>(),groupToUserDAO.getAllUsersByGroup());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetAllUsersByGroupExceptionResultSet() throws SQLException {
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    assertEquals(new ConcurrentHashMap<String,List<String>>(),groupToUserDAO.getAllUsersByGroup());
+  }
+
+  @Test
+  public void testGetAllUsersByGroup() throws SQLException {
+    ConcurrentMap<String,List<String>> map = new ConcurrentHashMap<>();
+    List<String> group1 = new ArrayList<>();
+    List<String> group2 = new ArrayList<>();
+    group1.add("a1");
+    group1.add("a2");
+    group1.add("a3");
+    group2.add("m1");
+    group2.add("m2");
+    map.put("Group1",group1);
+    map.put("Group2",group2);
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(1)).thenReturn("Group1").thenReturn("Group1").thenReturn("Group1").thenReturn("Group1").thenReturn("Group2").thenReturn("Group2").thenReturn("Group2");
+    when(mockResultSet.getString(2)).thenReturn("a1").thenReturn("a2").thenReturn("a3").thenReturn("m1").thenReturn("m2");
+    assertEquals(map,groupToUserDAO.getAllUsersByGroup());
+  }
+
+  @Test
+  public void testGetAllUsersByGroupEmpty() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    assertEquals(new ConcurrentHashMap<String,List<String>>(),groupToUserDAO.getAllUsersByGroup());
+  }
+
 }
