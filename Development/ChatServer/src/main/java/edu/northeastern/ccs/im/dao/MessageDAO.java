@@ -155,6 +155,14 @@ public class MessageDAO {
     }
   }
 
+  /**
+   *Method to get the time stamp of the last message sent between two given users.
+   *
+   * @param senderID int representing the id of the message sender
+   * @param receiverID int representing the id of the message receiver
+   * @return String representing the timestamp of the last message
+   * @throws SQLException if sender or receiver id are not found
+   */
   public String getTimeStampOfLastMessage(int senderID, int receiverID) throws SQLException {
     String getTimeStamp = "SELECT timestamp FROM Message JOIN MessageToUserMap on Message.msgID = MessageToUserMap.msgID WHERE message.senderID=? AND messagetousermap.receiverID=? ORDER BY timestamp DESC LIMIT 1;";
     Connection connection = connectionManager.getConnection();
@@ -185,6 +193,14 @@ public class MessageDAO {
     return timestamp;
   }
 
+  /**
+   *Method to get the #id of the last message sent between two given users.
+   *
+   * @param senderID int representing the id of the message sender
+   * @param receiverID int representing the id of the message receiver
+   * @return Int representing the #id of the last message
+   * @throws SQLException if sender or receiver id are not found
+   */
   public int getIdOfLastMessage(int senderID, int receiverID) throws SQLException {
     String getTimeStamp = "SELECT message.msgID FROM Message JOIN MessageToUserMap on Message.msgID = MessageToUserMap.msgID WHERE message.senderID=? AND messagetousermap.receiverID=? ORDER BY timestamp DESC LIMIT 1;";
     Connection connection = connectionManager.getConnection();
@@ -215,6 +231,13 @@ public class MessageDAO {
     return msgID;
   }
 
+  /**
+   * Method to delete a message by its #id.
+   *
+   * @param tableName String representing the name of the database table to search
+   * @param msgID int representing the #id for the message to delete
+   * @throws SQLException if the table name of message id cannot be found
+   */
   public void deleteMessageByID(String tableName, int msgID) throws SQLException {
     String deleteMessage = "DELETE FROM " + tableName +" WHERE msgID = ?;";
     Connection connection = connectionManager.getConnection();

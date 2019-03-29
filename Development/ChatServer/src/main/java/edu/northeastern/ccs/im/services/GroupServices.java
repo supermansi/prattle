@@ -60,13 +60,18 @@ public class GroupServices {
     if (groupDAO.getGroupRestriction(groupName).equals("L")) {
       if (groupUserDAO.checkIfUserInGroup(admin.getUserID(), group.getGrpID())) {
         groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
-      } else
+      }
+      else {
         throw new DatabaseConnectionException("Unable to add user to group.");
-    } else {
+      }
+    }
+    else {
       if (groupDAO.validateGroupAdmin(groupName, admin.getUserID())) {
         groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
-      } else
+      }
+      else {
         throw new DatabaseConnectionException("Unable to add user to group.");
+      }
     }
   }
 

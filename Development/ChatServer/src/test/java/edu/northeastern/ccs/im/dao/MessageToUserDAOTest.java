@@ -185,7 +185,7 @@ public class MessageToUserDAOTest {
   @Test(expected = SQLException.class)
   public void testGetNotificationsEx() throws SQLException {
     when(mockResultSet.next()).thenReturn(true).thenReturn(false);
-    doThrow(new SQLException()).when(mockResultSet).getString(any());
+    doThrow(new SQLException()).when(mockResultSet).getInt(any());
     when(mockResultSet.getInt(any())).thenReturn(1);
     assertEquals(1, messageToUserDAO.getNotifications(1).size());
   }

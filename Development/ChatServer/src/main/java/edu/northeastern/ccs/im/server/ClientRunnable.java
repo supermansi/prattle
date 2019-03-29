@@ -129,6 +129,13 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+
+  /**
+   * Method to format the push notifications correctly.
+   *
+   * @param pushNotifications a list of strings representing the notifications
+   * @return a string to print to the user with all the notifications
+   */
   private String getMessagesInFormat(List<String> pushNotifications) {
     StringBuilder msgs = new StringBuilder();
     for (String msg : pushNotifications) {
@@ -137,6 +144,13 @@ public class ClientRunnable implements Runnable {
     return msgs.toString().trim();
   }
 
+  /**
+   * Method to process a new user's registration.
+   *
+   * @param regInfo list of strings representing a user's registration info
+   * @param msg the registration message
+   * @throws SQLException if the username already exists
+   */
   private void processRegisteration(List<String> regInfo, Message msg) throws SQLException {
     if (msg.getName() != null && UserServices.register(regInfo.get(0), regInfo.get(1),
             regInfo.get(2), regInfo.get(3), regInfo.get(4))) {
@@ -153,6 +167,12 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+  /**
+   * Method to process the information provided in a new user's registration message.
+   *
+   * @param text the text of the message.
+   * @return a list of strings representing each piece of registration information.
+   */
   private List<String> preProcessRegistrationInformation(String text) {
     return Arrays.asList(text.split(" "));
   }
@@ -325,9 +345,10 @@ public class ClientRunnable implements Runnable {
           String receiverId = getReceiverName(msg.getText());
           if (Prattle.sendGroupMessage(msg, receiverId)) {
             MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+          } else {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
+                    "do not have permission to send message to the group");
           }
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
-                  "do not have permission to send message to the group");
         } else if (msg.isCreateGroup()) {
           GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
           List<String> usrList = new ArrayList<>();
