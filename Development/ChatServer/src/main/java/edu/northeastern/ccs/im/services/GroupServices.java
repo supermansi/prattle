@@ -132,8 +132,18 @@ public class GroupServices {
   }
 
   public static boolean leaveGroup(String username, String groupname) throws SQLException {
-    if(groupUserDAO.checkIfUserInGroup(userDAO.getUserByUsername(username).getUserID(),groupDAO.getGroupByGroupName(groupname).getGrpID())) {
-      groupUserDAO.deleteUserFromGroup(userDAO.getUserByUsername(username).getUserID(),groupDAO.getGroupByGroupName(groupname).getGrpID());
+    int userID = userDAO.getUserByUsername(username).getUserID();
+    int groupID = groupDAO.getGroupByGroupName(groupname).getGrpID();
+    if(groupUserDAO.checkIfUserInGroup(userID,groupID)) {
+      //add if only one member in the group then delete group.
+      if(groupDAO.validateGroupAdmin(groupname,userID)) {
+        String admins = groupDAO.getGroupByGroupName(groupname).getAdmins();
+        String [] adminsList = admins.split(" ");
+        if(adminsList.length == 1) {
+          groupDAO.replaceAdminWhenAdminLeaves(groupID);
+        }
+      }
+      groupUserDAO.deleteUserFromGroup(userID,groupID);
       return true;
     }
     return false;
