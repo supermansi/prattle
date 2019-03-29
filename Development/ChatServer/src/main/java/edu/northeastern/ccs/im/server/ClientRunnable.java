@@ -112,7 +112,9 @@ public class ClientRunnable implements Runnable {
             initialized = true;
             enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
             String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
-            enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
+            if (!messages.equals("")) {
+              enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
+            }
           } else {
             sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
             initialized = false;

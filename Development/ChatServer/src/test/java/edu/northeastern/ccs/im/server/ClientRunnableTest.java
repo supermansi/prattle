@@ -75,7 +75,7 @@ public class ClientRunnableTest {
     List<Message> nameList = new ArrayList();
     mockStatic(UserServices.class);
     List<String> pushMsgs = new ArrayList<>();
-    pushMsgs.add("ABC 1");
+    //pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
     when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
 
