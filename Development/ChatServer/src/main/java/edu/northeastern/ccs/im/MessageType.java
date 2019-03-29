@@ -20,8 +20,14 @@ public enum MessageType {
    */
   BROADCAST("BCT"),
 
+  /**
+   * Message to acknowledge login from server.
+   */
   ACKNOWLEDGEMENT("ACK"),
 
+  /**
+   * Message to show failed login from server.
+   */
   NO_ACKNOWLEDGEMENT("NAK"),
 
   /**
@@ -89,24 +95,54 @@ public enum MessageType {
    */
   ADD_USER_TO_GRP("AUG"),
 
+  /**
+   * Message to deactivate an account.
+   */
   DEACTIVATE_USER("DUS"),
 
+  /**
+   * Message to check if a user exists.
+   */
   USER_EXISTS("UEX"),
 
+  /**
+   * Message to send an attachment to another user.
+   */
   ATTACHMENT("ATT"),
 
+  /**
+   * Message to check the time a user last saw mesages.
+   */
   LAST_SEEN("LSN"),
 
+  /**
+   * Message to set a groups restriction to either H(high) or L(low).
+   */
   SET_GROUP_RESTRICTION("SGR"),
 
+  /**
+   * Message to leave a group.
+   */
   LEAVE_GROUP("LGR"),
 
+  /**
+   * Message to make a user an admin of a group.
+   */
   MAKE_ADMIN("MAD"),
 
+  /**
+   * Message to recall the last message sent.
+   */
   RECALL("RCL"),
 
+  /**
+   * Message to read an incoming attachment.
+   */
   READ_ATTACHMENT_MESSAGE("RAM"),
 
+  /**
+   * Message to get all the users in a group.
+   */
   GET_GROUP_USERS("GGU");
 
   /**

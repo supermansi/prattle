@@ -194,6 +194,12 @@ public class GroupToUserDAO {
     }
   }
 
+  /**
+   * Method to get a mapping of all the group names to users that belong to each group.
+   *
+   * @return a map of all group names and corresponding lists of each groups users
+   * @throws SQLException if no groups exist
+   */
   public ConcurrentMap<String, List<String>> getAllUsersByGroup() throws SQLException {
     ConcurrentMap<String, List<String>> map = new ConcurrentHashMap<>();
     String selectQuery = "SELECT G.GRPNAME, U.USERNAME FROM GROUPTOUSERMAP M JOIN USER U ON M.USERID = U.USERID JOIN GROUPS G ON M.GROUPID = G.GRPID WHERE M.USERID = U.USERID;";
@@ -233,6 +239,13 @@ public class GroupToUserDAO {
     }
   }
 
+  /**
+   * Method to get the number of users that are in a group.
+   *
+   * @param groupId int representing the group #id
+   * @return an int representing the number of group members
+   * @throws SQLException when the group #id is not in the database
+   */
   public int getGroupMemberCount(int groupId) throws SQLException {
     String getCount = "SELECT count(*) FROM grouptousermap where groupID = ?;";
     Connection connection = connectionManager.getConnection();
