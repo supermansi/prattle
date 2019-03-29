@@ -204,28 +204,28 @@ public class MessageTest {
 
     @Test
     public void testRecallMessage() {
-        Message rm = Message.makeRecallMessage("J", "/recall");
+        Message rm = Message.makeMessage("RCL","J", "/recall");
         assertEquals(true, rm.isRecall());
         assertEquals(false, rm.isCreateGroup());
     }
 
     @Test
     public void testReadAttachmentMessage() {
-        Message ram = Message.makeReadAttachmentMessage("R", "filepath.txt");
+        Message ram = Message.makeMessage("RAM","R", "filepath.txt");
         assertEquals(true, ram.isReadAttachmentMessage());
         assertEquals(false, ram.isLastSeen());
     }
 
     @Test
     public void testGetUsersInGroupMessage() {
-        Message gum = Message.makeGetUsersInGroupMessage("A", "/getUsersInGroup MSD");
+        Message gum = Message.makeMessage("GGU","A", "/getUsersInGroup MSD");
         assertEquals(true, gum.isGetUsersInGroup());
-        assertEquals(false, gum.isCreateGroup());
+        assertEquals(false, gum.isReadAttachmentMessage());
     }
 
     @Test
     public void testAttachmentMessage() {
-        Message am = Message.makeAttachmentMessage("R", "filepath.txt");
+        Message am = Message.makeMessage("ATT","R", "filepath.txt");
         assertEquals(true, am.isAttachmentMessage());
         assertEquals(false, am. isCreateGroup());
     }

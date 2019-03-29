@@ -788,7 +788,6 @@ public class ClientRunnableTest {
     hm.put("MSD", list);
 
     Whitebox.setInternalState(Prattle.class, "groupToUserMapping", hm);
-    when(Prattle.sendGroupMessage(any(), any())).thenReturn(true);
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -797,7 +796,7 @@ public class ClientRunnableTest {
         met = m;
       }
     }
-    Message msg = Message.makeGetUsersInGroupMessage("R", "/getUsersInGroup MSD");
+    Message msg = Message.makeGetUsersInGroupMessage("test", "/getUsersInGroup MSD");
     met.setAccessible(true);
     met.invoke(clientRunnable, msg);
   }
