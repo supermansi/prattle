@@ -923,7 +923,93 @@ public class ClientRunnableTest {
     met.invoke(clientRunnable, msg);
   }
 
+  @Test
+  public void testRecallSuccessful() throws Exception {
 
+    clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    mockStatic(Prattle.class);
+    mockStatic(MessageServices.class);
+    when(Prattle.isUserOnline(any())).thenReturn(true);
+    when(MessageServices.recallMessage(any(),any())).thenReturn(true);
+    Message msg = Message.makeRecallMessage("test", "/recall r ");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testRecallFail1() throws Exception {
+
+    clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    mockStatic(Prattle.class);
+    mockStatic(MessageServices.class);
+    when(Prattle.isUserOnline(any())).thenReturn(true);
+    when(MessageServices.recallMessage(any(),any())).thenReturn(false);
+    Message msg = Message.makeRecallMessage("test", "/recall r ");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testRecallFail2() throws Exception {
+
+    clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    mockStatic(Prattle.class);
+    mockStatic(MessageServices.class);
+    when(Prattle.isUserOnline(any())).thenReturn(false);
+    when(MessageServices.recallMessage(any(),any())).thenReturn(true);
+    Message msg = Message.makeRecallMessage("test", "/recall r ");
+    met.invoke(clientRunnable, msg);
+  }
+
+  @Test
+  public void testRecallFail3() throws Exception {
+
+    clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    mockStatic(Prattle.class);
+    mockStatic(MessageServices.class);
+    when(Prattle.isUserOnline(any())).thenReturn(false);
+    when(MessageServices.recallMessage(any(),any())).thenReturn(false);
+    Message msg = Message.makeRecallMessage("test", "/recall r ");
+    met.invoke(clientRunnable, msg);
+  }
   /**
    * Message Iterator for use in testing the ClientRunnable class.
    */
