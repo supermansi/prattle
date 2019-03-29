@@ -7,17 +7,22 @@ public class Groups {
 	
 	private int grpID;
 	private String grpName;
-	private int adminID;
+	private String admins;
+	private Restricted restricted;
+
+	public enum Restricted {
+		H, L;
+	}
 
 	/**
 	 * Constructor for group object.
 	 *
 	 * @param grpName name of the group
-	 * @param adminID id for the admin of the group
+	 * @param admins id for the admin of the group
 	 */
-	public Groups(String grpName, int adminID) {
+	public Groups(String grpName, String admins) {
 		this.grpName = grpName;
-		this.adminID = adminID;
+		this.admins = admins;
 	}
 
 	/**
@@ -25,12 +30,12 @@ public class Groups {
 	 *
 	 * @param grpID id# for the group
 	 * @param grpName name of the group
-	 * @param adminID id# of the group admin
+	 * @param admins id# of the group admin
 	 */
-	public Groups(int grpID, String grpName, int adminID) {
+	public Groups(int grpID, String grpName, String admins) {
 		this.grpID = grpID;
 		this.grpName = grpName;
-		this.adminID = adminID;
+		this.admins = admins;
 	}
 
 	/**
@@ -74,17 +79,24 @@ public class Groups {
 	 *
 	 * @return int representing the admin id#
 	 */
-	public int getAdminID() {
-		return adminID;
+	public String getAdmins() {
+		return admins;
 	}
 
 	/**
 	 * Method to set the admin id#.
 	 *
-	 * @param adminID int representing the new admin id number
+	 * @param admins int representing the new admin id number
 	 */
-	public void setAdminID(int adminID) {
-		this.adminID = adminID;
+	public void setAdmins(String admins) {
+		this.admins = admins;
 	}
 
+	public Restricted getRestricted() {
+		return restricted;
+	}
+
+	public void setRestricted(Restricted restricted) {
+		this.restricted = restricted;
+	}
 }

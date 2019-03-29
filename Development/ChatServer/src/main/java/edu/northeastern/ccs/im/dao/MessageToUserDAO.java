@@ -141,4 +141,39 @@ public class MessageToUserDAO {
       connection.close();
     }
   }
+
+  public List<String> getNotifications(int userID) throws SQLException {
+    String getNotifs = "SELECT User.username, A.C FROM User JOIN (SELECT M.senderID, COUNT(M.senderID) AS C FROM (SELECT Message.senderID FROM Message JOIN MessageToUserMap ON Message.msgID = MessageToUserMap.msgID WHERE MessageToUserMap.receiverID = ? AND Message.timestamp > (SELECT lastSeen FROM User WHERE userID=?)) M GROUP BY M.senderID) A ON User.userID = A.senderID;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    String senderUserName = null;
+    int count = 0;
+    List<String> notifs = new ArrayList<>();
+    try {
+      preparedStatement = connection.prepareStatement(getNotifs, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, userID);
+      preparedStatement.setInt(2, userID);
+      try{
+        resultSet = preparedStatement.executeQuery();
+        while(resultSet.next()) {
+          senderUserName = resultSet.getString("username");
+          count = resultSet.getInt(2);
+          notifs.add(senderUserName + " " + Integer.toString(count));
+        }
+      }
+      finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return notifs;
+  }
+
 }

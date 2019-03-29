@@ -49,6 +49,7 @@ public class MessageDAO {
     String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, message.getMsgType().name());
@@ -56,10 +57,9 @@ public class MessageDAO {
       preparedStatement.setString(3, message.getMessageText());
       preparedStatement.setString(4, message.getTimestamp());
       preparedStatement.executeUpdate();
-      ResultSet resultSet = null;
       try {
         resultSet = preparedStatement.getGeneratedKeys();
-        while (resultSet.next()) {
+        if (resultSet.next()) {
           int msgID = resultSet.getInt(1);
           message.setMsgID(msgID);
         }
@@ -70,7 +70,6 @@ public class MessageDAO {
           resultSet.close();
         }
       }
-
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -132,10 +131,10 @@ public class MessageDAO {
     String listMessages = "SELECT * FROM Message WHERE senderID=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(listMessages, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, senderID);
-      ResultSet resultSet = null;
       try {
         resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
@@ -148,6 +147,82 @@ public class MessageDAO {
         }
       }
       return messages;
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public String getTimeStampOfLastMessage(int senderID, int receiverID) throws SQLException {
+    String getTimeStamp = "SELECT timestamp FROM Message JOIN MessageToUserMap on Message.msgID = MessageToUserMap.msgID WHERE message.senderID=? AND messagetousermap.receiverID=? ORDER BY timestamp DESC LIMIT 1;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    String timestamp = null;
+    try {
+      preparedStatement = connection.prepareStatement(getTimeStamp, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      try{
+        resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()) {
+          timestamp = resultSet.getString(1);
+        }
+      }
+      finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return timestamp;
+  }
+
+  public int getIdOfLastMessage(int senderID, int receiverID) throws SQLException {
+    String getTimeStamp = "SELECT message.msgID FROM Message JOIN MessageToUserMap on Message.msgID = MessageToUserMap.msgID WHERE message.senderID=? AND messagetousermap.receiverID=? ORDER BY timestamp DESC LIMIT 1;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    int msgID = 0;
+    try {
+      preparedStatement = connection.prepareStatement(getTimeStamp, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      try{
+        resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()) {
+          msgID = resultSet.getInt(1);
+        }
+      }
+      finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return msgID;
+  }
+
+  public void deleteMessageByID(String tableName, int msgID) throws SQLException {
+    String deleteMessage = "DELETE FROM " + tableName +" WHERE msgID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(deleteMessage);
+      preparedStatement.setInt(1, msgID);
+      preparedStatement.executeUpdate();
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();

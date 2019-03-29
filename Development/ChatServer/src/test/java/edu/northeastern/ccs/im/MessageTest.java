@@ -159,7 +159,76 @@ public class MessageTest {
         assertEquals(false, rgp.isRetrieveUser());
     }
 
+    @Test
+    public void testDeleteUser() {
+        Message dus = Message.makeMessage("DUS", "A", "A");
+        assertEquals(true, dus.isDeactivateUser());
+        assertEquals(false, dus.isCreateGroup());
+    }
 
+    @Test
+    public void testUserExists() {
+        Message uex = Message.makeMessage("UEX", "M", "M");
+        assertEquals(true, uex.isUserExists());
+        assertEquals(false, uex.isRegistration());
+    }
+
+    @Test
+    public void testLastSeen() {
+        Message lsn = Message.makeMessage("LSN", "J", "/getLastSeen J");
+        assertEquals(true, lsn.isLastSeen());
+        assertEquals(false, lsn.isCreateGroup());
+    }
+
+
+    @Test
+    public void testMakeAdmin() {
+        Message mam = Message.makeMessage("MAD", "A", "/makeAdmin MSD R");
+        assertEquals(true, mam.isMakeAdmin());
+        assertEquals(false, mam.isLastSeen());
+    }
+
+    @Test
+    public void testLeaveGroup() {
+        Message lgm = Message.makeMessage("LGR", "A", "/leaveGroup MSD");
+        assertEquals(true, lgm.isLeaveGroup());
+        assertEquals(false, lgm.isLastSeen());
+    }
+
+    @Test
+    public void testChangeGroupRestriction() {
+        Message cgrm = Message.makeMessage("SGR", "M", "/setGroupRestriction MSD H");
+        assertEquals(true, cgrm.isChangeGroupRestriction());
+        assertEquals(false, cgrm.isCreateGroup());
+    }
+
+    @Test
+    public void testRecallMessage() {
+        Message rm = Message.makeMessage("RCL","J", "/recall");
+        assertEquals(true, rm.isRecall());
+        assertEquals(false, rm.isCreateGroup());
+    }
+
+    @Test
+    public void testReadAttachmentMessage() {
+        Message ram = Message.makeMessage("RAM","R", "filepath.txt");
+        assertEquals(true, ram.isReadAttachmentMessage());
+        assertEquals(false, ram.isLastSeen());
+    }
+
+    @Test
+    public void testGetUsersInGroupMessage() {
+        Message gum = Message.makeMessage("GGU","A", "/getUsersInGroup MSD");
+        assertEquals(true, gum.isGetUsersInGroup());
+        assertEquals(false, gum.isReadAttachmentMessage());
+    }
+
+    @Test
+    public void testAttachmentMessage() {
+        Message am = Message.makeMessage("ATT","R", "filepath.txt");
+        assertEquals(true, am.isAttachmentMessage());
+        assertEquals(false, am. isCreateGroup());
+    }
 
     /**
      * Test to instantiate a login message.

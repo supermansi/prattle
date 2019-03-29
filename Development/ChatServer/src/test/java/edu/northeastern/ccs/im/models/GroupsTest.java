@@ -13,7 +13,7 @@ public class GroupsTest {
 	
 	@Before
 	public void setUp() {
-		group = new Groups("group1", 123);
+		group = new Groups("group1", "admin1 admin2");
 	}
 	
 	@Test
@@ -30,8 +30,14 @@ public class GroupsTest {
 	
 	@Test
 	public void testGroupAdminID() {
-		group.setAdminID(90);
-		assertEquals(90, group.getAdminID());
+		group.setAdmins("admin1 admin2 admin3");
+		assertEquals("admin1 admin2 admin3", group.getAdmins());
+	}
+
+	@Test
+	public void testRestricted() {
+		group.setRestricted(Groups.Restricted.valueOf("H"));
+		assertEquals("H", group.getRestricted().name());
 	}
 
 }

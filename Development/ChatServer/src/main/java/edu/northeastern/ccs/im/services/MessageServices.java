@@ -70,7 +70,7 @@ public class MessageServices {
    * Method to return a list of messages between users.
    *
    * @param sender sender's user name
-   * @param receiver reciever's user name
+   * @param receiver receiver's user name
    * @return a list of strings with the message text sent between users
    */
   public static List<String> retrieveUserMessages(String sender, String receiver) throws SQLException {
@@ -86,4 +86,24 @@ public class MessageServices {
   public static List<String> retrieveGroupMessages(String groupName) throws SQLException {
     return messageUserDAO.getMessagesFromGroup(groupName);
   }
+
+  public static  boolean recallMessage(String sender, String receiver) throws SQLException {
+    String userLastSeen = userDAO.getLastSeen(receiver);
+    int senderID = userDAO.getUserByUsername(sender).getUserID();
+    int receiverID = userDAO.getUserByUsername(receiver).getUserID();
+    String messageLastSeen = messageDAO.getTimeStampOfLastMessage(senderID, receiverID);
+    boolean flag = false;
+    if(Long.parseLong(userLastSeen) < Long.parseLong(messageLastSeen)) {
+      int msgID = messageDAO.getIdOfLastMessage(senderID, receiverID);
+      messageDAO.deleteMessageByID("Message", msgID);
+      messageDAO.deleteMessageByID("MessageToUserMap", msgID);
+      flag = true;
+    }
+    return flag;
+  }
+
+  public static List<String> getPushNotifications(String username) throws SQLException {
+    return messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID());
+  }
+
 }

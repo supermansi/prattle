@@ -1,10 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
@@ -113,9 +111,14 @@ public class ClientRunnable implements Runnable {
             // Set that the client is initialized.
             initialized = true;
             enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
+            String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
+            if (!messages.equals("")) {
+              enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
+            }
           } else {
             sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
             initialized = false;
+            terminate = true;
           }
         } else {
           initialized = false;
@@ -124,6 +127,14 @@ public class ClientRunnable implements Runnable {
         ChatLogger.error("Error in connecting to database");
       }
     }
+  }
+
+  private String getMessagesInFormat(List<String> pushNotifications) {
+    StringBuilder msgs = new StringBuilder();
+    for (String msg : pushNotifications) {
+      msgs.append(new StringBuilder(msg + "\n"));
+    }
+    return msgs.toString().trim();
   }
 
   private void processRegisteration(List<String> regInfo, Message msg) throws SQLException {
@@ -138,6 +149,7 @@ public class ClientRunnable implements Runnable {
       initialized = false;
       sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
               "already exists."));
+      terminate = true;
     }
   }
 
@@ -311,38 +323,92 @@ public class ClientRunnable implements Runnable {
           MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
         } else if (msg.isGroupMessage()) {
           String receiverId = getReceiverName(msg.getText());
-          Prattle.sendGroupMessage(msg, receiverId);
-          MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+          if (Prattle.sendGroupMessage(msg, receiverId)) {
+            MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+          }
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
+                  "do not have permission to send message to the group");
         } else if (msg.isCreateGroup()) {
           GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
+          List<String> usrList = new ArrayList<>();
+          usrList.add(msg.getName());
+          Prattle.groupToUserMapping.put(getReceiverName(msg.getText()), usrList);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
         } else if (msg.isDeleteGroup()) {
           GroupServices.deleteGroup(getReceiverName(msg.getText()), msg.getName()); //to do
+          Prattle.groupToUserMapping.remove(getReceiverName(msg.getText()));
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
         } else if (msg.isRetrieveGroup()) {
           retrieveGroupMessagesForGroup(msg);
         } else if (msg.isRetrieveUser()) {
           retrieveMessagesForUser(msg);
         } else if (msg.isUpdateFirstName()) {
-          UserServices.updateFN(msg.getName(), msg.getText());
+          UserServices.updateFN(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated First name");
         } else if (msg.isUpdateLastName()) {
-          UserServices.updateLN(msg.getName(), msg.getText());
+          UserServices.updateLN(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Last name");
         } else if (msg.isUpdateEmail()) {
-          UserServices.updateEmail(msg.getName(), msg.getText());
+          UserServices.updateEmail(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Email");
         } else if (msg.isUpdatePassword()) {
-          UserServices.updatePassword(msg.getName(), msg.getText());
+          UserServices.updatePassword(msg.getName(), msg.getText().split(" ")[1]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
         } else if (msg.isRemoveUser()) {
-
           GroupServices.removeUserFromGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
+          Prattle.groupToUserMapping.get(getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
-
         } else if (msg.isAddUserToGroup()) {
           GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
+          Prattle.groupToUserMapping.get(getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
+        } else if (msg.isDeactivateUser()) {
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Account successfully deleted.");
+          UserServices.deleteUser(msg.getName());
+          terminate = true;
+        } else if (msg.isUserExists()) {
+          if (UserServices.userExists(getReceiverName(msg.getText()))) {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "This user exists");
+          } else {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
+          }
+        } else if (msg.isAttachmentMessage()) {
+          Message message = Message.makeReadAttachmentMessage(msg.getName(),msg.getText());
+          Prattle.sendPrivateMessage(message, getReceiverName(message.getText()));
+        } else if (msg.isLastSeen()) {
+          String receiver = getReceiverName(msg.getText());
+          Long lastSeen = UserServices.getLastSeen(receiver);
+          Date resultDate = new Date(lastSeen);
+          SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+          sendMessageToClient(ServerConstants.SERVER_NAME, receiver + " last viewed messages at "
+                  + sdf.format(resultDate));
+
+        } else if (msg.isChangeGroupRestriction()) {
+          String[] split = msg.getText().split(" ");
+
+          GroupServices.changeGroupRestrictions(split[1], msg.getName(), split[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Group restriction set successfully");
+        } else if (msg.isLeaveGroup()) {
+          GroupServices.leaveGroup(msg.getName(), getReceiverName(msg.getText()));
+          Prattle.groupToUserMapping.get(getReceiverName(msg.getText())).remove(msg.getName());
+        } else if (msg.isMakeAdmin()) {
+          String[] split = msg.getText().split(" ");
+          GroupServices.makeAdmin(split[1], msg.getName(), split[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Admin added successfully");
+        } else if (msg.isRecall()) {
+          if (!Prattle.isUserOnline(getReceiverName(msg.getText())) && MessageServices.recallMessage(msg.getName(), getReceiverName(msg.getText()))) {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Successful");
+          } else {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Failed");
+          }
+
+        } else if (msg.isGetUsersInGroup()) {
+          List<String> users = Prattle.groupToUserMapping.getOrDefault(getReceiverName(msg.getText()),new ArrayList<>());
+          StringBuilder sb = new StringBuilder();
+          for (String s : users) {
+            sb.append(s + " ");
+          }
+          sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
@@ -443,11 +509,17 @@ public class ClientRunnable implements Runnable {
    * request or due to system need.
    */
   public void terminateClient() {
+
+    try {
+      UserServices.updateLastSeen(this.getName(), System.currentTimeMillis());
+    } catch (SQLException e) {
+      ChatLogger.error("Could Not Update LastSeen on DB");
+    }
     // Once the communication is done, close this connection.
     connection.close();
     // Remove the client from our client listing.
     Prattle.removeClient(this);
     // And remove the client from our client pool.
-    runnableMe.cancel(false);
+    runnableMe.cancel(true);
   }
 }

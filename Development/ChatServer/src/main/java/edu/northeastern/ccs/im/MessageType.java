@@ -87,7 +87,27 @@ public enum MessageType {
   /**
    * Message to a user to a group.
    */
-  ADD_USER_TO_GRP("AUG");
+  ADD_USER_TO_GRP("AUG"),
+
+  DEACTIVATE_USER("DUS"),
+
+  USER_EXISTS("UEX"),
+
+  ATTACHMENT("ATT"),
+
+  LAST_SEEN("LSN"),
+
+  SET_GROUP_RESTRICTION("SGR"),
+
+  LEAVE_GROUP("LGR"),
+
+  MAKE_ADMIN("MAD"),
+
+  RECALL("RCL"),
+
+  READ_ATTACHMENT_MESSAGE("RAM"),
+
+  GET_GROUP_USERS("GGU");
 
   /**
    * Store the short name of this message type.

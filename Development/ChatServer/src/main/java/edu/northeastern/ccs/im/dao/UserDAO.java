@@ -14,8 +14,9 @@ import edu.northeastern.ccs.im.model.User;
  */
 public class UserDAO {
 
-  private static IConnectionManager connectionManager;
+  protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
+  private static final String EXCEPTION_MSG = "User not found.";
 
   /**
    * Private constructor for the user DAO
@@ -96,19 +97,13 @@ public class UserDAO {
       preparedStatement.setString(1, userName);
       User user;
       try {
-        resultSet = preparedStatement.executeQuery();
+          resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          String username = resultSet.getString("username");
-          String userFN = resultSet.getString("userFN");
-          String userLN = resultSet.getString("userLN");
-          String email = resultSet.getString("email");
-          String password = resultSet.getString("password");
+          user = getUser(resultSet);
           String lastSeen = resultSet.getString("lastSeen");
-          user = new User(userID, username, userFN, userLN, email, password);
           user.setLastSeen(lastSeen);
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
 
         return user;
@@ -126,12 +121,24 @@ public class UserDAO {
     }
   }
 
-  /**
-   * Method to get a user model object by user #ID.
-   *
-   * @param userId int representing a user ID
-   * @return a user model object
-   */
+  private User getUser(ResultSet resultSet) throws SQLException {
+    User user;
+    int userID = resultSet.getInt("userID");
+    String username = resultSet.getString("username");
+    String userFN = resultSet.getString("userFN");
+    String userLN = resultSet.getString("userLN");
+    String email = resultSet.getString("email");
+    String password = resultSet.getString("password");
+    user = new User(userID, username, userFN, userLN, email, password);
+    return user;
+  }
+
+      /**
+       * Method to get a user model object by user #ID.
+       *
+       * @param userId int representing a user ID
+       * @return a user model object
+       */
   public User getUserByUserID(int userId) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     Connection connection = connectionManager.getConnection();
@@ -144,16 +151,9 @@ public class UserDAO {
       try {
         resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          String username = resultSet.getString("username");
-          String userFN = resultSet.getString("userFN");
-          String userLN = resultSet.getString("userLN");
-          String email = resultSet.getString("email");
-          String password = resultSet.getString("password");
-
-          user = new User(userID, username, userFN, userLN, email, password);
+          user = getUser(resultSet);
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
       } finally {
         if (resultSet != null) {
@@ -184,14 +184,7 @@ public class UserDAO {
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, userName);
       ResultSet resultSet = null;
-      try {
-        resultSet = preparedStatement.executeQuery();
-        return resultSet.next();
-      } finally {
-        if (resultSet != null) {
-          resultSet.close();
-        }
-      }
+      return getUser(preparedStatement, resultSet);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -214,14 +207,7 @@ public class UserDAO {
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, userId);
       ResultSet resultSet = null;
-      try {
-        resultSet = preparedStatement.executeQuery();
-        return resultSet.next();
-      } finally {
-        if (resultSet != null) {
-          resultSet.close();
-        }
-      }
+      return getUser(preparedStatement, resultSet);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -248,14 +234,7 @@ public class UserDAO {
       preparedStatement.setString(2, pw);
 
       ResultSet resultSet = null;
-      try {
-        resultSet = preparedStatement.executeQuery();
-        return resultSet.next();
-      } finally {
-        if (resultSet != null) {
-          resultSet.close();
-        }
-      }
+      return getUser(preparedStatement, resultSet);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -263,6 +242,17 @@ public class UserDAO {
       }
       connection.close();
 
+    }
+  }
+
+  private static boolean getUser(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
+    try {
+      resultSet = preparedStatement.executeQuery();
+      return resultSet.next();
+    } finally {
+      if (resultSet != null) {
+        resultSet.close();
+      }
     }
   }
 
@@ -300,9 +290,13 @@ public class UserDAO {
     String insertUser = "UPDATE USER SET USERFN = ? WHERE USERNAME = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
+    updateUserDetail(userName, updatedFirstName, insertUser, connection, preparedStatement);
+  }
+
+  private void updateUserDetail(String userName, String updatedDetail, String insertUser, Connection connection, PreparedStatement preparedStatement) throws SQLException {
     try {
       preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, updatedFirstName);
+      preparedStatement.setString(1, updatedDetail);
       preparedStatement.setString(2, userName);
       preparedStatement.executeUpdate();
     } finally {
@@ -323,17 +317,7 @@ public class UserDAO {
     String insertUser = "UPDATE USER SET USERLN = ? WHERE USERNAME = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
-    try {
-      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, updatedLastName);
-      preparedStatement.setString(2, userName);
-      preparedStatement.executeUpdate();
-    } finally {
-      if (preparedStatement != null) {
-        preparedStatement.close();
-      }
-      connection.close();
-    }
+    updateUserDetail(userName, updatedLastName, insertUser, connection, preparedStatement);
   }
 
   /**
@@ -346,17 +330,7 @@ public class UserDAO {
     String insertUser = "UPDATE USER SET PASSWORD = ? WHERE USERNAME = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
-    try {
-      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, updatedPassword);
-      preparedStatement.setString(2, userName);
-      preparedStatement.executeUpdate();
-    } finally {
-      if (preparedStatement != null) {
-        preparedStatement.close();
-      }
-      connection.close();
-    }
+    updateUserDetail(userName, updatedPassword, insertUser, connection, preparedStatement);
 
   }
 
@@ -370,17 +344,7 @@ public class UserDAO {
     String insertUser = "UPDATE USER SET EMAIL = ? WHERE USERNAME = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
-    try {
-      preparedStatement = connection.prepareStatement(insertUser, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, updatedEmail);
-      preparedStatement.setString(2, userName);
-      preparedStatement.executeUpdate();
-    } finally {
-      if (preparedStatement != null) {
-        preparedStatement.close();
-      }
-      connection.close();
-    }
+    updateUserDetail(userName, updatedEmail, insertUser, connection, preparedStatement);
   }
 
   /**
@@ -393,11 +357,29 @@ public class UserDAO {
     String updateLastSeen = "UPDATE User SET lastSeen=? WHERE username=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
+    updateUserDetail(userName, lastSeen, updateLastSeen, connection, preparedStatement);
+  }
+
+  public String getLastSeen(String username) throws SQLException {
+    String getLastSeen = "SELECT lastSeen FROM User WHERE username=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
     try {
-      preparedStatement = connection.prepareStatement(updateLastSeen, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, lastSeen);
-      preparedStatement.setString(2, userName);
-      preparedStatement.executeUpdate();
+      preparedStatement = connection.prepareStatement(getLastSeen, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          return resultSet.getString("lastSeen");
+        } else {
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();

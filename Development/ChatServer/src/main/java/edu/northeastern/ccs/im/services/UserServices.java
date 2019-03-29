@@ -2,6 +2,7 @@ package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
 
+import edu.northeastern.ccs.im.PasswordHash;
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
@@ -27,7 +28,7 @@ public class UserServices {
    * @return true if the fields match, false otherwise
    */
   public static boolean login(String username, String password) throws SQLException {
-    return userDAO.validateUser(username, password);
+    return userDAO.validateUser(username, PasswordHash.hashPassword(password));
   }
 
   /**
@@ -46,7 +47,7 @@ public class UserServices {
     if (userDAO.isUserExists(username)) {
       return false; // user exists
     } else {
-      User registerUser = new User(username, userFN, userLN, email, password);
+      User registerUser = new User(username, userFN, userLN, email, PasswordHash.hashPassword(password));
       userDAO.createUser(registerUser);
       return true; // user does not exist and is created
     }
@@ -79,7 +80,7 @@ public class UserServices {
    * @param updatedPassword new password
    */
   public static void updatePassword(String username, String updatedPassword) throws SQLException {
-    userDAO.updatePassword(username, updatedPassword);
+    userDAO.updatePassword(username, PasswordHash.hashPassword(updatedPassword));
   }
 
   /**
@@ -114,5 +115,14 @@ public class UserServices {
   public static void updateLastSeen(String username, Long time) throws SQLException {
     String lastSeen = Long.toString(time);
     userDAO.updateLastSeen(username, lastSeen);
+  }
+
+  public static Long getLastSeen(String username) throws SQLException {
+    String lastSeen = userDAO.getLastSeen(username);
+    return Long.parseLong(lastSeen);
+  }
+
+  public static boolean userExists(String username) throws SQLException {
+    return userDAO.isUserExists(username);
   }
 }

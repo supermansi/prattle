@@ -6,46 +6,56 @@ import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
+import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.Message;
+import edu.northeastern.ccs.im.model.User;
 import edu.northeastern.ccs.im.services.MessageServices;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MessageToUserDAOTest {
-
-  static MessageToUserDAO messageToUserDAO = MessageToUserDAO.getInstance();
-  MessageDAO messageDAO = MessageDAO.getInstance();
+  MessageToUserDAO messageToUserDAO;
   Message message;
-  Message message1;
-  boolean isException;
-
-  @AfterClass
-  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
-    messageToUserDAO = MessageToUserDAO.getInstance();
-    Class clazz = MessageToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(messageToUserDAO, new ConnectionManager());
-
-  }
+  @Mock
+  private ConnectionManager mockManager;
+  @Mock
+  private Connection mockConnection;
+  @Mock
+  private PreparedStatement mockPreparedStatement;
+  @Mock
+  private ResultSet mockResultSet;
 
   @Before
-  public void setUp() throws NoSuchFieldException, IllegalAccessException {
+  public void setUp() throws SQLException {
     messageToUserDAO = MessageToUserDAO.getInstance();
-    Class clazz = MessageToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(messageToUserDAO, new ConnectionManager());
-    isException = false;
+    MockitoAnnotations.initMocks(this);
     message = new Message(2, Message.MsgType.PVT, 52, "test message", Long.toString(System.currentTimeMillis()));
-    message1 = new Message(4, Message.MsgType.PVT, 27, "test message", Long.toString(System.currentTimeMillis()));
+    assertNotNull(mockManager);
+    messageToUserDAO.connectionManager = mockManager;
+
+    when(mockManager.getConnection()).thenReturn(mockConnection);
+    when(mockConnection.prepareStatement(any(String.class), any(Integer.class))).thenReturn(mockPreparedStatement);
+    when(mockConnection.prepareStatement(any(String.class))).thenReturn(mockPreparedStatement);
+    when(mockPreparedStatement.getGeneratedKeys()).thenReturn(mockResultSet);
+    when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
   }
 
   @Test
@@ -54,69 +64,141 @@ public class MessageToUserDAOTest {
     messageToUserDAO.mapMsgIdToReceiverId(message, receiverId);
   }
 
+  @Test(expected = DatabaseConnectionException.class)
+  public void testAddMsgException() throws SQLException {
+    int receiverId = 242;
+    doThrow(new DatabaseConnectionException("Custom")).when(mockConnection).prepareStatement(any());
+    messageToUserDAO.mapMsgIdToReceiverId(message, receiverId);
+  }
+
   @Test
-  public void testGetMessageFromGroups() throws SQLException {
+  public void testGetMessageFromGroups() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", "admin1 admin2"));
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString("message")).thenReturn("Test GRP MSG");
+    Class clazz = MessageToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(messageToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+
+    List<String> testList = messageToUserDAO.getMessagesFromGroup("Group 123");
+
+    assertEquals("r Test GRP MSG", testList.get(0));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMessageFromGroupsExceptionPrepareSet() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    doThrow(new DatabaseConnectionException("Custom")).when(mockConnection).prepareStatement(anyString(), any(Integer.class));
+    messageToUserDAO.getMessagesFromGroup("Group 123");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMessageFromGroupsExceptionResultSet() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", "admin1 admin2"));
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
+
+    doThrow(new DatabaseConnectionException("Custom")).when(mockPreparedStatement).executeQuery();
+    Class clazz = MessageToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(messageToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+
     messageToUserDAO.getMessagesFromGroup("Group 123");
   }
 
   @Test
-  public void testRetrieveUserMsg() throws SQLException {
+  public void testRetrieveUserMsg() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUsername("r")).thenReturn(new User(1, "r", "r", "r", "r", "r"));
+    when(mockUserDAO.getUserByUsername("j")).thenReturn(new User(2, "j", "j", "j", "j", "j"));
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+
+    when(mockResultSet.getInt("senderID")).thenReturn(1).thenReturn(2).thenReturn(1).thenReturn(2);
+
+    when(mockUserDAO.getUserByUserID(1)).thenReturn(new User(1, "r", "r", "r", "r", "r"));
+    when(mockUserDAO.getUserByUserID(2)).thenReturn(new User(1, "j","j","j","j","j"));
+
+    when(mockResultSet.getString("message")).thenReturn("Hii").thenReturn("Hello").thenReturn("bye").thenReturn("tadaa");
+    Class clazz = MessageToUserDAO.class;
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+
     String result = "";
     List<String> chat = messageToUserDAO.retrieveUserMsg("r", "j");
     for (int i = 0; i < chat.size(); i++) {
       result += chat.get(i) + "\n";
     }
-    assertEquals("r /pvt j Hii\n" +
-            "j /pvt r hello back\n", result);
+    assertEquals("r Hii\n" +
+            "j Hello\n" +
+            "r bye\n" +
+            "j tadaa\n", result);
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testRetrieveUserMsgPrepareStatementEx() throws SQLException, NoSuchFieldException, IllegalAccessException {
+
+    doThrow(new DatabaseConnectionException("Custom")).when(mockConnection).prepareStatement(anyString());
+    messageToUserDAO.retrieveUserMsg("r", "j");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testRetrieveUserMsgResultSetEx() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUsername("r")).thenReturn(new User(1, "r", "r", "r", "r", "r"));
+    when(mockUserDAO.getUserByUsername("j")).thenReturn(new User(2, "j", "j", "j", "j", "j"));
+
+    Class clazz = MessageToUserDAO.class;
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+    doThrow(new DatabaseConnectionException("Custom")).when(mockPreparedStatement).executeQuery();
+    List<String> chat = messageToUserDAO.retrieveUserMsg("r", "j");
+
   }
 
   @Test
-  public void testMsgFromGroup() throws SQLException {
-    Message m = messageDAO.createMessage(new Message(Message.MsgType.GRP, 2, "test", Long.toString(System.currentTimeMillis())));
-    messageToUserDAO.mapMsgIdToReceiverId(m, GroupDAO.getInstance().getGroupByGroupName("group1").getGrpID());
-    messageToUserDAO.getMessagesFromGroup("group1");
+  public void testGetNotifications() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(any())).thenReturn("admin");
+    when(mockResultSet.getInt(any())).thenReturn(1);
+    assertEquals(1, messageToUserDAO.getNotifications(1).size());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testAddMsgException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    int receiverId = 242;
-    Class clazz = MessageToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(messageToUserDAO, new ConnectionTest());
-    isException = true;
-    messageToUserDAO.mapMsgIdToReceiverId(message1, receiverId);
+  @Test(expected = SQLException.class)
+  public void testGetNotificationsEx() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    doThrow(new SQLException()).when(mockResultSet).getString(any());
+    when(mockResultSet.getInt(any())).thenReturn(1);
+    assertEquals(1, messageToUserDAO.getNotifications(1).size());
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testGetMessageFromGroupsException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    Class clazz = MessageToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(messageToUserDAO, new ConnectionTest());
-    isException = true;
-    messageToUserDAO.getMessagesFromGroup("Group 123");
+  @Test(expected = SQLException.class)
+  public void testGetNotifEx() throws SQLException{
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    messageToUserDAO.getNotifications(1);
   }
 
-  @Test(expected = NullPointerException.class)
-  public void testRetrieveUserMsgException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    Class clazz = MessageToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(messageToUserDAO, new ConnectionTest());
-    isException = true;
-    List<String> chat = messageToUserDAO.retrieveUserMsg("r", "j");
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void testMsgFromGroupException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    Class clazz = MessageToUserDAO.class;
-    Field connectionManager = clazz.getDeclaredField("connectionManager");
-    connectionManager.setAccessible(true);
-    connectionManager.set(messageToUserDAO, new ConnectionTest());
-    isException = true;
-    Message m = messageDAO.createMessage(new Message(Message.MsgType.GRP, 2, "test", Long.toString(System.currentTimeMillis())));
-    messageToUserDAO.mapMsgIdToReceiverId(m, GroupDAO.getInstance().getGroupByGroupName("group1").getGrpID());
-    messageToUserDAO.getMessagesFromGroup("group1");
+  @Test(expected = SQLException.class)
+  public void testGetNotifExSet() throws SQLException{
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    messageToUserDAO.getNotifications(1);
   }
 }
