@@ -314,6 +314,7 @@ public class GroupDAO {
       connection.close();
     }
   }
+
   public void replaceAdminWhenAdminLeaves(int groupId) throws SQLException {
     String replaceAdmin = "UPDATE Groups SET admins = (SELECT username FROM User WHERE userID = (SELECT userID FROM GroupToUserMap WHERE groupID = ? LIMIT 1 OFFSET 1)) WHERE grpID = ?;";
     Connection connection = connectionManager.getConnection();

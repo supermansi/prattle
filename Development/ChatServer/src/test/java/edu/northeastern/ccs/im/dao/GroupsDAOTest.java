@@ -21,9 +21,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyByte;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import edu.northeastern.ccs.im.model.Groups;
+import edu.northeastern.ccs.im.model.User;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupsDAOTest {
@@ -129,27 +131,51 @@ public class GroupsDAOTest {
   }
 
   @Test
-  public void testValidateAdmin() throws SQLException {
-      when(mockResultSet.next()).thenReturn(true);
-      assertTrue(groupDAO.validateGroupAdmin("g1", 5));
+  public void testValidateAdmin() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User(4,"r", "r", "r", "r", "r"));
+    when(mockResultSet.next()).thenReturn(true);
+    Class clazz = GroupDAO.class;
+    Field userDAOField = clazz.getDeclaredField("userDAO");
+    userDAOField.setAccessible(true);
+    userDAOField.set(groupDAO, mockUserDAO);
+    assertTrue(groupDAO.validateGroupAdmin("g1", 5));
   }
 
-    @Test
-    public void testValidateAdminFalse() throws SQLException {
-        when(mockResultSet.next()).thenReturn(false);
-        assertFalse(groupDAO.validateGroupAdmin("g1", 1));
-    }
-
-  @Test(expected = SQLException.class)
-  public void testValidateAdminException() throws SQLException{
-      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
-      groupDAO.validateGroupAdmin("g1", 1);
+  @Test
+  public void testValidateAdminFalse() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    Class clazz = GroupDAO.class;
+    Field userDAOField = clazz.getDeclaredField("userDAO");
+    userDAOField.setAccessible(true);
+    userDAOField.set(groupDAO, mockUserDAO);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User(5,"r", "r", "r", "r", "r"));
+    when(mockResultSet.next()).thenReturn(false);
+    assertFalse(groupDAO.validateGroupAdmin("g1", 1));
   }
 
   @Test(expected = SQLException.class)
-  public void testValidateAdminResultSet() throws SQLException{
-      doThrow(new SQLException()).when(mockStatement).executeQuery();
-      groupDAO.validateGroupAdmin("g1", 1);
+  public void testValidateAdminException() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    Class clazz = GroupDAO.class;
+    Field userDAOField = clazz.getDeclaredField("userDAO");
+    userDAOField.setAccessible(true);
+    userDAOField.set(groupDAO, mockUserDAO);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User(5,"r", "r", "r", "r", "r"));
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
+    groupDAO.validateGroupAdmin("g1", 1);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testValidateAdminResultSet() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    Class clazz = GroupDAO.class;
+    Field userDAOField = clazz.getDeclaredField("userDAO");
+    userDAOField.setAccessible(true);
+    userDAOField.set(groupDAO, mockUserDAO);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User(5,"r", "r", "r", "r", "r"));
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    groupDAO.validateGroupAdmin("g1", 1);
   }
 
   @Test

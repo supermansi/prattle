@@ -93,20 +93,19 @@ public class GroupToUserDAO {
       statement = connection.prepareStatement(checkUser);
       statement.setInt(1, userID);
       statement.setInt(2, groupID);
-      try{
+      try {
         result = statement.executeQuery();
         flag = result.next();
-      }
-      finally {
-        if(result != null) {
+      } finally {
+        if (result != null) {
           result.close();
         }
       }
     } finally {
-        if (statement != null) {
-          statement.close();
-        }
-        connection.close();
+      if (statement != null) {
+        statement.close();
+      }
+      connection.close();
     }
     return flag;
   }
@@ -234,5 +233,32 @@ public class GroupToUserDAO {
     }
   }
 
+  public int getGroupMemberCount(int groupId) throws SQLException {
+    String getCount = "SELECT count(*) FROM grouptousermap where groupID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    int count = 0;
+    try {
+      preparedStatement = connection.prepareStatement(getCount, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, groupId);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()) {
+          count = resultSet.getInt(1);
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+      return count;
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 
 }
