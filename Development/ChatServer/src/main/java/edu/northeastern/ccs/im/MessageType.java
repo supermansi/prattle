@@ -105,7 +105,9 @@ public enum MessageType {
 
   RECALL("RCL"),
 
-  READ_ATTACHMENT_MESSAGE("RAM");
+  READ_ATTACHMENT_MESSAGE("RAM"),
+
+  GET_GROUP_USERS("GGU");
 
   /**
    * Store the short name of this message type.

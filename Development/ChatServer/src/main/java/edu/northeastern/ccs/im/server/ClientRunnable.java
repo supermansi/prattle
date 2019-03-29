@@ -374,7 +374,7 @@ public class ClientRunnable implements Runnable {
           }
         } else if (msg.isAttachmentMessage()) {
           Message message = Message.makeReadAttachmentMessage(msg.getName(),msg.getText());
-          Prattle.sendPrivateMessage(msg, getReceiverName(message.getText()));
+          Prattle.sendPrivateMessage(message, getReceiverName(message.getText()));
         } else if (msg.isLastSeen()) {
           String receiver = getReceiverName(msg.getText());
           Long lastSeen = UserServices.getLastSeen(receiver);
@@ -402,6 +402,13 @@ public class ClientRunnable implements Runnable {
             sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Failed");
           }
 
+        } else if (msg.isGetUsersInGroup()) {
+          List<String> users = Prattle.groupToUserMapping.getOrDefault(getReceiverName(msg.getText()),new ArrayList<>());
+          StringBuilder sb = new StringBuilder();
+          for (String s : users) {
+            sb.append(s + " ");
+          }
+          sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
