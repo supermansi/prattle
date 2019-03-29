@@ -381,8 +381,6 @@ public class ClientRunnable implements Runnable {
                   + sdf.format(resultDate));
 
         } else if (msg.isChangeGroupRestriction()) {
-          //todo logic for change group restriction
-
           String[] split = msg.getText().split(" ");
 
           GroupServices.changeGroupRestrictions(split[1], msg.getName(), split[2]);
@@ -397,7 +395,7 @@ public class ClientRunnable implements Runnable {
         } else if (msg.isRecall()) {
           if (!Prattle.isUserOnline(getReceiverName(msg.getText())) && MessageServices.recallMessage(msg.getName(), getReceiverName(msg.getText()))) {
             sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Successful");
-          }else{
+          } else {
             sendMessageToClient(ServerConstants.SERVER_NAME, "Recall Failed");
           }
 

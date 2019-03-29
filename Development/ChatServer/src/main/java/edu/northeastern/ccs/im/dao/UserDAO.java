@@ -16,6 +16,7 @@ public class UserDAO {
 
   protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
+  private static final String EXCEPTION_MSG = "User not found.";
 
   /**
    * Private constructor for the user DAO
@@ -96,19 +97,13 @@ public class UserDAO {
       preparedStatement.setString(1, userName);
       User user;
       try {
-        resultSet = preparedStatement.executeQuery();
+          resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          String username = resultSet.getString("username");
-          String userFN = resultSet.getString("userFN");
-          String userLN = resultSet.getString("userLN");
-          String email = resultSet.getString("email");
-          String password = resultSet.getString("password");
+          user = getUser(resultSet);
           String lastSeen = resultSet.getString("lastSeen");
-          user = new User(userID, username, userFN, userLN, email, password);
           user.setLastSeen(lastSeen);
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
 
         return user;
@@ -126,12 +121,24 @@ public class UserDAO {
     }
   }
 
-  /**
-   * Method to get a user model object by user #ID.
-   *
-   * @param userId int representing a user ID
-   * @return a user model object
-   */
+  private User getUser(ResultSet resultSet) throws SQLException {
+    User user;
+    int userID = resultSet.getInt("userID");
+    String username = resultSet.getString("username");
+    String userFN = resultSet.getString("userFN");
+    String userLN = resultSet.getString("userLN");
+    String email = resultSet.getString("email");
+    String password = resultSet.getString("password");
+    user = new User(userID, username, userFN, userLN, email, password);
+    return user;
+  }
+
+      /**
+       * Method to get a user model object by user #ID.
+       *
+       * @param userId int representing a user ID
+       * @return a user model object
+       */
   public User getUserByUserID(int userId) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     Connection connection = connectionManager.getConnection();
@@ -144,16 +151,9 @@ public class UserDAO {
       try {
         resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          String username = resultSet.getString("username");
-          String userFN = resultSet.getString("userFN");
-          String userLN = resultSet.getString("userLN");
-          String email = resultSet.getString("email");
-          String password = resultSet.getString("password");
-
-          user = new User(userID, username, userFN, userLN, email, password);
+          user = getUser(resultSet);
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
       } finally {
         if (resultSet != null) {
@@ -373,7 +373,7 @@ public class UserDAO {
         if (resultSet.next()) {
           return resultSet.getString("lastSeen");
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
       } finally {
         if (resultSet != null) {

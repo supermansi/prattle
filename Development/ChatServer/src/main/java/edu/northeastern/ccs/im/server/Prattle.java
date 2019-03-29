@@ -199,7 +199,7 @@ public abstract class Prattle {
    * @param msg       message to be sent
    * @param groupName receiver name to send to
    */
-  public static boolean sendGroupMessage(Message msg, String groupName) throws SQLException {
+  public static boolean sendGroupMessage(Message msg, String groupName) {
     if (groupToUserMapping.containsKey(groupName)) {
       if (groupToUserMapping.get(groupName).contains(msg.getName())) {
         List listOfUsersInGroup = groupToUserMapping.get(groupName);

@@ -215,9 +215,9 @@ public class GroupToUserDAO {
             groupMembers = new ArrayList<>();
           }
           groupMembers.add(resultSet.getString(2));
-          if (resultSet.isLast()) {
-            map.put(groupName, groupMembers);
-          }
+        }
+        if(groupMembers.size() > 0) {
+          map.put(groupName,groupMembers);
         }
       } finally {
         if (resultSet != null) {
