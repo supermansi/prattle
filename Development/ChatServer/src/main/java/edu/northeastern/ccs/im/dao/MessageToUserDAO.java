@@ -149,6 +149,7 @@ public class MessageToUserDAO {
     PreparedStatement preparedStatement = null;
     PreparedStatement preparedStatement2 = null;
     ResultSet resultSet = null;
+    ResultSet resultSet2 = null;
     String senderUserName = null;
     int count = 0;
     List<String> notifs = new ArrayList<>();
@@ -160,8 +161,9 @@ public class MessageToUserDAO {
         preparedStatement2 = connection.prepareStatement(getGroupNotifs, Statement.RETURN_GENERATED_KEYS);
         preparedStatement2.setInt(1, userID);
         preparedStatement2.setInt(2, userID);
+        resultSet = preparedStatement.executeQuery();
+        resultSet2 = preparedStatement2.executeQuery();
         try {
-          resultSet = preparedStatement.executeQuery();
           while (resultSet.next()) {
             senderUserName = resultSet.getString("username");
             count = resultSet.getInt(2);
@@ -173,10 +175,9 @@ public class MessageToUserDAO {
           }
         }
         try {
-          resultSet = preparedStatement2.executeQuery();
-          while (resultSet.next()) {
-            senderUserName = resultSet.getString(1);
-            count = resultSet.getInt(2);
+          while (resultSet2.next()) {
+            senderUserName = resultSet2.getString(1);
+            count = resultSet2.getInt(2);
             notifs.add(senderUserName + " " + Integer.toString(count));
           }
         } finally {
