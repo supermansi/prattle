@@ -16,6 +16,7 @@ public class GroupDAO {
 
   protected static IConnectionManager connectionManager;
   private static GroupDAO groupDAO;
+  private static UserDAO userDAO;
 
   /**
    * Private constructor for the group DAO.
@@ -32,6 +33,7 @@ public class GroupDAO {
   public static GroupDAO getInstance() {
     if (groupDAO == null) {
       connectionManager = new ConnectionManager();
+      userDAO = UserDAO.getInstance();
       groupDAO = new GroupDAO();
     }
     return groupDAO;
@@ -167,14 +169,15 @@ public class GroupDAO {
    * @return true if the user is the admin of the group, false otherwise
    */
   public boolean validateGroupAdmin(String groupName, int adminID) throws SQLException {
-    String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
+    String adminName = userDAO.getUserByUserID(adminID).getUsername();
+    String validate = "SELECT * FROM Groups WHERE grpName=? AND admins LIKE ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet result = null;
     try {
       preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, groupName);
-      preparedStatement.setInt(2, adminID);
+      preparedStatement.setString(2, "%"+adminName+"%");
       return checkGroup(preparedStatement, result);
     } finally {
       if (preparedStatement != null) {
@@ -303,6 +306,22 @@ public class GroupDAO {
       preparedStatement = connection.prepareStatement(updateRestriction, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, restriction);
       preparedStatement.setString(2, grpName);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+  public void replaceAdminWhenAdminLeaves(int groupId) throws SQLException {
+    String replaceAdmin = "UPDATE Groups SET admins = (SELECT username FROM User WHERE userID = (SELECT userID FROM GroupToUserMap WHERE groupID = ? LIMIT 1 OFFSET 1)) WHERE grpID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(replaceAdmin, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, groupId);
+      preparedStatement.setInt(2, groupId);
       preparedStatement.executeUpdate();
     } finally {
       if (preparedStatement != null) {
