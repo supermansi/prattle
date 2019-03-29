@@ -40,15 +40,6 @@ public class GroupsDAOTest {
   @Mock
   private ResultSet mockResultSet;
 
-//  @AfterClass
-//  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
-//    groupDAO = GroupDAO.getInstance();
-//    Class clazz = GroupDAO.class;
-//    Field connectionManager = clazz.getDeclaredField("connectionManager");
-//    connectionManager.setAccessible(true);
-//    connectionManager.set(groupDAO, new ConnectionManager());
-//  }
-
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
     groupDAO = GroupDAO.getInstance();
@@ -110,10 +101,16 @@ public class GroupsDAOTest {
 
   @Test(expected = SQLException.class)
   public void testGroupExistsNameException() throws SQLException {
-      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
-      doThrow(new SQLException()).when(mockStatement).executeQuery();
+      doThrow(new SQLException()).when(mockConnection).prepareStatement(any());
       groupDAO.checkGroupExists("g1");
   }
+
+  @Test(expected = SQLException.class)
+  public void testGroupExistsNameExceptionQuery() throws SQLException {
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    groupDAO.checkGroupExists("g1");
+  }
+
 
   @Test
   public void testGroupExistsID() throws SQLException {
@@ -122,11 +119,16 @@ public class GroupsDAOTest {
   }
 
   @Test(expected = SQLException.class)
-  public void testGroupExistsIDExceptio() throws SQLException {
-      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
-      doThrow(new SQLException()).when(mockStatement).executeQuery();
+  public void testGroupExistsIDException() throws SQLException {
+      doThrow(new SQLException()).when(mockConnection).prepareStatement(any());
       groupDAO.checkGroupExists(1);
   }
+
+    @Test(expected = SQLException.class)
+    public void testGroupExistsIDExceptionQuery() throws SQLException {
+        doThrow(new SQLException()).when(mockStatement).executeQuery();
+        groupDAO.checkGroupExists(1);
+    }
 
   @Test
   public void testValidateAdmin() throws SQLException {
