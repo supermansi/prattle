@@ -121,6 +121,14 @@ public class UserDAO {
     }
   }
 
+
+  /**
+   * Method to get a user model object created from queries to the database.
+   *
+   * @param resultSet the set of results from the query to the database
+   * @return a user model object containing the queried values
+   * @throws SQLException if the queries do not exist in the database
+   */
   private User getUser(ResultSet resultSet) throws SQLException {
     User user;
     int userID = resultSet.getInt("userID");
@@ -245,6 +253,14 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to determine if a user query to the database has been successful or not.
+   *
+   * @param preparedStatement query to run on the database
+   * @param resultSet result set from another query
+   * @return true if the user is found, otherwise false
+   * @throws SQLException if the values do not exist in the database
+   */
   private static boolean getUser(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
     try {
       resultSet = preparedStatement.executeQuery();
@@ -360,6 +376,14 @@ public class UserDAO {
     updateUserDetail(userName, lastSeen, updateLastSeen, connection, preparedStatement);
   }
 
+
+  /**
+   * Method to get the timestamp as a string of the last message a user viewed.
+   *
+   * @param username username to search for their last seen time
+   * @return String representing the time of the last seen message of the user
+   * @throws SQLException if the user searched for does not exist in the db
+   */
   public String getLastSeen(String username) throws SQLException {
     String getLastSeen = "SELECT lastSeen FROM User WHERE username=?;";
     Connection connection = connectionManager.getConnection();

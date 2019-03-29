@@ -153,14 +153,35 @@ public class Message {
     return result;
   }
 
+  /**
+   * Method to create a read attachment message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new read attachment message
+   */
   public static Message makeReadAttachmentMessage(String srcName, String text) {
     return new Message(MessageType.READ_ATTACHMENT_MESSAGE, srcName, text);
   }
 
+  /**
+   * Method to create a recall message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new recall message
+   */
   public static Message makeRecallMessage(String srcName, String text) {
     return new Message(MessageType.RECALL, srcName, text);
   }
 
+  /**
+   * Method to create an attachment message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new attachment message
+   */
   public static Message makeAttachmentMessage(String srcName, String text) {
     return new Message((MessageType.ATTACHMENT), srcName, text);
   }
@@ -340,30 +361,79 @@ public class Message {
     return new Message(MessageType.HELLO, myName, text);
   }
 
+  /**
+   * Method to create a deactivate user  message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new deactivate user message
+   */
   public static Message makeDeactivateUserMessage(String srcName, String text) {
     return new Message(MessageType.DEACTIVATE_USER, srcName, text);
   }
 
+  /**
+   * Method to create a user exists message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new user exists message
+   */
   public static Message makeUserExistsMessage(String srcName, String text) {
     return new Message(MessageType.USER_EXISTS, srcName, text);
   }
 
+  /**
+   * Method to create a last seen message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new last seen message
+   */
   public static Message makeLastSeenMessage(String srcName, String text) {
     return new Message(MessageType.LAST_SEEN, srcName, text);
   }
 
+  /**
+   * Method to create a leave group message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new leave group message
+   */
   public static Message makeLeaveGroupMessage(String srcName, String text) {
     return new Message(MessageType.LEAVE_GROUP, srcName, text);
   }
 
+  /**
+   * Method to create a set group restriction message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new set group restriction message
+   */
   public static Message makeSetGroupRestrictionMessage(String srcName, String text) {
     return new Message(MessageType.SET_GROUP_RESTRICTION, srcName, text);
   }
 
+  /**
+   * Method to create make admin message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new make admin message
+   */
   public static Message makeMakeAdminMessage(String srcName, String text) {
     return new Message(MessageType.MAKE_ADMIN, srcName, text);
   }
 
+  /**
+   * Method to create a get users in group message.
+   *
+   * @param srcName the sender of the message
+   * @param text the message text
+   * @return a new get users in group message
+   */
   public static Message makeGetUsersInGroupMessage(String srcName, String text) {
     return new Message(MessageType.GET_GROUP_USERS,srcName,text);
   }
@@ -549,42 +619,92 @@ public class Message {
     return (msgType == MessageType.ADD_USER_TO_GRP);
   }
 
+  /**
+   * Determine if this message is a deactivate user message.
+   *
+   * @return True if the message is a deactivate user message; false otherwise
+   */
   public boolean isDeactivateUser() {
     return (msgType == MessageType.DEACTIVATE_USER);
   }
 
+  /**
+   * Determine if this message is a user exists message.
+   *
+   * @return True if the message is a user exists message; false otherwise
+   */
   public boolean isUserExists() {
     return (msgType == MessageType.USER_EXISTS);
   }
 
+  /**
+   * Determine if this message is an attachment message.
+   *
+   * @return True if the message is an attachment message; false otherwise
+   */
   public boolean isAttachmentMessage() {
     return (msgType == MessageType.ATTACHMENT);
   }
 
+  /**
+   * Determine if this message is a last seen message.
+   *
+   * @return True if the message is a last seen message; false otherwise
+   */
   public boolean isLastSeen() {
     return (msgType == MessageType.LAST_SEEN);
   }
 
+  /**
+   * Determine if this message is a change group restriction message.
+   *
+   * @return True if the message is a change group restriction message; false otherwise
+   */
   public boolean isChangeGroupRestriction() {
     return (msgType == MessageType.SET_GROUP_RESTRICTION);
   }
 
+  /**
+   * Determine if this message is a leave group message.
+   *
+   * @return True if the message is a leave group message; false otherwise
+   */
   public boolean isLeaveGroup() {
     return (msgType == MessageType.LEAVE_GROUP);
   }
 
+  /**
+   * Determine if this message is a make admin message.
+   *
+   * @return True if the message is a make admin message; false otherwise
+   */
   public boolean isMakeAdmin() {
     return (msgType == MessageType.MAKE_ADMIN);
   }
 
+  /**
+   * Determine if this message is a recall message.
+   *
+   * @return True if the message is a recall message; false otherwise
+   */
   public boolean isRecall() {
     return (msgType == MessageType.RECALL);
   }
 
+  /**
+   * Determine if this message is a read attachment message.
+   *
+   * @return True if the message is a read attachment message; false otherwise
+   */
   public boolean isReadAttachmentMessage() {
     return (msgType == MessageType.READ_ATTACHMENT_MESSAGE);
   }
 
+  /**
+   * Determine if this message is a get users in group message.
+   *
+   * @return True if the message is a get users in group message; false otherwise
+   */
   public boolean isGetUsersInGroup() { return (msgType == MessageType.GET_GROUP_USERS); }
 
   /**

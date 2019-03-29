@@ -142,6 +142,15 @@ public class MessageToUserDAO {
     }
   }
 
+
+  /**
+   * Method to get a list of strings representing notifications for the user about messages received that
+   * have not been viewed by the user.
+   *
+   * @param userID int representing the user #id
+   * @return a list of strings representing notifications for the user
+   * @throws SQLException if the user #id is not found in the database
+   */
   public List<String> getNotifications(int userID) throws SQLException {
     String getNotifs = "SELECT User.username, A.C FROM User JOIN (SELECT M.senderID, COUNT(M.senderID) AS C FROM (SELECT Message.senderID FROM Message JOIN MessageToUserMap ON Message.msgID = MessageToUserMap.msgID WHERE MessageToUserMap.receiverID = ? AND Message.timestamp > (SELECT lastSeen FROM User WHERE userID=?)) M GROUP BY M.senderID) A ON User.userID = A.senderID;";
     String getGroupNotifs = "SELECT T1.Grpname, T1.C From ((SELECT M.MSGID,G.GRPNAME,Count(*) C FROM MESSAGETOUSERMAP M join Groups G on G.GRPID = M.RECEIVERID WHERE RECEIVERID = (SELECT GROUPID FROM GROUPTOUSERMAP GM WHERE USERID = ?) Group By G.GRPNAME) As T1 Join (SELECT M.msgID FROM Message M WHERE M.timestamp > (SELECT lastSeen FROM User WHERE userID = ?)) AS T2 ON T1.msgID = T2.msgID );";

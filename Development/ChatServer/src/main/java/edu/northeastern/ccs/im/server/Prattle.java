@@ -141,6 +141,9 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * Method to initialize the cached list of user group mappings when prattle starts.
+   */
   private static void initialiseCache() {
     try {
       groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
@@ -217,6 +220,12 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * Method to determine if a given user is currently online.
+   *
+   * @param receiverName name of the user to check their online status
+   * @return true if the user is online, false otherwise
+   */
   public static boolean isUserOnline(String receiverName) {
     boolean flag = false;
     for (ClientRunnable cr : active) {
