@@ -201,7 +201,7 @@ public class GroupToUserDAO {
     PreparedStatement statement = null;
     ResultSet resultSet = null;
     try {
-      statement = connection.prepareStatement(selectQuery);
+      statement = connection.prepareStatement(selectQuery,Statement.RETURN_GENERATED_KEYS);
       try {
         resultSet = statement.executeQuery();
         String groupName = "";
@@ -242,8 +242,8 @@ public class GroupToUserDAO {
     try {
       preparedStatement = connection.prepareStatement(getCount, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, groupId);
-      resultSet = preparedStatement.executeQuery();
       try {
+        resultSet = preparedStatement.executeQuery();
         if(resultSet.next()) {
           count = resultSet.getInt(1);
         } else {
