@@ -356,10 +356,8 @@ public class ClientRunnable implements Runnable {
           } else {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
           }
-<<<<<<< HEAD
         } else if(msg.isAttachmentMessage()){
           Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
-=======
         } else if(msg.isLastSeen()) {
           String receiver = getReceiverName(msg.getText());
           Long lastSeen = UserServices.getLastSeen(receiver);
@@ -382,7 +380,6 @@ public class ClientRunnable implements Runnable {
           String[] split = msg.getText().split(" ");
           GroupServices.makeAdmin(split[1],msg.getName(), split[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Admin added successfully");
->>>>>>> 55f39982ba40b7ab4c847db25e2e4efe94b51586
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
