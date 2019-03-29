@@ -167,6 +167,12 @@ public class MessageToUserDAO {
             count = resultSet.getInt(2);
             notifs.add(senderUserName + " " + Integer.toString(count));
           }
+        } finally {
+          if (resultSet != null) {
+            resultSet.close();
+          }
+        }
+        try {
           resultSet = preparedStatement2.executeQuery();
           while (resultSet.next()) {
             senderUserName = resultSet.getString(1);
