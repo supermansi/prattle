@@ -42,15 +42,6 @@ public class GroupsDAOTest {
   @Mock
   private ResultSet mockResultSet;
 
-//  @AfterClass
-//  public static void afterClass() throws NoSuchFieldException, IllegalAccessException {
-//    groupDAO = GroupDAO.getInstance();
-//    Class clazz = GroupDAO.class;
-//    Field connectionManager = clazz.getDeclaredField("connectionManager");
-//    connectionManager.setAccessible(true);
-//    connectionManager.set(groupDAO, new ConnectionManager());
-//  }
-
   @Before
   public void setUp() throws NoSuchFieldException, IllegalAccessException, SQLException {
     groupDAO = GroupDAO.getInstance();
@@ -329,6 +320,24 @@ public class GroupsDAOTest {
     public void testChangeGroupRestrictionsException() throws SQLException {
       doThrow(new SQLException()).when(mockStatement).executeUpdate();
       groupDAO.changeGroupRestriction("group1", "L");
+    }
+
+    @Test
+    public void testReplaceAdmin() throws SQLException {
+      when(mockStatement.executeUpdate()).thenReturn(1);
+      groupDAO.replaceAdminWhenAdminLeaves(2);
+    }
+
+    @Test(expected = SQLException.class)
+    public void testReplaceAdminException() throws SQLException {
+      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+      groupDAO.replaceAdminWhenAdminLeaves(2);
+    }
+
+    @Test(expected = SQLException.class)
+    public void testReplaceAdminUpdateException() throws SQLException {
+      doThrow(new SQLException()).when(mockStatement).executeUpdate();
+      groupDAO.replaceAdminWhenAdminLeaves(2);
     }
 
 }
