@@ -98,6 +98,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRunForNullMethodName() {
+    mockStatic(UserServices.class);
     when(connection.iterator()).thenReturn(new Iterator<Message>() {
       @Override
       public boolean hasNext() {
@@ -118,6 +119,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testHandleIncomingMessage() {
+    mockStatic(UserServices.class);
     when(connection.iterator()).thenReturn(new Iterator<Message>() {
       @Override
       public boolean hasNext() {
@@ -254,6 +256,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testIncorrectInitialization() {
+    mockStatic(UserServices.class);
     List<Message> nameList = new ArrayList();
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
 
@@ -400,6 +403,28 @@ public class ClientRunnableTest {
 
   @Test
   public void testPrivate() {
+    mockStatic(UserServices.class);
+    when(connection.iterator()).thenReturn(new Iterator<Message>() {
+      @Override
+      public boolean hasNext() {
+        return true;
+      }
+
+      @Override
+      public Message next() {
+        return Message.makePrivateMessage("R", "/pvt z hello");
+      }
+    });
+    clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
+    clientRunnable.run();
+    clientRunnable.terminateClient();
+    verify(connection).close();
+  }
+
+  @Test
+  public void testTerminateException() throws Exception {
+    mockStatic(UserServices.class);
+    PowerMockito.doThrow(new SQLException("Custom DB Exception")).when(UserServices.class,"updateLastSeen",any(),any());
     when(connection.iterator()).thenReturn(new Iterator<Message>() {
       @Override
       public boolean hasNext() {
@@ -422,6 +447,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testTimerIsBehind() throws InvocationTargetException, IllegalAccessException {
+    mockStatic(UserServices.class);
     Class<ClientRunnable> clazz = ClientRunnable.class;
     ClientTimer timer = mock(ClientTimer.class);
     when(timer.isBehind()).thenReturn(true);
@@ -612,7 +638,15 @@ public class ClientRunnableTest {
   public void testProcessLeaveGroup() throws InvocationTargetException, IllegalAccessException, SQLException {
 
     mockStatic(GroupServices.class);
-
+    mockStatic(Prattle.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    List<String> l = new ArrayList<>();
+    l.add("r");
+    hm.put("MSD",list);
+    Whitebox.setInternalState(Prattle.class,"groupToUserMapping",hm);
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -869,6 +903,26 @@ public class ClientRunnableTest {
     List<Message> capturedMsgs = messageCaptor.getAllValues();
     assertEquals("NAK 7 Prattle 28 Invalid username or password", capturedMsgs.get(0).toString());
   }
+
+  @Test
+  public void testAttachment() throws Exception {
+
+    clientRunnable.setName("test");
+    Class<ClientRunnable> clazz = ClientRunnable.class;
+    Method method[] = clazz.getDeclaredMethods();
+    Method met = null;
+    for (Method m : method) {
+      if (m.getName().contains("processMessage")) {
+        met = m;
+      }
+    }
+
+    met.setAccessible(true);
+    mockStatic(Prattle.class);
+    Message msg = Message.makeAttachmentMessage("test", "/file r PQSD");
+    met.invoke(clientRunnable, msg);
+  }
+
 
   /**
    * Message Iterator for use in testing the ClientRunnable class.

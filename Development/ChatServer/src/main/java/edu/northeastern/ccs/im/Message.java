@@ -149,11 +149,11 @@ public class Message {
     return result;
   }
 
-  private static Message makeRecallMessage(String srcName, String text) {
+  public static Message makeRecallMessage(String srcName, String text) {
     return new Message(MessageType.RECALL, srcName, text);
   }
 
-  private static Message makeAttachmentMessage(String srcName, String text) {
+  public static Message makeAttachmentMessage(String srcName, String text) {
     return new Message((MessageType.ATTACHMENT), srcName, text);
   }
 

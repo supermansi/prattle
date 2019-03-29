@@ -38,24 +38,20 @@ import edu.northeastern.ccs.im.services.GroupServices;
  */
 public abstract class Prattle {
 
+  protected static ConcurrentMap<String, List<String>> groupToUserMapping;
   /**
    * Don't do anything unless the server is ready.
    */
   private static boolean isReady = false;
-
   /**
    * Collection of threads that are currently being used.
    */
   private static ConcurrentLinkedQueue<ClientRunnable> active;
 
-  protected static ConcurrentMap<String, List<String>> groupToUserMapping;
-
-
   /** All of the static initialization occurs in this "method" */
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
-    initialiseCache();
   }
 
   /**
@@ -106,6 +102,7 @@ public abstract class Prattle {
    *                     supposed to listen.
    */
   public static void main(String[] args) {
+    initialiseCache();
     // Connect to the socket on the appropriate port to which this server connects.
     try (ServerSocketChannel serverSocket = ServerSocketChannel.open()) {
       serverSocket.configureBlocking(false);
@@ -212,7 +209,7 @@ public abstract class Prattle {
           }
         }
         return true;
-      }else{
+      } else {
         return false;
       }
     } else {
@@ -222,8 +219,8 @@ public abstract class Prattle {
 
   public static boolean isUserOnline(String receiverName) {
     boolean flag = false;
-    for(ClientRunnable cr : active){
-      if(cr.getName().equals(receiverName)){
+    for (ClientRunnable cr : active) {
+      if (cr.getName().equals(receiverName)) {
         flag = true;
         break;
       }
