@@ -161,15 +161,17 @@ public class GroupServices {
     int userID = userDAO.getUserByUsername(username).getUserID();
     int groupID = groupDAO.getGroupByGroupName(groupname).getGrpID();
     if(groupUserDAO.checkIfUserInGroup(userID,groupID)) {
-      //add if only one member in the group then delete group.
+      if(groupUserDAO.getGroupMemberCount(groupID) == 1) {
+        groupDAO.deleteGroupByID(groupID);
+      }
       if(groupDAO.validateGroupAdmin(groupname,userID)) {
         String admins = groupDAO.getGroupByGroupName(groupname).getAdmins();
         String [] adminsList = admins.split(" ");
         if(adminsList.length == 1) {
           groupDAO.replaceAdminWhenAdminLeaves(groupID);
         }
+        groupUserDAO.deleteUserFromGroup(userID,groupID);
       }
-      groupUserDAO.deleteUserFromGroup(userID,groupID);
       return true;
     }
     return false;

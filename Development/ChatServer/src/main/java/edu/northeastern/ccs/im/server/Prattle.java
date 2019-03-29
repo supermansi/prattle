@@ -55,7 +55,11 @@ public abstract class Prattle {
   static {
     // Create the new queue of active threads.
     active = new ConcurrentLinkedQueue<>();
-    initialiseCache();
+    try {
+      initialiseCache();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -144,7 +148,7 @@ public abstract class Prattle {
     }
   }
 
-  private static void initialiseCache() {
+  private static void initialiseCache() throws SQLException {
     groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
   }
 
