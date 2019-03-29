@@ -242,10 +242,12 @@ public class GroupToUserDAO {
     try {
       preparedStatement = connection.prepareStatement(getCount, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, groupId);
+      resultSet = preparedStatement.executeQuery();
       try {
-        resultSet = preparedStatement.executeQuery();
         if(resultSet.next()) {
           count = resultSet.getInt(1);
+        } else {
+          throw new DatabaseConnectionException("No users in group");
         }
       } finally {
         if (resultSet != null) {

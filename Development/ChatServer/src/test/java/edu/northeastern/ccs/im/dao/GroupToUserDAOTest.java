@@ -305,4 +305,32 @@ public class GroupToUserDAOTest {
     List<String> groups = groupToUserDAO.getAllUsersInGroup("Group");
     assertEquals(2, groups.size());
   }
+
+  @Test
+  public void testGetGroupMemberCount() throws SQLException {
+    when(mockResultSet.getInt(1)).thenReturn(3);
+    when(mockResultSet.next()).thenReturn(true);
+    assertEquals(3,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetGroupMemberCountZero() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    assertEquals(0,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetGroupMemberCountExceptionResultSet() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    when(mockStatement.executeQuery()).thenReturn(mockResultSet);
+    assertEquals(0,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetGroupMemberCountExceptionConnection() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    assertEquals(0,groupToUserDAO.getGroupMemberCount(22));
+  }
+
+
 }
