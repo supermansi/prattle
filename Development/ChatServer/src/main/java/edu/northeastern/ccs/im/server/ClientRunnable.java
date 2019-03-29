@@ -325,9 +325,10 @@ public class ClientRunnable implements Runnable {
           String receiverId = getReceiverName(msg.getText());
           if (Prattle.sendGroupMessage(msg, receiverId)) {
             MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+          } else {
+            sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
+                    "do not have permission to send message to the group");
           }
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
-                  "do not have permission to send message to the group");
         } else if (msg.isCreateGroup()) {
           GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
           List<String> usrList = new ArrayList<>();
@@ -373,8 +374,8 @@ public class ClientRunnable implements Runnable {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
           }
         } else if (msg.isAttachmentMessage()) {
-          Message message = Message.makeReadAttachmentMessage(msg.getName(),msg.getText());
-          Prattle.sendPrivateMessage(msg, getReceiverName(message.getText()));
+          Message message = Message.makeReadAttachmentMessage(msg.getName(), msg.getText());
+          Prattle.sendPrivateMessage(message, getReceiverName(message.getText()));
         } else if (msg.isLastSeen()) {
           String receiver = getReceiverName(msg.getText());
           Long lastSeen = UserServices.getLastSeen(receiver);
