@@ -84,25 +84,27 @@ public class GroupServicesTest {
 
   @Test
   public void testAddUserToGroupTrue() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("L");
     groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testAddUserToGroupExists() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("L");
     when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class), anyInt())).thenReturn(false);
     groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test
   public void testAddUserToGroupRestricted() throws SQLException {
-    group.setRestricted(Groups.Restricted.valueOf("H"));
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(true);
     groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testAddUserNotAdmin() throws SQLException {
-    group.setRestricted(Groups.Restricted.valueOf("H"));
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(false);
     groupServices.addUserToGroup("g1", "a", "u");
   }
@@ -297,6 +299,21 @@ public class GroupServicesTest {
     when(mockGroupDAO.validateGroupAdmin(group.getGrpName(),user.getUserID())).thenReturn(true);
     when(mockGroupDAO.getGroupByGroupName(group.getGrpName())).thenReturn(group);
     doNothing().when(mockGroupUserDAO).deleteUserFromGroup(user.getUserID(),group.getGrpID());
+    assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testLeaveGroupAdminMultipleAdmins() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","a b c");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(true);
+    when(mockGroupUserDAO.getGroupMemberCount(group.getGrpID())).thenReturn(5);
+    when(mockGroupDAO.validateGroupAdmin(group.getGrpName(),user.getUserID())).thenReturn(true);
+    when(mockGroupDAO.getGroupByGroupName(group.getGrpName())).thenReturn(group);
+    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(user.getUserID(),group.getGrpID());
+    doNothing().when(mockGroupDAO).updateAdmin(group.getGrpName(),"b c");
     assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
   }
 

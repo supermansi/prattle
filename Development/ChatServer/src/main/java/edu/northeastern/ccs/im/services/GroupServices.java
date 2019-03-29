@@ -54,40 +54,37 @@ public class GroupServices {
    * @param userName  string representing the username name
    */
   public static void addUserToGroup(String groupName, String adminName, String userName) throws SQLException {
-      Groups group = groupDAO.getGroupByGroupName(groupName);
-      User user = userDAO.getUserByUsername(userName);
-      User admin = userDAO.getUserByUsername(adminName);
-      if(group.getRestricted().name().equals("L")) {
-        if(groupUserDAO.checkIfUserInGroup(admin.getUserID(), group.getGrpID())){
-          groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
-        }
-        else
-          throw new DatabaseConnectionException("Unable to add user to group.");
-      }
-      else {
-        if(groupDAO.validateGroupAdmin(groupName, admin.getUserID())){
-          groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
-        }
-        else
-          throw new DatabaseConnectionException("Unable to add user to group.");
-      }
+    Groups group = groupDAO.getGroupByGroupName(groupName);
+    User user = userDAO.getUserByUsername(userName);
+    User admin = userDAO.getUserByUsername(adminName);
+    if (groupDAO.getGroupRestriction(groupName).equals("L")) {
+      if (groupUserDAO.checkIfUserInGroup(admin.getUserID(), group.getGrpID())) {
+        groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
+      } else
+        throw new DatabaseConnectionException("Unable to add user to group.");
+    } else {
+      if (groupDAO.validateGroupAdmin(groupName, admin.getUserID())) {
+        groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
+      } else
+        throw new DatabaseConnectionException("Unable to add user to group.");
+    }
   }
 
-    /**
-     * Method to remove a user from a group.
-     *
-     * @param groupName string representing the group name
-     * @param adminName string representing the admin name
-     * @param userName string representing the user name
-     */
-	public static void removeUserFromGroup(String groupName, String adminName, String userName) throws SQLException {
-		User user = userDAO.getUserByUsername(userName);
-		User admin = userDAO.getUserByUsername(adminName);
-		if(groupDAO.validateGroupAdmin(groupName, admin.getUserID())){
-			Groups group = groupDAO.getGroupByGroupName(groupName);
-			groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
-		}
-	}
+  /**
+   * Method to remove a user from a group.
+   *
+   * @param groupName string representing the group name
+   * @param adminName string representing the admin name
+   * @param userName  string representing the user name
+   */
+  public static void removeUserFromGroup(String groupName, String adminName, String userName) throws SQLException {
+    User user = userDAO.getUserByUsername(userName);
+    User admin = userDAO.getUserByUsername(adminName);
+    if (groupDAO.validateGroupAdmin(groupName, admin.getUserID())) {
+      Groups group = groupDAO.getGroupByGroupName(groupName);
+      groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
+    }
+  }
 
   /**
    * Method to determine if a user is part of a group.
@@ -114,30 +111,28 @@ public class GroupServices {
   }
 
   public static void makeAdmin(String grpName, String oldAdminName, String newAdminName) throws SQLException {
-	int adminID = userDAO.getUserByUsername(oldAdminName).getUserID();
-	if(groupDAO.validateGroupAdmin(grpName, adminID) && userDAO.isUserExists(newAdminName)){
-		String adminName = groupDAO.getGroupByGroupName(grpName).getAdmins();
-		newAdminName = adminName + " " + newAdminName;
-		groupDAO.updateAdmin(grpName, newAdminName);
-	}
-	else {
-    	throw new DatabaseConnectionException("Unable to make admin.");
-	}
+    int adminID = userDAO.getUserByUsername(oldAdminName).getUserID();
+    if (groupDAO.validateGroupAdmin(grpName, adminID) && userDAO.isUserExists(newAdminName)) {
+      String adminName = groupDAO.getGroupByGroupName(grpName).getAdmins();
+      newAdminName = adminName + " " + newAdminName;
+      groupDAO.updateAdmin(grpName, newAdminName);
+    } else {
+      throw new DatabaseConnectionException("Unable to make admin.");
+    }
   }
 
-	public static String getGroupRestrictions(String grpName) throws SQLException{
-		return groupDAO.getGroupRestriction(grpName);
-	}
+  public static String getGroupRestrictions(String grpName) throws SQLException {
+    return groupDAO.getGroupRestriction(grpName);
+  }
 
-    public static void changeGroupRestrictions(String groupName, String adminName, String restriction) throws SQLException {
-        int adminID = userDAO.getUserByUsername(adminName).getUserID();
-        if(groupDAO.checkGroupExists(groupName) && groupDAO.validateGroupAdmin(groupName, adminID)){
-            groupDAO.changeGroupRestriction(groupName, restriction);
-        }
-        else {
-            throw new DatabaseConnectionException("Unable to change group restrictions.");
-        }
+  public static void changeGroupRestrictions(String groupName, String adminName, String restriction) throws SQLException {
+    int adminID = userDAO.getUserByUsername(adminName).getUserID();
+    if (groupDAO.checkGroupExists(groupName) && groupDAO.validateGroupAdmin(groupName, adminID)) {
+      groupDAO.changeGroupRestriction(groupName, restriction);
+    } else {
+      throw new DatabaseConnectionException("Unable to change group restrictions.");
     }
+  }
 
   /**
    * Method to delete a group from the database.
@@ -162,20 +157,23 @@ public class GroupServices {
   public static boolean leaveGroup(String username, String groupname) throws SQLException {
     int userID = userDAO.getUserByUsername(username).getUserID();
     int groupID = groupDAO.getGroupByGroupName(groupname).getGrpID();
-    if(groupUserDAO.checkIfUserInGroup(userID,groupID)) {
-      if(groupUserDAO.getGroupMemberCount(groupID) == 1) {
+    if (groupUserDAO.checkIfUserInGroup(userID, groupID)) {
+      if (groupUserDAO.getGroupMemberCount(groupID) == 1) {
         groupDAO.deleteGroupByID(groupID);
-      }
-      else if(groupDAO.validateGroupAdmin(groupname,userID)) {
+      } else if (groupDAO.validateGroupAdmin(groupname, userID)) {
         String admins = groupDAO.getGroupByGroupName(groupname).getAdmins();
-        String [] adminsList = admins.split(" ");
-        if(adminsList.length == 1) {
+        String[] adminsList = admins.split(" ");
+        if (adminsList.length == 1) {
           groupDAO.replaceAdminWhenAdminLeaves(groupID);
+        } else {
+          String adminName = groupDAO.getGroupByGroupName(groupname).getAdmins();
+          String newAdminName = adminName.replace(username, "").trim();
+          String finalAdminList = newAdminName.replace("  ", " ").trim();
+          groupDAO.updateAdmin(groupname, finalAdminList);
         }
-        groupUserDAO.deleteUserFromGroup(userID,groupID);
-      }
-      else {
-        groupUserDAO.deleteUserFromGroup(userID,groupID);
+        groupUserDAO.deleteUserFromGroup(userID, groupID);
+      } else {
+        groupUserDAO.deleteUserFromGroup(userID, groupID);
       }
       return true;
     }
