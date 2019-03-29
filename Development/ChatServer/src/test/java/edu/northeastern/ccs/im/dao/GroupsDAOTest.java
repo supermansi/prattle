@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.dao;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
+import edu.northeastern.ccs.im.model.User;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -19,9 +20,7 @@ import java.sql.SQLException;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyByte;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import edu.northeastern.ccs.im.model.Groups;
 
@@ -132,24 +131,32 @@ public class GroupsDAOTest {
 
   @Test
   public void testValidateAdmin() throws SQLException {
+      UserDAO mockUserDAO = mock(UserDAO.class);
+      when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
       when(mockResultSet.next()).thenReturn(true);
       assertTrue(groupDAO.validateGroupAdmin("g1", 5));
   }
 
     @Test
     public void testValidateAdminFalse() throws SQLException {
+        UserDAO mockUserDAO = mock(UserDAO.class);
+        when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
         when(mockResultSet.next()).thenReturn(false);
         assertFalse(groupDAO.validateGroupAdmin("g1", 1));
     }
 
   @Test(expected = SQLException.class)
   public void testValidateAdminException() throws SQLException{
+      UserDAO mockUserDAO = mock(UserDAO.class);
+      when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
       doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
       groupDAO.validateGroupAdmin("g1", 1);
   }
 
   @Test(expected = SQLException.class)
   public void testValidateAdminResultSet() throws SQLException{
+      UserDAO mockUserDAO = mock(UserDAO.class);
+      when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
       doThrow(new SQLException()).when(mockStatement).executeQuery();
       groupDAO.validateGroupAdmin("g1", 1);
   }
