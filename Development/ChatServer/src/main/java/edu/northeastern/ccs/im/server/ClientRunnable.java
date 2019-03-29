@@ -388,8 +388,8 @@ public class ClientRunnable implements Runnable {
           GroupServices.changeGroupRestrictions(split[1], msg.getName(), split[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Group restriction set successfully");
         } else if (msg.isLeaveGroup()) {
-          //todo 
-
+          GroupServices.leaveGroup(msg.getName(), getReceiverName(msg.getText()));
+          Prattle.groupToUserMapping.get(getReceiverName(msg.getText())).remove(msg.getName());
         } else if (msg.isMakeAdmin()) {
           String[] split = msg.getText().split(" ");
           GroupServices.makeAdmin(split[1], msg.getName(), split[2]);
