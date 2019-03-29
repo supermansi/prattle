@@ -133,8 +133,14 @@ public class Message {
         result = makeDeactivateUserMessage(srcName, text);
     } else if (handle.compareTo(MessageType.USER_EXISTS.toString()) == 0) {
         result = makeUserExistsMessage(srcName,text);
+    }else if (handle.compareTo(MessageType.ATTACHMENT.toString()) == 0) {
+      result = makeAttachmentMessage(srcName, text);
     }
     return result;
+  }
+
+  private static Message makeAttachmentMessage(String srcName, String text) {
+    return new Message((MessageType.ATTACHMENT), srcName, text);
   }
 
   /**
@@ -476,6 +482,7 @@ public class Message {
 
   public boolean isUserExists() { return (msgType == MessageType.USER_EXISTS);}
 
+  public boolean isAttachmentMessage() {return (msgType == MessageType.ATTACHMENT);}
 
     /**
    * Representation of this message as a String. This begins with the message handle and then

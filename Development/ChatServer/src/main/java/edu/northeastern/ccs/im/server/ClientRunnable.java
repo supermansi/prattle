@@ -360,6 +360,8 @@ public class ClientRunnable implements Runnable {
           } else {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
           }
+        } else if(msg.isAttachmentMessage()){
+          Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());

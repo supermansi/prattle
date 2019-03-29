@@ -91,7 +91,9 @@ public enum MessageType {
 
   DEACTIVATE_USER("DUS"),
 
-  USER_EXISTS("UEX");
+  USER_EXISTS("UEX"),
+
+  ATTACHMENT("ATT");
 
   /**
    * Store the short name of this message type.
