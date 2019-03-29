@@ -87,9 +87,23 @@ public class MessageServices {
     return messageUserDAO.getMessagesFromGroup(groupName);
   }
 
-  public boolean recallMessage(String sender, String receiver) {return true;}
+  public static  boolean recallMessage(String sender, String receiver) throws SQLException {
+    String userLastSeen = userDAO.getLastSeen(receiver);
+    int senderID = userDAO.getUserByUsername(sender).getUserID();
+    int receiverID = userDAO.getUserByUsername(receiver).getUserID();
+    String messageLastSeen = messageDAO.getTimeStampOfLastMessage(senderID, receiverID);
+    boolean flag = false;
+    if(Long.parseLong(userLastSeen) < Long.parseLong(messageLastSeen)) {
+      int msgID = messageDAO.getIdOfLastMessage(senderID, receiverID);
+      messageDAO.deleteMessageByID("Message", msgID);
+      messageDAO.deleteMessageByID("MessageToUserMap", msgID);
+      flag = true;
+    }
+    return flag;
+  }
 
-  public List<String> getPushNotifications(String username) {return null;}
+  public static List<String> getPushNotifications(String username) throws SQLException {
+    return messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID());
+  }
 
-  public void changeGroupRestrictions(String groupName, String adminName, String restriction) {}
 }

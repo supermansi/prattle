@@ -122,9 +122,6 @@ public class UserServices {
   }
 
   public static boolean userExists(String username) throws SQLException {
-    if (userDAO.isUserExists(username)){
-      return true;
-    }
-    return false;
+    return userDAO.isUserExists(username);
   }
 }

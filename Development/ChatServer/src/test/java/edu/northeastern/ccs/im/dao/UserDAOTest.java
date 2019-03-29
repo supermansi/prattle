@@ -389,7 +389,7 @@ public class UserDAOTest {
     userDAO.getLastSeen("admin");
   }
 
-  @Test(expected = SQLException.class)
+  @Test(expected = DatabaseConnectionException.class)
   public void testGetLastSeenExceptionKeys() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).getGeneratedKeys();
     userDAO.getLastSeen("admin");
@@ -397,7 +397,7 @@ public class UserDAOTest {
 
   @Test(expected = SQLException.class)
   public void testGetLastSeenExceptionSet() throws SQLException {
-    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     userDAO.getLastSeen("admin");
   }
 

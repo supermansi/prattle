@@ -361,16 +361,15 @@ public class UserDAO {
   }
 
   public String getLastSeen(String username) throws SQLException {
-    String getLastSeen = "SELECT lastSeen FROM User WHERE username=?";
+    String getLastSeen = "SELECT lastSeen FROM User WHERE username=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(getLastSeen, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, username);
-      preparedStatement.executeUpdate();
       try {
-        resultSet = preparedStatement.getGeneratedKeys();
+        resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
           return resultSet.getString("lastSeen");
         } else {

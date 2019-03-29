@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentMap;
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
@@ -84,9 +85,11 @@ public class GroupServices {
      */
 	public static void removeUserFromGroup(String groupName, String adminName, String userName) throws SQLException {
 		User user = userDAO.getUserByUsername(userName);
-		groupDAO.validateGroupAdmin(groupName, user.getUserID());
-		Groups group = groupDAO.getGroupByGroupName(groupName);
-		groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
+		User admin = userDAO.getUserByUsername(adminName);
+		if(groupDAO.validateGroupAdmin(groupName, admin.getUserID())){
+			Groups group = groupDAO.getGroupByGroupName(groupName);
+			groupUserDAO.deleteUserFromGroup(user.getUserID(), group.getGrpID());
+		}
 	}
 
     /**
@@ -116,17 +119,30 @@ public class GroupServices {
 		return false;
 	}
 
-	public static void makeAdmin(String grpName, String newAdminName) throws SQLException {
-		// if(groupDAO.checkGroupExists(grpName) && userDAO.isUserExists(newAdminName)){
+	public static void makeAdmin(String grpName, String oldAdminName, String newAdminName) throws SQLException {
+		int adminID = userDAO.getUserByUsername(oldAdminName).getUserID();
+		if(groupDAO.validateGroupAdmin(grpName, adminID) && userDAO.isUserExists(newAdminName)){
 			String adminName = groupDAO.getGroupByGroupName(grpName).getAdmins();
 			newAdminName = adminName + " " + newAdminName;
 			groupDAO.updateAdmin(grpName, newAdminName);
-			//return true;
-		//}
-		//return false;
+		}
+		else {
+			throw new DatabaseConnectionException("Unable to make admin.");
+		}
 	}
 
 	public static ConcurrentMap<String,List<String>> getListOfAllUsersForAllGroups(){
 		return null;
+	}
+
+	public static String getGroupRestrictions(String grpName) throws SQLException{
+		return groupDAO.getGroupRestriction(grpName);
+	}
+
+	public static void changeGroupRestrictions(String groupName, String adminName, String restriction) throws SQLException {
+		int adminID = userDAO.getUserByUsername(adminName).getUserID();
+		if(groupDAO.checkGroupExists(groupName) && groupDAO.validateGroupAdmin(groupName, adminID)){
+			groupDAO.changeGroupRestriction(groupName, restriction);
+		}
 	}
 }

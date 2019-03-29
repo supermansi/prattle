@@ -93,7 +93,15 @@ public enum MessageType {
 
   USER_EXISTS("UEX"),
 
-  ATTACHMENT("ATT");
+  ATTACHMENT("ATT"),
+
+  LAST_SEEN("LSN"),
+
+  SET_GROUP_RESTRICTION("SGR"),
+
+  LEAVE_GROUP("LGR"),
+
+  MAKE_ADMIN("MAD");
 
   /**
    * Store the short name of this message type.

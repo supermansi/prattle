@@ -122,4 +122,10 @@ public class UserServicesTest {
     assertEquals(false, UserServices.userExists("RUser"));
   }
 
+  @Test
+  public void testGetLastSeen() throws SQLException {
+    when(mockUserDAO.getLastSeen("Daba")).thenReturn("00000000");
+    assertEquals(Long.parseLong("00000000"), (long)UserServices.getLastSeen("Daba"));
+  }
+
 }

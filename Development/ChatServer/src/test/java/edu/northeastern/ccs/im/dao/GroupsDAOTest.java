@@ -1,7 +1,6 @@
 package edu.northeastern.ccs.im.dao;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
-import edu.northeastern.ccs.im.model.User;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -19,20 +18,18 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyByte;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.model.Groups;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupsDAOTest {
 
   private static GroupDAO groupDAO;
-  private Groups group;
   private Groups group1;
-  private boolean isException;
 
   @Mock
   private ConnectionManager mockManager;
@@ -88,9 +85,8 @@ public class GroupsDAOTest {
   }
 
   @Test(expected = SQLException.class)
-  public void testCreateResultSetException() throws NoSuchFieldException, IllegalAccessException, SQLException {
-    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
-    doThrow(new SQLException()).when(mockStatement).executeQuery();
+  public void testCreateStatementException() throws NoSuchFieldException, IllegalAccessException, SQLException {
+    doThrow(new SQLException()).when(mockStatement).executeUpdate();
     groupDAO.createGroup(group1);
   }
 
@@ -100,6 +96,11 @@ public class GroupsDAOTest {
       groupDAO.createGroup(group1);
   }
 
+  @Test(expected = SQLException.class)
+  public void testCreateGroupKeys() throws SQLException {
+      doThrow(new SQLException()).when(mockStatement).getGeneratedKeys();
+      groupDAO.createGroup(group1);
+  }
 
   @Test
   public void testGroupExistsName() throws SQLException {
@@ -142,10 +143,14 @@ public class GroupsDAOTest {
   @Test(expected = SQLException.class)
   public void testValidateAdminException() throws SQLException{
       doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
-      doThrow(new SQLException()).when(mockStatement).executeQuery();
       groupDAO.validateGroupAdmin("g1", 1);
   }
 
+  @Test(expected = SQLException.class)
+  public void testValidateAdminResultSet() throws SQLException{
+      doThrow(new SQLException()).when(mockStatement).executeQuery();
+      groupDAO.validateGroupAdmin("g1", 1);
+  }
 
   @Test
   public void testGroupByName() throws SQLException {
@@ -192,6 +197,18 @@ public class GroupsDAOTest {
       groupDAO.deleteGroupByID(1);
   }
 
+  @Test(expected = SQLException.class)
+  public void testDeleteUpdate() throws SQLException {
+      doThrow(new SQLException()).when(mockStatement).executeUpdate();
+      groupDAO.deleteGroupByID(1);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testDeleteNull() throws SQLException {
+      when(mockConnection.prepareStatement(any())).thenReturn(null);
+      groupDAO.deleteGroupByID(1);
+  }
+
   @Test
     public void testGetGroup()throws InvocationTargetException, IllegalAccessException, SQLException {
       when(mockResultSet.next()).thenReturn(true);
@@ -232,4 +249,60 @@ public class GroupsDAOTest {
       when(mockStatement.executeUpdate()).thenReturn(1);
       groupDAO.updateAdmin(group1.getGrpName(), "admin1");
   }
+
+    @Test(expected = SQLException.class)
+    public void testUpdateAdminsEx() throws SQLException {
+        doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+        groupDAO.updateAdmin(group1.getGrpName(), "admin1");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testUpdateAdminsExUpdate() throws SQLException {
+        doThrow(new SQLException()).when(mockStatement).executeUpdate();
+        groupDAO.updateAdmin(group1.getGrpName(), "admin1");
+    }
+
+    @Test
+    public void testGetGroupRestriction() throws SQLException {
+      when(mockResultSet.next()).thenReturn(true);
+      when(mockResultSet.getString(1)).thenReturn("H");
+      assertEquals("H", groupDAO.getGroupRestriction("group1"));
+    }
+
+    @Test
+    public void testGetGroupRestrictionNullSet() throws SQLException {
+        when(mockResultSet.next()).thenReturn(false);
+        when(mockResultSet.getString(1)).thenReturn("H");
+        assertNull(groupDAO.getGroupRestriction("group1"));
+    }
+
+    @Test(expected = SQLException.class)
+    public void testGetGroupRestrictionStatementException() throws SQLException {
+      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class),any(Integer.class));
+      groupDAO.getGroupRestriction("group1");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testGetGroupRestrictionQueryException() throws SQLException {
+      doThrow(new SQLException()).when(mockStatement).executeQuery();
+      groupDAO.getGroupRestriction("group1");
+    }
+
+    @Test
+    public void testChangeGroupRestrictions() throws SQLException {
+      groupDAO.changeGroupRestriction("group1", "L");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testChangeGroupRestrictionsNullStatement() throws SQLException {
+      when(mockConnection.prepareStatement(any(String.class),any(Integer.class))).thenReturn(null);
+      groupDAO.changeGroupRestriction("group1", "L");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testChangeGroupRestrictionsException() throws SQLException {
+      doThrow(new SQLException()).when(mockStatement).executeUpdate();
+      groupDAO.changeGroupRestriction("group1", "L");
+    }
+
 }

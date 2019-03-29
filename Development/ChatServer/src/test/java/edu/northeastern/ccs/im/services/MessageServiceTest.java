@@ -1,7 +1,10 @@
 package edu.northeastern.ccs.im.services;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -142,5 +145,29 @@ public class MessageServiceTest {
   @Test
   public void testRetrieveGroupMessages() throws SQLException {
     assertEquals(grpChat,MessageServices.retrieveGroupMessages(createdGroup.getGrpName()));
+  }
+
+  @Test
+  public void testRecall() throws SQLException {
+    when(mockMessageDAO.getTimeStampOfLastMessage(anyInt(), anyInt())).thenReturn("00000001");
+    when(mockUserDAO.getLastSeen(anyString())).thenReturn("00000000");
+    when(mockMessageDAO.getIdOfLastMessage(anyInt(), anyInt())).thenReturn(1);
+    assertTrue(MessageServices.recallMessage("Daba", "Daba11"));
+  }
+
+  @Test
+  public void testRecallFalse() throws SQLException {
+    when(mockMessageDAO.getTimeStampOfLastMessage(anyInt(), anyInt())).thenReturn("00000000");
+    when(mockUserDAO.getLastSeen(anyString())).thenReturn("00000000");
+    when(mockMessageDAO.getIdOfLastMessage(anyInt(), anyInt())).thenReturn(1);
+    assertFalse(MessageServices.recallMessage("Daba", "Daba11"));
+  }
+
+  @Test
+  public void testPushNotifications() throws SQLException {
+    List<String> notifications = new ArrayList<>();
+    notifications.add("user1 5");
+    when(mockMessageToUserDAO.getNotifications(52)).thenReturn(notifications);
+    assertEquals(1, MessageServices.getPushNotifications("Daba").size());
   }
 }

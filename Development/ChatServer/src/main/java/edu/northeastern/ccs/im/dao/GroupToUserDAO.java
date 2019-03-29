@@ -52,7 +52,7 @@ public class GroupToUserDAO {
     String insertUserToGroupMap = "INSERT INTO GroupToUserMap(userID, groupID) VALUES(?,?);";
     // Check if group exists and user exists
     if (groupDAO.checkGroupExists(groupID)) {
-      if (userDAO.isUserExists(userDAO.getUserByUserID(userID).getUsername())) {
+      if (userDAO.isUserExists(userID)) {
         Connection connection = connectionManager.getConnection();
         PreparedStatement statement = null;
         try {
@@ -82,22 +82,31 @@ public class GroupToUserDAO {
    * @return true if the user is part of the group, otherwise false
    */
   public boolean checkIfUserInGroup(int userID, int groupID) throws SQLException {
-    String checkIfUserInGroup = "SELECT * FROM GroupToUserMap WHERE userID=? AND groupID=?;";
+    String checkUser = "SELECT * FROM GroupToUserMap WHERE userID=? AND groupID=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
+    ResultSet result = null;
+    boolean flag = false;
     try {
-      statement = connection.prepareStatement(checkIfUserInGroup);
+      statement = connection.prepareStatement(checkUser);
       statement.setInt(1, userID);
       statement.setInt(2, groupID);
-      try (ResultSet result = statement.executeQuery();) {
-        return result.next();
+      try{
+        result = statement.executeQuery();
+        flag = result.next();
+      }
+      finally {
+        if(result != null) {
+          result.close();
+        }
       }
     } finally {
-      if (statement != null) {
-        statement.close();
-      }
-      connection.close();
+        if (statement != null) {
+          statement.close();
+        }
+        connection.close();
     }
+    return flag;
   }
 
   /**

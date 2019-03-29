@@ -1,10 +1,8 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
@@ -349,19 +347,42 @@ public class ClientRunnable implements Runnable {
           GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
           sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
         } else if(msg.isDeactivateUser()) {
-          //todo check if this comes through before user is deleted in db
           sendMessageToClient(ServerConstants.SERVER_NAME, "Account successfully deleted.");
           UserServices.deleteUser(msg.getName());
           terminate = true;
         } else if (msg.isUserExists()) {
-          String[] split = msg.getText().split(" ");
-          if(UserServices.userExists(split[1])) {
+          if(UserServices.userExists(getReceiverName(msg.getText()))) {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user exists");
           } else {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
           }
+<<<<<<< HEAD
         } else if(msg.isAttachmentMessage()){
           Prattle.sendPrivateMessage(msg,getReceiverName(msg.getText()));
+=======
+        } else if(msg.isLastSeen()) {
+          String receiver = getReceiverName(msg.getText());
+          Long lastSeen = UserServices.getLastSeen(receiver);
+          Date resultDate = new Date(lastSeen);
+          SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+          sendMessageToClient(ServerConstants.SERVER_NAME, receiver + " last viewed messages at "
+                  + sdf.format(resultDate));
+
+        } else if(msg.isChangeGroupRestriction()) {
+          //todo logic for change group restriction
+
+          String[] split = msg.getText().split(" ");
+
+          GroupServices.changeGroupRestrictions(split[1], msg.getName(), split[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Group restriction set successfully");
+        } else if (msg.isLeaveGroup()) {
+          //todo message text processing and call for change group restriction service
+
+        } else if (msg.isMakeAdmin()) {
+          String[] split = msg.getText().split(" ");
+          GroupServices.makeAdmin(split[1],msg.getName(), split[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Admin added successfully");
+>>>>>>> 55f39982ba40b7ab4c847db25e2e4efe94b51586
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());

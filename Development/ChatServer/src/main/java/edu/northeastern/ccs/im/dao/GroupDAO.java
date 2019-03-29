@@ -15,7 +15,6 @@ import edu.northeastern.ccs.im.model.Groups;
 public class GroupDAO {
 
   protected static IConnectionManager connectionManager;
-  private static UserDAO userDAO;
   private static GroupDAO groupDAO;
 
   /**
@@ -33,7 +32,6 @@ public class GroupDAO {
   public static GroupDAO getInstance() {
     if (groupDAO == null) {
       connectionManager = new ConnectionManager();
-      userDAO = UserDAO.getInstance();
       groupDAO = new GroupDAO();
     }
     return groupDAO;
@@ -118,19 +116,23 @@ public class GroupDAO {
     try {
       statement = connection.prepareStatement(checkGroup);
       statement.setString(1, groupName);
-      try {
-        result = statement.executeQuery();
-        return result.next();
-      } finally {
-        if (result != null) {
-          result.close();
-        }
-      }
+      return checkGroup(statement, result);
     } finally {
       if (statement != null) {
         statement.close();
       }
       connection.close();
+    }
+  }
+
+  private boolean checkGroup(PreparedStatement statement, ResultSet result) throws SQLException {
+    try {
+      result = statement.executeQuery();
+      return result.next();
+    } finally {
+      if (result != null) {
+        result.close();
+      }
     }
   }
 
@@ -148,14 +150,7 @@ public class GroupDAO {
     try {
       statement = connection.prepareStatement(checkGroup);
       statement.setInt(1, groupID);
-      try {
-        result = statement.executeQuery();
-        return result.next();
-      } finally {
-        if (result != null) {
-          result.close();
-        }
-      }
+      return checkGroup(statement, result);
     } finally {
       if (statement != null) {
         statement.close();
@@ -172,7 +167,6 @@ public class GroupDAO {
    * @return true if the user is the admin of the group, false otherwise
    */
   public boolean validateGroupAdmin(String groupName, int adminID) throws SQLException {
-    //User admin = userDAO.getUserByUsername(userName);
     String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
@@ -181,15 +175,7 @@ public class GroupDAO {
       preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, groupName);
       preparedStatement.setInt(2, adminID);
-      try {
-        result = preparedStatement.executeQuery();
-        return result.next();
-      } finally {
-        if (result != null) {
-          result.close();
-        }
-
-      }
+      return checkGroup(preparedStatement, result);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -213,7 +199,6 @@ public class GroupDAO {
       preparedStatement.setString(1, groupName);
       return getGroups(preparedStatement);
     } finally {
-
       if (preparedStatement != null) {
         preparedStatement.close();
       }
@@ -272,6 +257,52 @@ public class GroupDAO {
       preparedStatement = connection.prepareStatement(updateAdmin, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, adminName);
       preparedStatement.setString(2, groupName);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public String getGroupRestriction(String grpName) throws SQLException {
+    String getRestriction = "SELECT restricted FROM Groups WHERE grpName=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    String restriction = null;
+    try {
+      preparedStatement = connection.prepareStatement(getRestriction, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, grpName);
+      try{
+        resultSet = preparedStatement.executeQuery();
+        if(resultSet.next()) {
+          restriction = resultSet.getString(1);
+        }
+      }
+      finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return restriction;
+  }
+
+  public void changeGroupRestriction(String grpName, String restriction) throws SQLException {
+    String updateRestriction = "UPDATE Groups SET restricted=? WHERE grpName=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(updateRestriction, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, restriction);
+      preparedStatement.setString(2, grpName);
       preparedStatement.executeUpdate();
     } finally {
       if (preparedStatement != null) {
