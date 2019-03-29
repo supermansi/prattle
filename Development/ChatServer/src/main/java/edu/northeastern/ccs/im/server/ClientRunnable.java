@@ -374,6 +374,7 @@ public class ClientRunnable implements Runnable {
         } else if (msg.isMakeAdmin()) {
           String[] split = msg.getText().split(" ");
           GroupServices.makeAdmin(split[1],msg.getName(), split[2]);
+          sendMessageToClient(ServerConstants.SERVER_NAME, "Admin added successfully");
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
