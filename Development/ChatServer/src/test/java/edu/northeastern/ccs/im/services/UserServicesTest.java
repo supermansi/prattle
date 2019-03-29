@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.services;
 
+import edu.northeastern.ccs.im.PasswordHash;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -40,6 +41,7 @@ public class UserServicesTest {
     when(mockUserDAO.isUserExists("JUser")).thenReturn(true);
     when(mockUserDAO.isUserExists("RUser")).thenReturn(false);
     when(mockUserDAO.validateUser(user.getUsername(), user.getPassword())).thenReturn(true);
+    when(mockUserDAO.validateUser(user.getUsername(), PasswordHash.hashPassword(user.getPassword()))).thenReturn(true);
     doNothing().when(mockUserDAO).deleteUser(user.getUsername());
     doNothing().when(mockUserDAO).updateFirstName(user.getUsername(), "abc");
     doNothing().when(mockUserDAO).updateLastName(user.getUsername(), "abc");
