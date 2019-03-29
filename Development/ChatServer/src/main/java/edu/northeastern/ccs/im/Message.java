@@ -145,8 +145,14 @@ public class Message {
       result = makeMakeAdminMessage(srcName, text);
     } else if (handle.compareTo(MessageType.RECALL.toString()) == 0) {
       result = makeRecallMessage(srcName, text);
+    }else if (handle.compareTo(MessageType.READ_ATTACHMENT_MESSAGE.toString()) == 0) {
+      result = makeReadAttachmentMessage(srcName, text);
     }
     return result;
+  }
+
+  public static Message makeReadAttachmentMessage(String srcName, String text) {
+    return new Message(MessageType.READ_ATTACHMENT_MESSAGE, srcName, text);
   }
 
   public static Message makeRecallMessage(String srcName, String text) {
@@ -569,6 +575,9 @@ public class Message {
     return (msgType == MessageType.RECALL);
   }
 
+  public boolean isReadAttachmentMessage() {
+    return (msgType == MessageType.READ_ATTACHMENT_MESSAGE);
+  }
 
   /**
    * Representation of this message as a String. This begins with the message handle and then

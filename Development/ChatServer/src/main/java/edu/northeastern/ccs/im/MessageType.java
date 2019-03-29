@@ -103,7 +103,9 @@ public enum MessageType {
 
   MAKE_ADMIN("MAD"),
 
-  RECALL("RCL");
+  RECALL("RCL"),
+
+  READ_ATTACHMENT_MESSAGE("RAM");
 
   /**
    * Store the short name of this message type.

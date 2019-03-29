@@ -373,7 +373,8 @@ public class ClientRunnable implements Runnable {
             sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
           }
         } else if (msg.isAttachmentMessage()) {
-          Prattle.sendPrivateMessage(msg, getReceiverName(msg.getText()));
+          Message message = Message.makeReadAttachmentMessage(msg.getName(),msg.getText());
+          Prattle.sendPrivateMessage(msg, getReceiverName(message.getText()));
         } else if (msg.isLastSeen()) {
           String receiver = getReceiverName(msg.getText());
           Long lastSeen = UserServices.getLastSeen(receiver);
