@@ -156,26 +156,32 @@ public class MessageToUserDAO {
       preparedStatement = connection.prepareStatement(getNotifs, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, userID);
       preparedStatement.setInt(2, userID);
-      preparedStatement2 = connection.prepareStatement(getGroupNotifs, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement2.setInt(1, userID);
-      preparedStatement2.setInt(2, userID);
-      try{
-        resultSet = preparedStatement.executeQuery();
-        while(resultSet.next()) {
-          senderUserName = resultSet.getString("username");
-          count = resultSet.getInt(2);
-          notifs.add(senderUserName + " " + Integer.toString(count));
-        }
-        resultSet = preparedStatement2.executeQuery();
-        while(resultSet.next()) {
-          senderUserName = resultSet.getString(1);
-          count = resultSet.getInt(2);
-          notifs.add(senderUserName + " " + Integer.toString(count));
+      try {
+        preparedStatement2 = connection.prepareStatement(getGroupNotifs, Statement.RETURN_GENERATED_KEYS);
+        preparedStatement2.setInt(1, userID);
+        preparedStatement2.setInt(2, userID);
+        try {
+          resultSet = preparedStatement.executeQuery();
+          while (resultSet.next()) {
+            senderUserName = resultSet.getString("username");
+            count = resultSet.getInt(2);
+            notifs.add(senderUserName + " " + Integer.toString(count));
+          }
+          resultSet = preparedStatement2.executeQuery();
+          while (resultSet.next()) {
+            senderUserName = resultSet.getString(1);
+            count = resultSet.getInt(2);
+            notifs.add(senderUserName + " " + Integer.toString(count));
+          }
+        } finally {
+          if (resultSet != null) {
+            resultSet.close();
+          }
         }
       }
       finally {
-        if(resultSet != null) {
-          resultSet.close();
+        if (preparedStatement2 != null) {
+          preparedStatement2.close();
         }
       }
     } finally {
