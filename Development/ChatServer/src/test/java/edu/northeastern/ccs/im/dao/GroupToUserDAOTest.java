@@ -313,7 +313,7 @@ public class GroupToUserDAOTest {
     assertEquals(3,groupToUserDAO.getGroupMemberCount(22));
   }
 
-  @Test
+  @Test(expected = DatabaseConnectionException.class)
   public void testGetGroupMemberCountZero() throws SQLException {
     when(mockResultSet.next()).thenReturn(false);
     assertEquals(0,groupToUserDAO.getGroupMemberCount(22));
