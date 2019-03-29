@@ -144,9 +144,12 @@ public class MessageToUserDAO {
 
   public List<String> getNotifications(int userID) throws SQLException {
     String getNotifs = "SELECT User.username, A.C FROM User JOIN (SELECT M.senderID, COUNT(M.senderID) AS C FROM (SELECT Message.senderID FROM Message JOIN MessageToUserMap ON Message.msgID = MessageToUserMap.msgID WHERE MessageToUserMap.receiverID = ? AND Message.timestamp > (SELECT lastSeen FROM User WHERE userID=?)) M GROUP BY M.senderID) A ON User.userID = A.senderID;";
+    String getGroupNotifs = "SELECT T1.Grpname, T1.C From ((SELECT M.MSGID,G.GRPNAME,Count(*) C FROM MESSAGETOUSERMAP M join Groups G on G.GRPID = M.RECEIVERID WHERE RECEIVERID = (SELECT GROUPID FROM GROUPTOUSERMAP GM WHERE USERID = ?) Group By G.GRPNAME) As T1 Join (SELECT M.msgID FROM Message M WHERE M.timestamp > (SELECT lastSeen FROM User WHERE userID = ?)) AS T2 ON T1.msgID = T2.msgID );";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
+    PreparedStatement preparedStatement2 = null;
     ResultSet resultSet = null;
+    ResultSet resultSet2 = null;
     String senderUserName = null;
     int count = 0;
     List<String> notifs = new ArrayList<>();
@@ -154,17 +157,38 @@ public class MessageToUserDAO {
       preparedStatement = connection.prepareStatement(getNotifs, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, userID);
       preparedStatement.setInt(2, userID);
-      try{
-        resultSet = preparedStatement.executeQuery();
-        while(resultSet.next()) {
-          senderUserName = resultSet.getString("username");
-          count = resultSet.getInt(2);
-          notifs.add(senderUserName + " " + Integer.toString(count));
+      try {
+        preparedStatement2 = connection.prepareStatement(getGroupNotifs, Statement.RETURN_GENERATED_KEYS);
+        preparedStatement2.setInt(1, userID);
+        preparedStatement2.setInt(2, userID);
+        try {
+          resultSet = preparedStatement.executeQuery();
+          while (resultSet.next()) {
+            senderUserName = resultSet.getString("username");
+            count = resultSet.getInt(2);
+            notifs.add(senderUserName + " " + Integer.toString(count));
+          }
+        } finally {
+          if (resultSet != null) {
+            resultSet.close();
+          }
+        }
+        try {
+          resultSet2 = preparedStatement2.executeQuery();
+          while (resultSet2.next()) {
+            senderUserName = resultSet2.getString(1);
+            count = resultSet2.getInt(2);
+            notifs.add(senderUserName + " " + Integer.toString(count));
+          }
+        } finally {
+          if (resultSet2 != null) {
+            resultSet2.close();
+          }
         }
       }
       finally {
-        if(resultSet != null) {
-          resultSet.close();
+        if (preparedStatement2 != null) {
+          preparedStatement2.close();
         }
       }
     } finally {

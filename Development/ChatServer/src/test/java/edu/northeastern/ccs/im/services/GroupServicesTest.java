@@ -303,6 +303,21 @@ public class GroupServicesTest {
   }
 
   @Test
+  public void testLeaveGroupAdminMultipleAdmins() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","a b c");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(true);
+    when(mockGroupUserDAO.getGroupMemberCount(group.getGrpID())).thenReturn(5);
+    when(mockGroupDAO.validateGroupAdmin(group.getGrpName(),user.getUserID())).thenReturn(true);
+    when(mockGroupDAO.getGroupByGroupName(group.getGrpName())).thenReturn(group);
+    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(user.getUserID(),group.getGrpID());
+    doNothing().when(mockGroupDAO).updateAdmin(group.getGrpName(),"b c");
+    assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
   public void testLeaveGroupNormalUser() throws SQLException {
     User user = new User(52,"a","a","a","a@gmail.com","a");
     when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
