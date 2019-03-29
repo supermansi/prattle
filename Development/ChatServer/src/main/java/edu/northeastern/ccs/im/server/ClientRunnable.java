@@ -374,7 +374,7 @@ public class ClientRunnable implements Runnable {
           }
         } else if (msg.isAttachmentMessage()) {
           Message message = Message.makeReadAttachmentMessage(msg.getName(),msg.getText());
-          Prattle.sendPrivateMessage(msg, getReceiverName(message.getText()));
+          Prattle.sendPrivateMessage(message, getReceiverName(message.getText()));
         } else if (msg.isLastSeen()) {
           String receiver = getReceiverName(msg.getText());
           Long lastSeen = UserServices.getLastSeen(receiver);
