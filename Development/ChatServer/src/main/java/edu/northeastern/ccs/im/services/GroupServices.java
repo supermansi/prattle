@@ -54,15 +54,23 @@ public class GroupServices {
    * @param userName  string representing the username name
    */
   public static void addUserToGroup(String groupName, String adminName, String userName) throws SQLException {
-      groupDAO.checkGroupExists(groupName);
+      Groups group = groupDAO.getGroupByGroupName(groupName);
       User user = userDAO.getUserByUsername(userName);
       User admin = userDAO.getUserByUsername(adminName);
-      groupDAO.validateGroupAdmin(groupName, admin.getUserID());
-      Groups group = groupDAO.getGroupByGroupName(groupName);
-      if(!groupUserDAO.checkIfUserInGroup(user.getUserID(), group.getGrpID()))
+      if(group.getRestricted().name().equals("L")) {
+        if(groupUserDAO.checkIfUserInGroup(admin.getUserID(), group.getGrpID())){
           groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
-      else
+        }
+        else
           throw new DatabaseConnectionException("Unable to add user to group.");
+      }
+      else {
+        if(groupDAO.validateGroupAdmin(groupName, admin.getUserID())){
+          groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
+        }
+        else
+          throw new DatabaseConnectionException("Unable to add user to group.");
+      }
   }
 
     /**

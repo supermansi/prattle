@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
+import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.mockito.*;
 
+import javax.xml.crypto.Data;
+
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupServicesTest {
 
@@ -35,13 +38,16 @@ public class GroupServicesTest {
   private GroupToUserDAO mockGroupUserDAO;
   private GroupDAO mockGroupDAO;
   private UserDAO mockUserDAO;
+  public Groups group;
 
   @Before
   public void setUp() throws SQLException, IllegalAccessException, NoSuchFieldException{
     mockGroupDAO = mock(GroupDAO.class);
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
     when(mockGroupDAO.validateGroupAdmin("g1", 1)).thenReturn(true);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group","admin1 admin2"));
+    group = new Groups(123,"Group","admin1 admin2");
+    group.setRestricted(Groups.Restricted.valueOf("L"));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(group);
 
     mockGroupUserDAO = mock(GroupToUserDAO.class);
     when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(true);
@@ -72,21 +78,33 @@ public class GroupServicesTest {
   }
 
   @Test
-  public void testCreateGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
+  public void testCreateGroup() throws SQLException {
     groupServices.createGroup("group1", "user1");
   }
 
+  @Test
+  public void testAddUserToGroupTrue() throws SQLException {
+    groupServices.addUserToGroup("g1", "a", "u");
+  }
+
   @Test(expected = DatabaseConnectionException.class)
-  public void testAddUserToGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
-    groupServices.addUserToGroup("g1", "a","u");
-    assertTrue(groupServices.validateUserExistsInGroup("user1", "group1"));
+  public void testAddUserToGroupExists() throws SQLException {
+    when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class), anyInt())).thenReturn(false);
+    groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test
-  public void testAddUserToGroupFalse() throws SQLException {
-    when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(false);
+  public void testAddUserToGroupRestricted() throws SQLException {
+    group.setRestricted(Groups.Restricted.valueOf("H"));
+    when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(true);
     groupServices.addUserToGroup("g1", "a", "u");
+  }
 
+  @Test(expected = DatabaseConnectionException.class)
+  public void testAddUserNotAdmin() throws SQLException {
+    group.setRestricted(Groups.Restricted.valueOf("H"));
+    when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(false);
+    groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test
