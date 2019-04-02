@@ -17,6 +17,9 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+/**
+ * Tests for User Service Class.
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserServicesTest {
 
