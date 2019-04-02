@@ -1,19 +1,16 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
-import edu.northeastern.ccs.im.model.Message.MsgType;
 
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
-import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
 
@@ -105,21 +102,7 @@ public class ClientRunnable implements Runnable {
           processRegisteration(regInfo, msg);
 
         } else if (msg.isInitialization()) {
-          if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
-            // Update the time until we terminate this client due to inactivity.
-            timer.updateAfterInitialization();
-            // Set that the client is initialized.
-            initialized = true;
-            enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
-            String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
-            if (!messages.equals("")) {
-              enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
-            }
-          } else {
-            sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
-            initialized = false;
-            terminate = true;
-          }
+          processInitialisation(msg);
         } else {
           initialized = false;
         }
@@ -163,6 +146,24 @@ public class ClientRunnable implements Runnable {
       initialized = false;
       sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Either Illegal name or user" +
               "already exists."));
+      terminate = true;
+    }
+  }
+
+  private void processInitialisation(Message msg) throws SQLException {
+    if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
+      // Update the time until we terminate this client due to inactivity.
+      timer.updateAfterInitialization();
+      // Set that the client is initialized.
+      initialized = true;
+      enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
+      String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
+      if (!messages.equals("")) {
+        enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
+      }
+    } else {
+      sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
+      initialized = false;
       terminate = true;
     }
   }
