@@ -143,7 +143,9 @@ public enum MessageType {
   /**
    * Message to get all the users in a group.
    */
-  GET_GROUP_USERS("GGU");
+  GET_GROUP_USERS("GGU"),
+
+  GET_USER_PROFILE("GUP");
 
   /**
    * Store the short name of this message type.

@@ -62,6 +62,7 @@ public  class CommandService {
     commandServiceMap.put(MessageType.MAKE_ADMIN, new MakeAdminCommand());
     commandServiceMap.put(MessageType.RECALL, new RecallCommand());
     commandServiceMap.put(MessageType.GET_GROUP_USERS, new GetAllUsersInGroupCommand());
+    commandServiceMap.put(MessageType.GET_USER_PROFILE, new GetUserProfileCommand());
   }
 
 }
@@ -306,4 +307,13 @@ class GetAllUsersInGroupCommand implements ICommandMessage {
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 
+}
+
+class GetUserProfileCommand implements ICommandMessage {
+
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo add service call for sending user profile message to client
+  }
 }
