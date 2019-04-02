@@ -707,6 +707,11 @@ public class Message {
    */
   public boolean isGetUsersInGroup() { return (msgType == MessageType.GET_GROUP_USERS); }
 
+
+  public MessageType getMessageType(){
+    return this.msgType;
+  }
+
   /**
    * Representation of this message as a String. This begins with the message handle and then
    * contains the length (as an integer) and the value of the next two arguments.
