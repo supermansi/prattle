@@ -154,7 +154,6 @@ public class MessageToUserDAOTest {
 
   @Test(expected = DatabaseConnectionException.class)
   public void testRetrieveUserMsgPrepareStatementEx() throws SQLException, NoSuchFieldException, IllegalAccessException {
-
     doThrow(new DatabaseConnectionException("Custom")).when(mockConnection).prepareStatement(anyString());
     messageToUserDAO.retrieveUserMsg("r", "j");
   }
@@ -200,5 +199,56 @@ public class MessageToUserDAOTest {
   public void testGetNotifExSet() throws SQLException{
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
     messageToUserDAO.getNotifications(1);
+  }
+
+  @Test
+  public void testGetMsgBetween() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUsername("r")).thenReturn(new User(1, "r", "r", "r", "r", "r"));
+    when(mockUserDAO.getUserByUsername("j")).thenReturn(new User(2, "j", "j", "j", "j", "j"));
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+
+    when(mockResultSet.getInt("senderID")).thenReturn(1).thenReturn(2).thenReturn(1).thenReturn(2);
+
+    when(mockUserDAO.getUserByUserID(1)).thenReturn(new User(1, "r", "r", "r", "r", "r"));
+    when(mockUserDAO.getUserByUserID(2)).thenReturn(new User(1, "j","j","j","j","j"));
+
+    when(mockResultSet.getString("message")).thenReturn("Hii").thenReturn("Hello").thenReturn("bye").thenReturn("tadaa");
+    Class clazz = MessageToUserDAO.class;
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+
+    String result = "";
+    List<String> chat = messageToUserDAO.getMessagesBetween("r", "j", "00000000", "11111111");
+    for (int i = 0; i < chat.size(); i++) {
+      result += chat.get(i) + "\n";
+    }
+    assertEquals("r Hii\n" +
+            "j Hello\n" +
+            "r bye\n" +
+            "j tadaa\n", result);
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMsgBetweenPrepareStatementEx() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    doThrow(new DatabaseConnectionException("Custom")).when(mockConnection).prepareStatement(anyString());
+    messageToUserDAO.getMessagesBetween("r", "j", "00000000", "11111111");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMsgBetweenResultSetEx() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUsername("r")).thenReturn(new User(1, "r", "r", "r", "r", "r"));
+    when(mockUserDAO.getUserByUsername("j")).thenReturn(new User(2, "j", "j", "j", "j", "j"));
+
+    Class clazz = MessageToUserDAO.class;
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+    doThrow(new DatabaseConnectionException("Custom")).when(mockPreparedStatement).executeQuery();
+    List<String> chat = messageToUserDAO.getMessagesBetween("r", "j", "00000000", "11111111");
+
   }
 }

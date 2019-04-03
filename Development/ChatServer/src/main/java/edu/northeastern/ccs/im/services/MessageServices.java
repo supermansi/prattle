@@ -106,4 +106,8 @@ public class MessageServices {
     return messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID());
   }
 
+  public static List<String> getMessagesBetween(String sender, String receiver, String startDate, String endDate) throws SQLException {
+    return messageUserDAO.getMessagesBetween(sender, receiver, startDate, endDate);
+  }
+
 }
