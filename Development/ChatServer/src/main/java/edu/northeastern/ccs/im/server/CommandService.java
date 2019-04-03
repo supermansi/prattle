@@ -183,6 +183,8 @@ class RemoveUserFromGroupCommand implements ICommandMessage {
     GroupServices.removeUserFromGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
+    Message message = Message.makeGroupMessage(msg.getName(), "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
+    Prattle.sendGroupMessage(message,cr.getReceiverName(msg.getText()));
   }
 
 }
