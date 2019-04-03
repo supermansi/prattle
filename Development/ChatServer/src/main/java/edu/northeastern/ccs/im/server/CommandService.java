@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.model.Message.MsgType;
+import edu.northeastern.ccs.im.model.User;
 import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
@@ -311,9 +312,17 @@ class GetAllUsersInGroupCommand implements ICommandMessage {
 
 class GetUserProfileCommand implements ICommandMessage {
 
-
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo add service call for sending user profile message to client
+    StringBuilder sb = new StringBuilder();
+    Map<User.UserParams, String> userProfile = UserServices.getUserProfile(message.getName());
+    sb.append("Username: " + userProfile.get(User.UserParams.USERNAME) + "\n");
+    sb.append("First Name: " + userProfile.get(User.UserParams.FIRSTNAME) + "\n");
+    sb.append("Last Name: " + userProfile.get(User.UserParams.LASTNAME) + "\n");
+    sb.append("Email: " + userProfile.get(User.UserParams.EMAIL) + "\n");
+
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }
+
+
