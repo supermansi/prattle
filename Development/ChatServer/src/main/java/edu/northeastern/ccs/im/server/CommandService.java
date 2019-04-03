@@ -183,6 +183,8 @@ class RemoveUserFromGroupCommand implements ICommandMessage {
     GroupServices.removeUserFromGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
+    Message message = Message.makeGroupMessage(msg.getName(), "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
+    Prattle.sendGroupMessage(message,cr.getReceiverName(msg.getText()));
   }
 
 }
@@ -194,6 +196,8 @@ class AddUserToGroupCommand implements ICommandMessage {
     GroupServices.addUserToGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
+    Message message = Message.makeGroupMessage(msg.getName(), "Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
+    Prattle.sendGroupMessage(message,cr.getReceiverName(msg.getText()));
   }
 
 }
@@ -311,17 +315,18 @@ class GetAllUsersInGroupCommand implements ICommandMessage {
 
 class GetAllGroupsUserBelongsToCommand implements ICommandMessage {
   StringBuilder groups = new StringBuilder();
+
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    for( String group : Prattle.groupToUserMapping.keySet()){
-      if(Prattle.groupToUserMapping.get(group).contains(message.getName())){
-        groups.append(group+"\n");
+    for (String group : Prattle.groupToUserMapping.keySet()) {
+      if (Prattle.groupToUserMapping.get(group).contains(message.getName())) {
+        groups.append(group + "\n");
       }
     }
-    if(groups.length()==0){
+    if (groups.length() == 0) {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You belong to no groups");
-    }else{
-      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You belong to the groups: "+groups.toString().trim());
+    } else {
+      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You belong to the groups: " + groups.toString().trim());
     }
   }
 }
@@ -331,10 +336,10 @@ class DNDCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
     boolean status = message.getText().split(" ")[1].equalsIgnoreCase("T");
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "DND Status Changed to +"+status+"+ successfully");
-    if(status){
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "DND Status Changed to +" + status + "+ successfully");
+    if (status) {
       UserServices.updateLastSeen(cr.getName(), System.currentTimeMillis());
-    }else{
+    } else {
       cr.pushNotificationsToClient(message);
     }
   }
