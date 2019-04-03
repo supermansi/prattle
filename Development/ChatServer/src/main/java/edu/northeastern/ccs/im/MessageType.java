@@ -145,7 +145,11 @@ public enum MessageType {
    */
   GET_GROUP_USERS("GGU"),
 
-  GET_USER_PROFILE("GUP");
+  GET_USER_PROFILE("GUP"),
+
+  DO_NOT_DISTURB("DND"),
+
+  GET_ALL_GROUP_USER_BELONGS("GUG");
 
   /**
    * Store the short name of this message type.

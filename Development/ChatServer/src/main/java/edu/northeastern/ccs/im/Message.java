@@ -149,15 +149,27 @@ public class Message {
       result = makeReadAttachmentMessage(srcName, text);
     } else if (handle.compareTo(MessageType.GET_GROUP_USERS.toString()) == 0) {
       result = makeGetUsersInGroupMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_ALL_GROUP_USER_BELONGS.toString()) == 0) {
+      result = makeGetAllGroupsUserBelongsMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.DO_NOT_DISTURB.toString()) == 0) {
+      result = makeDNDMessage(srcName, text);
     }
     return result;
+  }
+
+  private static Message makeDNDMessage(String srcName, String text) {
+    return new Message(MessageType.DO_NOT_DISTURB, srcName, text);
+  }
+
+  private static Message makeGetAllGroupsUserBelongsMessage(String srcName, String text) {
+    return new Message(MessageType.GET_ALL_GROUP_USER_BELONGS, srcName, text);
   }
 
   /**
    * Method to create a read attachment message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new read attachment message
    */
   public static Message makeReadAttachmentMessage(String srcName, String text) {
@@ -168,7 +180,7 @@ public class Message {
    * Method to create a recall message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new recall message
    */
   public static Message makeRecallMessage(String srcName, String text) {
@@ -179,7 +191,7 @@ public class Message {
    * Method to create an attachment message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new attachment message
    */
   public static Message makeAttachmentMessage(String srcName, String text) {
@@ -365,7 +377,7 @@ public class Message {
    * Method to create a deactivate user  message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new deactivate user message
    */
   public static Message makeDeactivateUserMessage(String srcName, String text) {
@@ -376,7 +388,7 @@ public class Message {
    * Method to create a user exists message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new user exists message
    */
   public static Message makeUserExistsMessage(String srcName, String text) {
@@ -387,7 +399,7 @@ public class Message {
    * Method to create a last seen message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new last seen message
    */
   public static Message makeLastSeenMessage(String srcName, String text) {
@@ -398,7 +410,7 @@ public class Message {
    * Method to create a leave group message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new leave group message
    */
   public static Message makeLeaveGroupMessage(String srcName, String text) {
@@ -409,7 +421,7 @@ public class Message {
    * Method to create a set group restriction message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new set group restriction message
    */
   public static Message makeSetGroupRestrictionMessage(String srcName, String text) {
@@ -420,7 +432,7 @@ public class Message {
    * Method to create make admin message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new make admin message
    */
   public static Message makeMakeAdminMessage(String srcName, String text) {
@@ -431,11 +443,11 @@ public class Message {
    * Method to create a get users in group message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new get users in group message
    */
   public static Message makeGetUsersInGroupMessage(String srcName, String text) {
-    return new Message(MessageType.GET_GROUP_USERS,srcName,text);
+    return new Message(MessageType.GET_GROUP_USERS, srcName, text);
   }
 
 
@@ -705,10 +717,20 @@ public class Message {
    *
    * @return True if the message is a get users in group message; false otherwise
    */
-  public boolean isGetUsersInGroup() { return (msgType == MessageType.GET_GROUP_USERS); }
+  public boolean isGetUsersInGroup() {
+    return (msgType == MessageType.GET_GROUP_USERS);
+  }
+
+  public boolean isGetAllGroupsUserBelongsTo() {
+    return (msgType == MessageType.GET_ALL_GROUP_USER_BELONGS);
+  }
+
+  public boolean isDND() {
+    return (msgType == MessageType.DO_NOT_DISTURB);
+  }
 
 
-  public MessageType getMessageType(){
+  public MessageType getMessageType() {
     return this.msgType;
   }
 

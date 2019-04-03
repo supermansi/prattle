@@ -66,6 +66,8 @@ public class ClientRunnable implements Runnable {
 
   private Map<MessageType, ICommandMessage> commandMessageMap;
 
+  private boolean isDND = false;
+
   /**
    * Create a new thread with which we will communicate with this single client.
    *
@@ -157,14 +159,18 @@ public class ClientRunnable implements Runnable {
       // Set that the client is initialized.
       initialized = true;
       enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
-      String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
-      if (!messages.equals("")) {
-        enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
-      }
+      pushNotificationsToClient(msg);
     } else {
       sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
       initialized = false;
       terminate = true;
+    }
+  }
+
+  protected void pushNotificationsToClient(Message msg) throws SQLException {
+    String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
+    if (!messages.equals("")) {
+      enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
     }
   }
 
@@ -422,6 +428,9 @@ public class ClientRunnable implements Runnable {
     terminate |= !keepAlive;
   }
 
+  protected boolean getDNDStatus(){
+    return isDND;
+  }
   /**
    * Store the object used by this client runnable to control when it is scheduled for execution in
    * the thread pool.
@@ -439,7 +448,9 @@ public class ClientRunnable implements Runnable {
   public void terminateClient() {
 
     try {
-      UserServices.updateLastSeen(this.getName(), System.currentTimeMillis());
+      if(!getDNDStatus()){
+        UserServices.updateLastSeen(this.getName(), System.currentTimeMillis());
+      }
     } catch (SQLException e) {
       ChatLogger.error("Could Not Update LastSeen on DB");
     }

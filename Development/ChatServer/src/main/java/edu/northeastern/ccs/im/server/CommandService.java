@@ -15,23 +15,10 @@ import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
 
-public  class CommandService {
+public class CommandService {
   protected static Map<MessageType, ICommandMessage> commandServiceMap = new ConcurrentHashMap<>();
 
   private static CommandService commandService = null;
-
-  public static CommandService getInstance(){
-    if(commandService==null){
-      return new CommandService();
-    }else{
-      return commandService;
-    }
-  }
-
-
-  protected Map<MessageType, ICommandMessage> getCommandServiceMap(){
-    return commandServiceMap;
-  }
 
   /**
    * Initialises the Command Service map with keys of appropriate handles.
@@ -40,7 +27,19 @@ public  class CommandService {
     initialiseCommandServiceMap();
   }
 
-  private void initialiseCommandServiceMap(){
+  public static CommandService getInstance() {
+    if (commandService == null) {
+      return new CommandService();
+    } else {
+      return commandService;
+    }
+  }
+
+  protected Map<MessageType, ICommandMessage> getCommandServiceMap() {
+    return commandServiceMap;
+  }
+
+  private void initialiseCommandServiceMap() {
     commandServiceMap.put(MessageType.PRIVATE, new PrivateMessageCommand());
     commandServiceMap.put(MessageType.GROUP, new GroupMessageCommand());
     commandServiceMap.put(MessageType.CREATE_GROUP, new CreateGroupCommand());
@@ -63,6 +62,8 @@ public  class CommandService {
     commandServiceMap.put(MessageType.RECALL, new RecallCommand());
     commandServiceMap.put(MessageType.GET_GROUP_USERS, new GetAllUsersInGroupCommand());
     commandServiceMap.put(MessageType.GET_USER_PROFILE, new GetUserProfileCommand());
+    commandServiceMap.put(MessageType.DO_NOT_DISTURB, new DNDCommand());
+    commandServiceMap.put(MessageType.GET_ALL_GROUP_USER_BELONGS, new GetAllGroupsUserBelongsToCommand());
   }
 
 }
@@ -299,18 +300,47 @@ class GetAllUsersInGroupCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
-    List<String> users = Prattle.groupToUserMapping.getOrDefault(cr.getReceiverName(msg.getText()),new ArrayList<>());
+    List<String> users = Prattle.groupToUserMapping.getOrDefault(cr.getReceiverName(msg.getText()), new ArrayList<>());
     StringBuilder sb = new StringBuilder();
     for (String s : users) {
       sb.append(s + " ");
     }
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
+}
 
+class GetAllGroupsUserBelongsToCommand implements ICommandMessage {
+  StringBuilder groups = new StringBuilder();
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    for( String group : Prattle.groupToUserMapping.keySet()){
+      if(Prattle.groupToUserMapping.get(group).contains(message.getName())){
+        groups.append(group+"\n");
+      }
+    }
+    if(groups.length()==0){
+      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You belong to no groups");
+    }else{
+      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You belong to the groups: "+groups.toString().trim());
+    }
+  }
+}
+
+class DNDCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    boolean status = message.getText().split(" ")[1].equalsIgnoreCase("T");
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "DND Status Changed to +"+status+"+ successfully");
+    if(status){
+      UserServices.updateLastSeen(cr.getName(), System.currentTimeMillis());
+    }else{
+      cr.pushNotificationsToClient(message);
+    }
+  }
 }
 
 class GetUserProfileCommand implements ICommandMessage {
-
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
