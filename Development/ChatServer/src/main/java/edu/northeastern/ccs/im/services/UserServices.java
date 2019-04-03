@@ -127,6 +127,7 @@ public class UserServices {
   public static boolean userExists(String username) throws SQLException {
     return userDAO.isUserExists(username);
   }
+
   public static Map<User.UserParams, String> getUserProfile(String username) throws SQLException {
     if (userDAO.isUserExists(username)) {
       Map<User.UserParams, String> userProfile = new HashMap<>();
@@ -140,6 +141,4 @@ public class UserServices {
       throw new IllegalArgumentException("User with this username does not exist");
     }
   }
-
-
 }
