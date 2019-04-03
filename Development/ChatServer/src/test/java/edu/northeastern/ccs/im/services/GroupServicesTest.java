@@ -2,13 +2,11 @@ package edu.northeastern.ccs.im.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
-import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,9 +25,6 @@ import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.mockito.*;
-
-import javax.xml.crypto.Data;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupServicesTest {
@@ -96,7 +91,7 @@ public class GroupServicesTest {
   }
 
   @Test
-  public void testAddUserToGroupRestricted() throws SQLException {
+  public void testAddUserToGroupRestricted()throws SQLException {
     when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(true);
     groupServices.addUserToGroup("g1", "a", "u");
