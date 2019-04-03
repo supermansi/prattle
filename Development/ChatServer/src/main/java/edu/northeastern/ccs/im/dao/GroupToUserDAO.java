@@ -276,4 +276,31 @@ public class GroupToUserDAO {
     }
   }
 
+  public List<String> getAllGroupsUserBelongsTo(int userId) throws SQLException {
+    String getUserProfile = "SELECT * FROM GROUPTOUSERMAP WHERE USERID = ?;";
+    List<String> userGroups = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getUserProfile, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, userId);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          userGroups.add(groupDAO.getGroupByGroupID(resultSet.getInt("groupID")).getGrpName());
+        }
+        return userGroups;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }

@@ -38,9 +38,9 @@ public class UserServices {
    *
    * @param username user's user name
    * @param password user's password
-   * @param userFN user's first name
-   * @param userLN user's last name
-   * @param email user's email
+   * @param userFN   user's first name
+   * @param userLN   user's last name
+   * @param email    user's email
    * @return true if the user has been registered and stored in teh database, false otherwise
    */
   public static boolean register(String username, String password, String userFN,
@@ -58,7 +58,7 @@ public class UserServices {
   /**
    * Method to update a user's first name.
    *
-   * @param username user's username
+   * @param username         user's username
    * @param updatedFirstName new first name
    */
   public static void updateFN(String username, String updatedFirstName) throws SQLException {
@@ -68,7 +68,7 @@ public class UserServices {
   /**
    * Method to update a user's last name.
    *
-   * @param username user's username
+   * @param username        user's username
    * @param updatedLastName new last name
    */
   public static void updateLN(String username, String updatedLastName) throws SQLException {
@@ -78,7 +78,7 @@ public class UserServices {
   /**
    * Method to update a user's password.
    *
-   * @param username user's username
+   * @param username        user's username
    * @param updatedPassword new password
    */
   public static void updatePassword(String username, String updatedPassword) throws SQLException {
@@ -88,7 +88,7 @@ public class UserServices {
   /**
    * Method to update a user's email.
    *
-   * @param username user's username
+   * @param username     user's username
    * @param updatedEmail new email
    */
   public static void updateEmail(String username, String updatedEmail) throws SQLException {
@@ -112,7 +112,7 @@ public class UserServices {
    * Method to update the timestamp stored in the database of a user's last seen message.
    *
    * @param username user's username
-   * @param time string representing time stamp
+   * @param time     string representing time stamp
    */
   public static void updateLastSeen(String username, Long time) throws SQLException {
     String lastSeen = Long.toString(time);
@@ -129,16 +129,12 @@ public class UserServices {
   }
 
   public static Map<User.UserParams, String> getUserProfile(String username) throws SQLException {
-    if (userDAO.isUserExists(username)) {
-      Map<User.UserParams, String> userProfile = new HashMap<>();
-      User user = userDAO.getUserProfile(userDAO.getUserByUsername(username).getUserID());
-      userProfile.put(User.UserParams.USERNAME, user.getUsername());
-      userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
-      userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
-      userProfile.put(User.UserParams.EMAIL, user.getEmail());
-      return userProfile;
-    } else {
-      throw new IllegalArgumentException("User with this username does not exist");
-    }
+    Map<User.UserParams, String> userProfile = new HashMap<>();
+    User user = userDAO.getUserProfile(userDAO.getUserByUsername(username).getUserID());
+    userProfile.put(User.UserParams.USERNAME, user.getUsername());
+    userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
+    userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
+    userProfile.put(User.UserParams.EMAIL, user.getEmail());
+    return userProfile;
   }
 }

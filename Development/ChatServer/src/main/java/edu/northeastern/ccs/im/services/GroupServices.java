@@ -184,4 +184,13 @@ public class GroupServices {
     }
     return false;
   }
+
+  public static List<String> getAllGroupsUserBelongsTo(String username) throws SQLException {
+    if(userDAO.isUserExists(username)) {
+      return groupUserDAO.getAllGroupsUserBelongsTo(userDAO.getUserByUsername(username).getUserID());
+    }
+    else {
+      throw new IllegalArgumentException("User not found.");
+    }
+  }
 }
