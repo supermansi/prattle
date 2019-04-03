@@ -411,4 +411,32 @@ public class UserDAO {
       connection.close();
     }
   }
+
+  public User getUserProfile(int userId) throws SQLException {
+    String getUserProfile = "SELECT * FROM USER WHERE USERID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getUserProfile, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, userId);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          return getUser(resultSet);
+        } else {
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }

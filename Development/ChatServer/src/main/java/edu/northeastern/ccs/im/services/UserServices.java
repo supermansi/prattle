@@ -1,6 +1,8 @@
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.northeastern.ccs.im.PasswordHash;
 import edu.northeastern.ccs.im.dao.UserDAO;
@@ -125,4 +127,19 @@ public class UserServices {
   public static boolean userExists(String username) throws SQLException {
     return userDAO.isUserExists(username);
   }
+  public static Map<User.UserParams, String> getUserProfile(String username) throws SQLException {
+    if (userDAO.isUserExists(username)) {
+      Map<User.UserParams, String> userProfile = new HashMap<>();
+      User user = userDAO.getUserProfile(userDAO.getUserByUsername(username).getUserID());
+      userProfile.put(User.UserParams.USERNAME, user.getUsername());
+      userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
+      userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
+      userProfile.put(User.UserParams.EMAIL, user.getEmail());
+      return userProfile;
+    } else {
+      throw new IllegalArgumentException("User with this username does not exist");
+    }
+  }
+
+
 }
