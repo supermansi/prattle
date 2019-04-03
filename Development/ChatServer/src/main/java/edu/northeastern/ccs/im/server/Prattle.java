@@ -190,7 +190,9 @@ public abstract class Prattle {
     for (ClientRunnable tt : active) {
       // Do not send the message to any clients that are not ready to receive it.
       if (tt.getName().equalsIgnoreCase(receiver)) {
-        tt.enqueueMessage(msg);
+        if (!tt.getDNDStatus()) {
+          tt.enqueueMessage(msg);
+        }
         break;
       }
     }
@@ -203,18 +205,16 @@ public abstract class Prattle {
    * @param groupName receiver name to send to
    */
   public static boolean sendGroupMessage(Message msg, String groupName) {
-    if (groupToUserMapping.containsKey(groupName)) {
-      if (groupToUserMapping.get(groupName).contains(msg.getName())) {
-        List listOfUsersInGroup = groupToUserMapping.get(groupName);
-        for (ClientRunnable cr : active) {
-          if (listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName())) {
-            cr.enqueueMessage(msg);
-          }
+    if (groupToUserMapping.containsKey(groupName) && groupToUserMapping.get(groupName).contains(msg.getName())) {
+
+      List listOfUsersInGroup = groupToUserMapping.get(groupName);
+      for (ClientRunnable cr : active) {
+        if (listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName()) && !cr.getDNDStatus()) {
+          cr.enqueueMessage(msg);
         }
-        return true;
-      } else {
-        return false;
       }
+      return true;
+
     } else {
       return false;
     }
