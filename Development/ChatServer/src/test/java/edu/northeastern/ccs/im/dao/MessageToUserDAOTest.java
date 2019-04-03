@@ -249,6 +249,5 @@ public class MessageToUserDAOTest {
     usrDao.set(messageToUserDAO, mockUserDAO);
     doThrow(new DatabaseConnectionException("Custom")).when(mockPreparedStatement).executeQuery();
     List<String> chat = messageToUserDAO.getMessagesBetween("r", "j", "00000000", "11111111");
-
   }
 }
