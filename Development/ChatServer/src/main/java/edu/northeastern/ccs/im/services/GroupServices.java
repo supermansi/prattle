@@ -193,4 +193,9 @@ public class GroupServices {
             throw new IllegalArgumentException("User not found.");
         }
     }
+
+	public static void createThread(String username, String threadName) throws SQLException {
+		createGroup(threadName, username);
+		groupDAO.setGroupAsThread(threadName);
+	}
 }

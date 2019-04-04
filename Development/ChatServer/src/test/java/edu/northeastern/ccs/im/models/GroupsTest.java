@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.models;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,12 @@ public class GroupsTest {
 	public void testRestricted() {
 		group.setRestricted(Groups.Restricted.valueOf("H"));
 		assertEquals("H", group.getRestricted().name());
+	}
+
+	@Test
+	public void testThread() {
+		group.setThread(true);
+		assertTrue(group.getThread());
 	}
 
 }
