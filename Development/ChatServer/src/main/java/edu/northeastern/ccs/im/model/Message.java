@@ -10,6 +10,7 @@ public class Message {
 	private int senderID;
 	private String messageText;
 	private String timestamp;
+	private Boolean isSecret;
 
 	public enum MsgType {
 		PVT, GRP, BCT;
@@ -145,4 +146,11 @@ public class Message {
 		this.timestamp = timestamp;
 	}
 
+	public Boolean getSecret() {
+		return isSecret;
+	}
+
+	public void setSecret(Boolean secret) {
+		isSecret = secret;
+	}
 }
