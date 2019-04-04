@@ -149,7 +149,9 @@ public enum MessageType {
 
   DO_NOT_DISTURB("DND"),
 
-  GET_ALL_GROUP_USER_BELONGS("GUG");
+  GET_ALL_GROUP_USER_BELONGS("GUG"),
+
+  GET_MESSAGES_BETWEEN("GMB");
 
   /**
    * Store the short name of this message type.
