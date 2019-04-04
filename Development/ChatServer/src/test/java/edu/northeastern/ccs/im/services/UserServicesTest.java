@@ -8,6 +8,8 @@ import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
@@ -131,6 +133,19 @@ public class UserServicesTest {
   public void testGetLastSeen() throws SQLException {
     when(mockUserDAO.getLastSeen("Daba")).thenReturn("00000000");
     assertEquals(Long.parseLong("00000000"), (long)UserServices.getLastSeen("Daba"));
+  }
+
+  @Test
+  public void testGetUserProfile() throws SQLException {
+    User user = new User(52, "test", "test", "test", "test@gmail.com", "test");
+    when(mockUserDAO.getUserByUsername("test")).thenReturn(user);
+    Map<User.UserParams, String> userProfile = new HashMap<>();
+    userProfile.put(User.UserParams.USERNAME,user.getUsername());
+    userProfile.put(User.UserParams.FIRSTNAME,user.getUserFN());
+    userProfile.put(User.UserParams.LASTNAME,user.getUserLN());
+    userProfile.put(User.UserParams.EMAIL,user.getEmail());
+    when(mockUserDAO.getUserProfile(52)).thenReturn(user);
+    assertEquals(userProfile,UserServices.getUserProfile("test"));
   }
 
 }

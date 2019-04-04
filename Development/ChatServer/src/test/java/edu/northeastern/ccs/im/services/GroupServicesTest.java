@@ -340,4 +340,22 @@ public class GroupServicesTest {
     when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(false);
     assertEquals(false,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
   }
+
+  @Test
+  public void testGetAllGroupsUserBelongsTo() throws SQLException {
+    User user = new User(52, "test", "test", "test", "test@gmail.com", "test");
+    when(mockUserDAO.isUserExists("test")).thenReturn(true);
+    when(mockUserDAO.getUserByUsername("test")).thenReturn(user);
+    List<String> groups = new ArrayList<>();
+    groups.add("Group1");
+    groups.add("Group2");
+    when(mockGroupUserDAO.getAllGroupsUserBelongsTo(52)).thenReturn(groups);
+    assertEquals(groups,GroupServices.getAllGroupsUserBelongsTo("test"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetAllGroupsUserBelongsToException() throws SQLException {
+    when(mockUserDAO.isUserExists("test")).thenReturn(false);
+    GroupServices.getAllGroupsUserBelongsTo("test");
+  }
 }

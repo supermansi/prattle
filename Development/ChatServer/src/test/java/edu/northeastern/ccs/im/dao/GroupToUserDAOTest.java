@@ -370,5 +370,4 @@ public class GroupToUserDAOTest {
     when(mockResultSet.next()).thenReturn(false);
     assertEquals(new ConcurrentHashMap<String,List<String>>(),groupToUserDAO.getAllUsersByGroup());
   }
-
 }
