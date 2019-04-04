@@ -315,10 +315,10 @@ class GetAllUsersInGroupCommand implements ICommandMessage {
 }
 
 class GetAllGroupsUserBelongsToCommand implements ICommandMessage {
-  StringBuilder groups = new StringBuilder();
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
+    StringBuilder groups = new StringBuilder();
     for (String group : Prattle.groupToUserMapping.keySet()) {
       if (Prattle.groupToUserMapping.get(group).contains(message.getName())) {
         groups.append(group + "\n");
@@ -337,6 +337,7 @@ class DNDCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
     boolean status = message.getText().split(" ")[1].equalsIgnoreCase("T");
+    cr.setDNDStatus(status);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "DND Status Changed to +" + status + "+ successfully");
     if (status) {
       UserServices.updateLastSeen(cr.getName(), System.currentTimeMillis());
