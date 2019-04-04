@@ -5,8 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
+import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
 /**
@@ -420,5 +423,36 @@ public class UserDAO {
       }
       connection.close();
     }
+  }
+
+  public List<String> getFollowers(String user) throws SQLException {
+    String getFollowersQuery = "SELECT follower FROM Follow WHERE following = ?;";
+    return getFollow(getFollowersQuery, user);
+  }
+
+  public List<String> getFollowing(String user) throws SQLException {
+    String getFollowingQuery = "SELECT following FROM Follow WHERE follower = ?;";
+    return getFollow(getFollowingQuery, user);
+  }
+
+  private List<String> getFollow(String query, String user) throws SQLException {
+    List<String> listOfUsers = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(query);
+      preparedStatement.setString(1, user);
+      resultSet = preparedStatement.executeQuery();
+      while(resultSet.next()){
+        listOfUsers.add(resultSet.getString(1));
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return listOfUsers;
   }
 }

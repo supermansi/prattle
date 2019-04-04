@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
@@ -142,5 +143,13 @@ public class UserServices {
     catch (SQLException e){
       throw new DatabaseConnectionException("Unable to un-follow user");
     }
+  }
+
+  public static List<String> getFollowers(String username) throws SQLException {
+    return userDAO.getFollowers(username);
+  }
+
+  public static List<String> getFollowing(String username) throws SQLException {
+    return userDAO.getFollowing(username);
   }
 }

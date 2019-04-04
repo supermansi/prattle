@@ -135,7 +135,7 @@ public class UserServicesTest {
 
   @Test(expected = DatabaseConnectionException.class)
   public void testFollowException() throws SQLException {
-    doThrow(new DatabaseConnectionException("error")).when(mockUserDAO).unfollow("r", "j");
+    doThrow(new SQLException("error")).when(mockUserDAO).followUser("r", "j");
     UserServices.followUser("r", "j");
   }
 
@@ -149,6 +149,16 @@ public class UserServicesTest {
   public void testUnFollowException() throws SQLException {
     doThrow(new DatabaseConnectionException("error")).when(mockUserDAO).unfollow("r", "j");
     UserServices.unFollowUser("r", "j");
+  }
+
+  @Test
+  public void testGetFollowers() throws SQLException {
+    UserServices.getFollowers("x");
+  }
+
+  @Test
+  public void testGetFollowing() throws SQLException {
+    UserServices.getFollowing("x");
   }
 
 }
