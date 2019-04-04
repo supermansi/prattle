@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.Test;
 
 import java.security.NoSuchAlgorithmException;
@@ -29,6 +30,13 @@ public class PasswordHashTest {
         assertEquals(Hello, PasswordHash.hashPassword(test3));
     }
 
+
+    @Test
+    public void multiKeyMapTest(){
+        MultiKeyMap multiKey = new MultiKeyMap();
+        multiKey.put("key1.1", "key2.1", "value1");
+        System.out.println(multiKey.get("key1.1", "key2.1"));
+    }
 
 
 }
