@@ -6,6 +6,7 @@ import java.util.Map;
 
 import edu.northeastern.ccs.im.PasswordHash;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
 /**
@@ -128,6 +129,7 @@ public class UserServices {
     return userDAO.isUserExists(username);
   }
 
+
   public static Map<User.UserParams, String> getUserProfile(String username) throws SQLException {
     Map<User.UserParams, String> userProfile = new HashMap<>();
     User user = userDAO.getUserProfile(userDAO.getUserByUsername(username).getUserID());
@@ -136,5 +138,23 @@ public class UserServices {
     userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
     userProfile.put(User.UserParams.EMAIL, user.getEmail());
     return userProfile;
+  }
+
+  public static void followUser(String follower, String following) throws SQLException {
+    try{
+      userDAO.followUser(follower, following);
+    }
+    catch (SQLException e){
+      throw new DatabaseConnectionException("Unable to follow user");
+    }
+  }
+
+  public static void unFollowUser(String follower, String following) throws SQLException {
+    try{
+      userDAO.unfollow(follower, following);
+    }
+    catch (SQLException e){
+      throw new DatabaseConnectionException("Unable to un-follow user");
+    }
   }
 }

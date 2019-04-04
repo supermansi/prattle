@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
 import edu.northeastern.ccs.im.PasswordHash;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -15,9 +16,7 @@ import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for User Service Class.
@@ -140,12 +139,35 @@ public class UserServicesTest {
     User user = new User(52, "test", "test", "test", "test@gmail.com", "test");
     when(mockUserDAO.getUserByUsername("test")).thenReturn(user);
     Map<User.UserParams, String> userProfile = new HashMap<>();
-    userProfile.put(User.UserParams.USERNAME,user.getUsername());
-    userProfile.put(User.UserParams.FIRSTNAME,user.getUserFN());
-    userProfile.put(User.UserParams.LASTNAME,user.getUserLN());
-    userProfile.put(User.UserParams.EMAIL,user.getEmail());
+    userProfile.put(User.UserParams.USERNAME, user.getUsername());
+    userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
+    userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
+    userProfile.put(User.UserParams.EMAIL, user.getEmail());
     when(mockUserDAO.getUserProfile(52)).thenReturn(user);
-    assertEquals(userProfile,UserServices.getUserProfile("test"));
+    assertEquals(userProfile, UserServices.getUserProfile("test"));
+  }
+
+  public void testFollow() throws SQLException {
+    doNothing().when(mockUserDAO).followUser("r", "j");
+    UserServices.followUser("r", "j");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testFollowException() throws SQLException {
+    doThrow(new DatabaseConnectionException("error")).when(mockUserDAO).unfollow("r", "j");
+    UserServices.followUser("r", "j");
+  }
+
+  @Test
+  public void testUnFollow() throws SQLException {
+    doNothing().when(mockUserDAO).followUser("r", "j");
+    UserServices.unFollowUser("r", "j");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testUnFollowException() throws SQLException {
+    doThrow(new DatabaseConnectionException("error")).when(mockUserDAO).unfollow("r", "j");
+    UserServices.unFollowUser("r", "j");
   }
 
 }

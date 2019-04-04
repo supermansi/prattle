@@ -439,4 +439,38 @@ public class UserDAO {
       connection.close();
     }
   }
+
+  public void followUser(String follower, String following) throws SQLException {
+    String insertFollow = "INSERT INTO Follow(follower, following) VALUES(?, ?);";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(insertFollow);
+      preparedStatement.setString(1, follower);
+      preparedStatement.setString(2, following);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public void unfollow(String follower, String following) throws SQLException {
+    String deleteFollow = "DELETE FROM Follow WHERE follower=? AND following=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(deleteFollow);
+      preparedStatement.setString(1, follower);
+      preparedStatement.setString(2, following);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }

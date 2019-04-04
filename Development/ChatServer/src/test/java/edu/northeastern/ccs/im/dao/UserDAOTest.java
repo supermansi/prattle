@@ -405,4 +405,27 @@ public class UserDAOTest {
     when(mockResultSet.next()).thenReturn(false);
     userDAO.getLastSeen("admin");
   }
+
+  @Test
+  public void testFollow() throws SQLException {
+    userDAO.followUser("r", "j");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testFollowException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    userDAO.followUser("r", "j");
+  }
+
+  @Test
+  public void testUnFollow() throws SQLException {
+    userDAO.followUser("r", "j");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testUnFollowException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    userDAO.followUser("r", "j");
+  }
+
 }
