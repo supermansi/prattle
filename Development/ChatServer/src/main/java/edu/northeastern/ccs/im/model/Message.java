@@ -12,7 +12,7 @@ public class Message {
 	private String timestamp;
 	private Boolean isSecret;
 	private String senderIP;
-	private String chatSenderID;
+	private int chatSenderID;
 
 	public enum MsgType {
 		PVT, GRP, BCT;
@@ -164,11 +164,11 @@ public class Message {
 		this.senderIP = senderIP;
 	}
 
-	public String getChatSenderID() {
+	public int getChatSenderID() {
 		return chatSenderID;
 	}
 
-	public void setChatSenderID(String chatSenderID) {
+	public void setChatSenderID(int chatSenderID) {
 		this.chatSenderID = chatSenderID;
 	}
 
