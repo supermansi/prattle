@@ -3,6 +3,7 @@ package edu.northeastern.ccs.im.services;
 import java.sql.SQLException;
 
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
 /**
@@ -123,5 +124,14 @@ public class UserServices {
 
   public static boolean userExists(String username) throws SQLException {
     return userDAO.isUserExists(username);
+  }
+
+  public static void followUser(String follower, String following) throws SQLException {
+    try{
+      userDAO.followUser(follower, following);
+    }
+    catch (SQLException e){
+      throw new DatabaseConnectionException("Unable to follow user");
+    }
   }
 }

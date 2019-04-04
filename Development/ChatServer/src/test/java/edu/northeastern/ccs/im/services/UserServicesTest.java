@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.services;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -12,9 +13,7 @@ import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserServicesTest {
@@ -126,6 +125,18 @@ public class UserServicesTest {
   public void testGetLastSeen() throws SQLException {
     when(mockUserDAO.getLastSeen("Daba")).thenReturn("00000000");
     assertEquals(Long.parseLong("00000000"), (long)UserServices.getLastSeen("Daba"));
+  }
+
+  @Test
+  public void testFollow() throws SQLException {
+    doNothing().when(mockUserDAO).followUser("r", "j");
+    UserServices.followUser("r", "j");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testFollowException() throws SQLException {
+    doThrow(new DatabaseConnectionException("error")).when(mockUserDAO).followUser("r", "j");
+    UserServices.followUser("r", "j");
   }
 
 }
