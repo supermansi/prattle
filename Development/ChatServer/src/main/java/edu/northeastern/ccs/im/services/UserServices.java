@@ -134,4 +134,13 @@ public class UserServices {
       throw new DatabaseConnectionException("Unable to follow user");
     }
   }
+
+  public static void unFollowUser(String follower, String following) throws SQLException {
+    try{
+      userDAO.unfollow(follower, following);
+    }
+    catch (SQLException e){
+      throw new DatabaseConnectionException("Unable to un-follow user");
+    }
+  }
 }
