@@ -11,6 +11,8 @@ import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
@@ -24,9 +26,6 @@ import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.mockito.*;
-
-import javax.xml.crypto.Data;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupServicesTest {
@@ -35,13 +34,16 @@ public class GroupServicesTest {
   private GroupToUserDAO mockGroupUserDAO;
   private GroupDAO mockGroupDAO;
   private UserDAO mockUserDAO;
+  public Groups group;
 
   @Before
   public void setUp() throws SQLException, IllegalAccessException, NoSuchFieldException{
     mockGroupDAO = mock(GroupDAO.class);
     when(mockGroupDAO.checkGroupExists(any())).thenReturn(true);
     when(mockGroupDAO.validateGroupAdmin("g1", 1)).thenReturn(true);
-    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123,"Group","admin1 admin2"));
+    group = new Groups(123,"Group","admin1 admin2");
+    group.setRestricted(Groups.Restricted.valueOf("L"));
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(group);
 
     mockGroupUserDAO = mock(GroupToUserDAO.class);
     when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(true);
@@ -72,21 +74,35 @@ public class GroupServicesTest {
   }
 
   @Test
-  public void testCreateGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
+  public void testCreateGroup() throws SQLException {
     groupServices.createGroup("group1", "user1");
   }
 
+  @Test
+  public void testAddUserToGroupTrue() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("L");
+    groupServices.addUserToGroup("g1", "a", "u");
+  }
+
   @Test(expected = DatabaseConnectionException.class)
-  public void testAddUserToGroup() throws SQLException, NoSuchFieldException, IllegalAccessException {
-    groupServices.addUserToGroup("g1", "a","u");
-    assertTrue(groupServices.validateUserExistsInGroup("user1", "group1"));
+  public void testAddUserToGroupExists() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("L");
+    when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class), anyInt())).thenReturn(false);
+    groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test
-  public void testAddUserToGroupFalse() throws SQLException {
-    when(mockGroupUserDAO.checkIfUserInGroup(any(Integer.class),any(Integer.class))).thenReturn(false);
+  public void testAddUserToGroupRestricted()throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
+    when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(true);
     groupServices.addUserToGroup("g1", "a", "u");
+  }
 
+  @Test(expected = DatabaseConnectionException.class)
+  public void testAddUserNotAdmin() throws SQLException {
+    when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
+    when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(false);
+    groupServices.addUserToGroup("g1", "a", "u");
   }
 
   @Test
@@ -100,7 +116,7 @@ public class GroupServicesTest {
     groupServices.removeUserFromGroup("g1", "admin", "user");
   }
 
-  @Test(expected = DatabaseConnectionException.class)
+  @Test
   public void testRemoveUserFromGroupFalse() throws SQLException {
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(false);
     groupServices.removeUserFromGroup("group", "admin", "user");
@@ -223,6 +239,120 @@ public class GroupServicesTest {
     when(mockGroupDAO.getGroupByGroupName(any(String.class))).thenReturn(new Groups("group1", "admin1"));
     doNothing().when(mockGroupDAO).updateAdmin(any(String.class), any(String.class));
     GroupServices.makeAdmin("group1", "oldAdmin", "newAdmin");
+  }
+
+  @Test
+  public void testGetListOfAllUsersForAllGroups() throws SQLException {
+    ConcurrentMap<String,List<String>> map = new ConcurrentHashMap<>();
+    List<String> group1 = new ArrayList<>();
+    List<String> group2 = new ArrayList<>();
+    group1.add("a1");
+    group1.add("a2");
+    group1.add("a3");
+    group2.add("m1");
+    group2.add("m2");
+    map.put("Group1",group1);
+    map.put("Group2",group2);
+    when(mockGroupUserDAO.getAllUsersByGroup()).thenReturn(map);
+    assertEquals(map.toString(),GroupServices.getListOfAllUsersForAllGroups().toString());
+  }
+
+  @Test
+  public void testLeaveGroupSingleMember() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","52");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(true);
+    when(mockGroupUserDAO.getGroupMemberCount(group.getGrpID())).thenReturn(1);
+    doNothing().when(mockGroupDAO).deleteGroupByID(group.getGrpID());
+    assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testLeaveGroupSingleAdmin() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","a");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(true);
+    when(mockGroupUserDAO.getGroupMemberCount(group.getGrpID())).thenReturn(5);
+    when(mockGroupDAO.validateGroupAdmin(group.getGrpName(),user.getUserID())).thenReturn(true);
+    when(mockGroupDAO.getGroupByGroupName(group.getGrpName())).thenReturn(group);
+    doNothing().when(mockGroupDAO).replaceAdminWhenAdminLeaves(group.getGrpID());
+    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(user.getUserID(),group.getGrpID());
+    assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testLeaveGroupMultipleAdmins() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","a b c");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(true);
+    when(mockGroupUserDAO.getGroupMemberCount(group.getGrpID())).thenReturn(5);
+    when(mockGroupDAO.validateGroupAdmin(group.getGrpName(),user.getUserID())).thenReturn(true);
+    when(mockGroupDAO.getGroupByGroupName(group.getGrpName())).thenReturn(group);
+    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(user.getUserID(),group.getGrpID());
+    assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testLeaveGroupAdminMultipleAdmins() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","a b c");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(true);
+    when(mockGroupUserDAO.getGroupMemberCount(group.getGrpID())).thenReturn(5);
+    when(mockGroupDAO.validateGroupAdmin(group.getGrpName(),user.getUserID())).thenReturn(true);
+    when(mockGroupDAO.getGroupByGroupName(group.getGrpName())).thenReturn(group);
+    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(user.getUserID(),group.getGrpID());
+    doNothing().when(mockGroupDAO).updateAdmin(group.getGrpName(),"b c");
+    assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testLeaveGroupNormalUser() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","a b c");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(true);
+    when(mockGroupUserDAO.getGroupMemberCount(group.getGrpID())).thenReturn(5);
+    when(mockGroupDAO.validateGroupAdmin(group.getGrpName(),user.getUserID())).thenReturn(false);
+    when(mockGroupDAO.getGroupByGroupName(group.getGrpName())).thenReturn(group);
+    doNothing().when(mockGroupUserDAO).deleteUserFromGroup(user.getUserID(),group.getGrpID());
+    assertEquals(true,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testLeaveGroupUserNotInGroup() throws SQLException {
+    User user = new User(52,"a","a","a","a@gmail.com","a");
+    when(mockUserDAO.getUserByUsername("a")).thenReturn(user);
+    Groups group = new Groups(22,"g","a b c");
+    when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
+    when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(false);
+    assertEquals(false,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testGetAllGroupsUserBelongsTo() throws SQLException {
+    User user = new User(52, "test", "test", "test", "test@gmail.com", "test");
+    when(mockUserDAO.isUserExists("test")).thenReturn(true);
+    when(mockUserDAO.getUserByUsername("test")).thenReturn(user);
+    List<String> groups = new ArrayList<>();
+    groups.add("Group1");
+    groups.add("Group2");
+    when(mockGroupUserDAO.getAllGroupsUserBelongsTo(52)).thenReturn(groups);
+    assertEquals(groups,GroupServices.getAllGroupsUserBelongsTo("test"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetAllGroupsUserBelongsToException() throws SQLException {
+    when(mockUserDAO.isUserExists("test")).thenReturn(false);
+    GroupServices.getAllGroupsUserBelongsTo("test");
   }
 
   @Test

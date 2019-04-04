@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.services;
 
+import edu.northeastern.ccs.im.PasswordHash;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -8,6 +9,8 @@ import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
@@ -15,6 +18,9 @@ import edu.northeastern.ccs.im.model.User;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests for User Service Class.
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserServicesTest {
 
@@ -39,6 +45,7 @@ public class UserServicesTest {
     when(mockUserDAO.isUserExists("JUser")).thenReturn(true);
     when(mockUserDAO.isUserExists("RUser")).thenReturn(false);
     when(mockUserDAO.validateUser(user.getUsername(), user.getPassword())).thenReturn(true);
+    when(mockUserDAO.validateUser(user.getUsername(), PasswordHash.hashPassword(user.getPassword()))).thenReturn(true);
     doNothing().when(mockUserDAO).deleteUser(user.getUsername());
     doNothing().when(mockUserDAO).updateFirstName(user.getUsername(), "abc");
     doNothing().when(mockUserDAO).updateLastName(user.getUsername(), "abc");
@@ -128,6 +135,18 @@ public class UserServicesTest {
   }
 
   @Test
+  public void testGetUserProfile() throws SQLException {
+    User user = new User(52, "test", "test", "test", "test@gmail.com", "test");
+    when(mockUserDAO.getUserByUsername("test")).thenReturn(user);
+    Map<User.UserParams, String> userProfile = new HashMap<>();
+    userProfile.put(User.UserParams.USERNAME, user.getUsername());
+    userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
+    userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
+    userProfile.put(User.UserParams.EMAIL, user.getEmail());
+    when(mockUserDAO.getUserProfile(52)).thenReturn(user);
+    assertEquals(userProfile, UserServices.getUserProfile("test"));
+  }
+
   public void testFollow() throws SQLException {
     doNothing().when(mockUserDAO).followUser("r", "j");
     UserServices.followUser("r", "j");

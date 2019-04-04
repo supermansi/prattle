@@ -1,18 +1,16 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledFuture;
 
+import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
-import edu.northeastern.ccs.im.model.Message.MsgType;
 
 import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
-import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
 
@@ -31,31 +29,26 @@ import edu.northeastern.ccs.im.services.UserServices;
  */
 public class ClientRunnable implements Runnable {
   /**
+   * Whether this client has been terminated, either because he quit or due to prolonged
+   * inactivity.
+   */
+  protected boolean terminate;
+  /**
    * Utility class which we will use to send and receive communication to this client.
    */
   private NetworkConnection connection;
-
   /**
    * Id for the user for whom we use this ClientRunnable to communicate.
    */
   private int userId;
-
   /**
    * Name that the client used when connecting to the server.
    */
   private String name;
-
   /**
    * Whether this client has been initialized, set its user name, and is ready to receive messages.
    */
   private boolean initialized;
-
-  /**
-   * Whether this client has been terminated, either because he quit or due to prolonged
-   * inactivity.
-   */
-  private boolean terminate;
-
   /**
    * The timer that keeps track of the clients activity.
    */
@@ -70,6 +63,10 @@ public class ClientRunnable implements Runnable {
    * Collection of messages queued up to be sent to this client.
    */
   private Queue<Message> waitingList;
+
+  private Map<MessageType, ICommandMessage> commandMessageMap;
+
+  private boolean isDND = false;
 
   /**
    * Create a new thread with which we will communicate with this single client.
@@ -88,6 +85,8 @@ public class ClientRunnable implements Runnable {
     // Mark that the client is active now and start the timer until we
     // terminate for inactivity.
     timer = new ClientTimer();
+    //Initialise command Service
+    commandMessageMap = CommandService.getInstance().getCommandServiceMap();
   }
 
   /**
@@ -105,17 +104,7 @@ public class ClientRunnable implements Runnable {
           processRegisteration(regInfo, msg);
 
         } else if (msg.isInitialization()) {
-          if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
-            // Update the time until we terminate this client due to inactivity.
-            timer.updateAfterInitialization();
-            // Set that the client is initialized.
-            initialized = true;
-            enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
-          } else {
-            sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
-            initialized = false;
-            terminate = true;
-          }
+          processInitialisation(msg);
         } else {
           initialized = false;
         }
@@ -125,6 +114,28 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+
+  /**
+   * Method to format the push notifications correctly.
+   *
+   * @param pushNotifications a list of strings representing the notifications
+   * @return a string to print to the user with all the notifications
+   */
+  private String getMessagesInFormat(List<String> pushNotifications) {
+    StringBuilder msgs = new StringBuilder();
+    for (String msg : pushNotifications) {
+      msgs.append(new StringBuilder(msg + "\n"));
+    }
+    return msgs.toString().trim();
+  }
+
+  /**
+   * Method to process a new user's registration.
+   *
+   * @param regInfo list of strings representing a user's registration info
+   * @param msg     the registration message
+   * @throws SQLException if the username already exists
+   */
   private void processRegisteration(List<String> regInfo, Message msg) throws SQLException {
     if (msg.getName() != null && UserServices.register(regInfo.get(0), regInfo.get(1),
             regInfo.get(2), regInfo.get(3), regInfo.get(4))) {
@@ -141,6 +152,34 @@ public class ClientRunnable implements Runnable {
     }
   }
 
+  private void processInitialisation(Message msg) throws SQLException {
+    if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
+      // Update the time until we terminate this client due to inactivity.
+      timer.updateAfterInitialization();
+      // Set that the client is initialized.
+      initialized = true;
+      enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
+      pushNotificationsToClient(msg);
+    } else {
+      sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));
+      initialized = false;
+      terminate = true;
+    }
+  }
+
+  protected void pushNotificationsToClient(Message msg) throws SQLException {
+    String messages = getMessagesInFormat(MessageServices.getPushNotifications(msg.getName()));
+    if (!messages.equals("")) {
+      enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, messages));
+    }
+  }
+
+  /**
+   * Method to process the information provided in a new user's registration message.
+   *
+   * @param text the text of the message.
+   * @return a list of strings representing each piece of registration information.
+   */
   private List<String> preProcessRegistrationInformation(String text) {
     return Arrays.asList(text.split(" "));
   }
@@ -302,65 +341,8 @@ public class ClientRunnable implements Runnable {
     if (messageChecks(msg)) {
       // Check for our "special messages"
       try {
-        if (msg.isBroadcastMessage()) {
-          // Check for our "special messages"
-          Prattle.broadcastMessage(msg);
-        } else if (msg.isPrivateMessage()) {
-          String receiverId = getReceiverName(msg.getText());
-          Prattle.sendPrivateMessage(msg, receiverId);
-          MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
-        } else if (msg.isGroupMessage()) {
-          String receiverId = getReceiverName(msg.getText());
-          Prattle.sendGroupMessage(msg, receiverId);
-          MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
-        } else if (msg.isCreateGroup()) {
-          GroupServices.createGroup(getReceiverName(msg.getText()), msg.getName());
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully created group");
-        } else if (msg.isDeleteGroup()) {
-          GroupServices.deleteGroup(getReceiverName(msg.getText()), msg.getName()); //to do
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
-        } else if (msg.isRetrieveGroup()) {
-          retrieveGroupMessagesForGroup(msg);
-        } else if (msg.isRetrieveUser()) {
-          retrieveMessagesForUser(msg);
-        } else if (msg.isUpdateFirstName()) {
-          UserServices.updateFN(msg.getName(), msg.getText().split(" ")[1]);
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated First name");
-        } else if (msg.isUpdateLastName()) {
-          UserServices.updateLN(msg.getName(), msg.getText().split(" ")[1]);
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Last name");
-        } else if (msg.isUpdateEmail()) {
-          UserServices.updateEmail(msg.getName(), msg.getText().split(" ")[1]);
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated Email");
-        } else if (msg.isUpdatePassword()) {
-          UserServices.updatePassword(msg.getName(), msg.getText().split(" ")[1]);
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully updated password");
-        } else if (msg.isRemoveUser()) {
-
-          GroupServices.removeUserFromGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
-
-        } else if (msg.isAddUserToGroup()) {
-          GroupServices.addUserToGroup(getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
-        } else if(msg.isDeactivateUser()) {
-          sendMessageToClient(ServerConstants.SERVER_NAME, "Account successfully deleted.");
-          UserServices.deleteUser(msg.getName());
-          terminate = true;
-        } else if (msg.isUserExists()) {
-          if(UserServices.userExists(getReceiverName(msg.getText()))) {
-            sendMessageToClient(ServerConstants.SERVER_NAME, "This user exists");
-          } else {
-            sendMessageToClient(ServerConstants.SERVER_NAME, "This user does not exist");
-          }
-        } else if(msg.isLastSeen()) {
-          String receiver = getReceiverName(msg.getText());
-          Long lastSeen = UserServices.getLastSeen(receiver);
-          Date resultDate = new Date(lastSeen);
-          SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
-          sendMessageToClient(ServerConstants.SERVER_NAME, receiver + " last viewed messages at "
-                  + sdf.format(resultDate));
-
+        if (commandMessageMap.containsKey(msg.getMessageType())) {
+          commandMessageMap.get(msg.getMessageType()).run(this, msg);
         }
       } catch (DatabaseConnectionException e) {
         sendMessageToClient(ServerConstants.SERVER_NAME, e.getMessage());
@@ -377,7 +359,7 @@ public class ClientRunnable implements Runnable {
    *
    * @param msg retrieve message command sent to server
    */
-  private void retrieveGroupMessagesForGroup(Message msg) throws SQLException {
+  protected void retrieveGroupMessagesForGroup(Message msg) throws SQLException {
     List<String> messages = MessageServices.retrieveGroupMessages(getReceiverName(msg.getText()));
     for (String conv : messages) {
       String[] arr = conv.split(" ");
@@ -392,7 +374,7 @@ public class ClientRunnable implements Runnable {
    *
    * @param msg retrieve message command sent to server
    */
-  private void retrieveMessagesForUser(Message msg) throws SQLException {
+  protected void retrieveMessagesForUser(Message msg) throws SQLException {
     List<String> messages = MessageServices.retrieveUserMessages(msg.getName(), getReceiverName(msg.getText()));
     for (String conv : messages) {
       String[] arr = conv.split(" ");
@@ -408,7 +390,7 @@ public class ClientRunnable implements Runnable {
    * @param sender  string representing the sender name
    * @param message string representing the message text
    */
-  private void sendMessageToClient(String sender, String message) {
+  protected void sendMessageToClient(String sender, String message) {
     Message sendMsg;
     sendMsg = Message.makeAckMessage(sender, message);
     enqueueMessage(sendMsg);
@@ -420,7 +402,7 @@ public class ClientRunnable implements Runnable {
    * @param text the message text
    * @return a string representing the reciever name
    */
-  private String getReceiverName(String text) {
+  protected String getReceiverName(String text) {
     return text.split(" ")[1];
   }
 
@@ -446,6 +428,9 @@ public class ClientRunnable implements Runnable {
     terminate |= !keepAlive;
   }
 
+  protected boolean getDNDStatus(){
+    return isDND;
+  }
   /**
    * Store the object used by this client runnable to control when it is scheduled for execution in
    * the thread pool.
@@ -461,6 +446,14 @@ public class ClientRunnable implements Runnable {
    * request or due to system need.
    */
   public void terminateClient() {
+
+    try {
+      if(!getDNDStatus()){
+        UserServices.updateLastSeen(this.getName(), System.currentTimeMillis());
+      }
+    } catch (SQLException e) {
+      ChatLogger.error("Could Not Update LastSeen on DB");
+    }
     // Once the communication is done, close this connection.
     connection.close();
     // Remove the client from our client listing.

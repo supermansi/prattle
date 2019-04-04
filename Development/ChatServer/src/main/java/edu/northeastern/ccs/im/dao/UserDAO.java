@@ -19,6 +19,7 @@ public class UserDAO {
 
   protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
+  private static final String EXCEPTION_MSG = "User not found.";
 
   /**
    * Private constructor for the user DAO
@@ -99,19 +100,13 @@ public class UserDAO {
       preparedStatement.setString(1, userName);
       User user;
       try {
-        resultSet = preparedStatement.executeQuery();
+          resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          String username = resultSet.getString("username");
-          String userFN = resultSet.getString("userFN");
-          String userLN = resultSet.getString("userLN");
-          String email = resultSet.getString("email");
-          String password = resultSet.getString("password");
+          user = getUser(resultSet);
           String lastSeen = resultSet.getString("lastSeen");
-          user = new User(userID, username, userFN, userLN, email, password);
           user.setLastSeen(lastSeen);
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
 
         return user;
@@ -129,12 +124,32 @@ public class UserDAO {
     }
   }
 
+
   /**
-   * Method to get a user model object by user #ID.
+   * Method to get a user model object created from queries to the database.
    *
-   * @param userId int representing a user ID
-   * @return a user model object
+   * @param resultSet the set of results from the query to the database
+   * @return a user model object containing the queried values
+   * @throws SQLException if the queries do not exist in the database
    */
+  private User getUser(ResultSet resultSet) throws SQLException {
+    User user;
+    int userID = resultSet.getInt("userID");
+    String username = resultSet.getString("username");
+    String userFN = resultSet.getString("userFN");
+    String userLN = resultSet.getString("userLN");
+    String email = resultSet.getString("email");
+    String password = resultSet.getString("password");
+    user = new User(userID, username, userFN, userLN, email, password);
+    return user;
+  }
+
+      /**
+       * Method to get a user model object by user #ID.
+       *
+       * @param userId int representing a user ID
+       * @return a user model object
+       */
   public User getUserByUserID(int userId) throws SQLException {
     String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
     Connection connection = connectionManager.getConnection();
@@ -147,16 +162,9 @@ public class UserDAO {
       try {
         resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
-          int userID = resultSet.getInt("userID");
-          String username = resultSet.getString("username");
-          String userFN = resultSet.getString("userFN");
-          String userLN = resultSet.getString("userLN");
-          String email = resultSet.getString("email");
-          String password = resultSet.getString("password");
-
-          user = new User(userID, username, userFN, userLN, email, password);
+          user = getUser(resultSet);
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
       } finally {
         if (resultSet != null) {
@@ -248,6 +256,14 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to determine if a user query to the database has been successful or not.
+   *
+   * @param preparedStatement query to run on the database
+   * @param resultSet result set from another query
+   * @return true if the user is found, otherwise false
+   * @throws SQLException if the values do not exist in the database
+   */
   private static boolean getUser(PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
     try {
       resultSet = preparedStatement.executeQuery();
@@ -363,6 +379,14 @@ public class UserDAO {
     updateUserDetail(userName, lastSeen, updateLastSeen, connection, preparedStatement);
   }
 
+
+  /**
+   * Method to get the timestamp as a string of the last message a user viewed.
+   *
+   * @param username username to search for their last seen time
+   * @return String representing the time of the last seen message of the user
+   * @throws SQLException if the user searched for does not exist in the db
+   */
   public String getLastSeen(String username) throws SQLException {
     String getLastSeen = "SELECT lastSeen FROM User WHERE username=?;";
     Connection connection = connectionManager.getConnection();
@@ -376,7 +400,35 @@ public class UserDAO {
         if (resultSet.next()) {
           return resultSet.getString("lastSeen");
         } else {
-          throw new DatabaseConnectionException("User not found.");
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public User getUserProfile(int userId) throws SQLException {
+    String getUserProfile = "SELECT * FROM USER WHERE USERID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getUserProfile, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, userId);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          return getUser(resultSet);
+        } else {
+          throw new DatabaseConnectionException(EXCEPTION_MSG);
         }
       } finally {
         if (resultSet != null) {

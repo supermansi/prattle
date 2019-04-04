@@ -42,6 +42,10 @@ public class MessageToUserDAOTest {
   private PreparedStatement mockPreparedStatement;
   @Mock
   private ResultSet mockResultSet;
+  @Mock
+  private PreparedStatement mockPreparedStatement2;
+  @Mock
+  private ResultSet mockResultSet2;
 
   @Before
   public void setUp() throws SQLException {
@@ -178,13 +182,18 @@ public class MessageToUserDAOTest {
     when(mockResultSet.next()).thenReturn(true).thenReturn(false);
     when(mockResultSet.getString(any())).thenReturn("admin");
     when(mockResultSet.getInt(any())).thenReturn(1);
-    assertEquals(1, messageToUserDAO.getNotifications(1).size());
+    when(mockConnection.prepareStatement(any(String.class), any(Integer.class))).thenReturn(mockPreparedStatement).thenReturn(mockPreparedStatement2);
+    when(mockPreparedStatement2.executeQuery()).thenReturn(mockResultSet2);
+    when(mockResultSet2.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet2.getString(any())).thenReturn("admin");
+    when(mockResultSet2.getInt(any())).thenReturn(1);
+    assertEquals(2, messageToUserDAO.getNotifications(1).size());
   }
 
   @Test(expected = SQLException.class)
   public void testGetNotificationsEx() throws SQLException {
     when(mockResultSet.next()).thenReturn(true).thenReturn(false);
-    doThrow(new SQLException()).when(mockResultSet).getString(any());
+    doThrow(new SQLException()).when(mockResultSet).getInt(any());
     when(mockResultSet.getInt(any())).thenReturn(1);
     assertEquals(1, messageToUserDAO.getNotifications(1).size());
   }
@@ -196,8 +205,27 @@ public class MessageToUserDAOTest {
   }
 
   @Test(expected = SQLException.class)
+  public void testGetNotifEx2() throws SQLException{
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(any())).thenReturn("admin");
+    when(mockResultSet.getInt(any())).thenReturn(1);
+    when(mockConnection.prepareStatement(any(String.class), any(Integer.class))).thenReturn(mockPreparedStatement).thenReturn(mockPreparedStatement2);
+    doThrow(new SQLException()).when(mockPreparedStatement2).executeQuery();
+    messageToUserDAO.getNotifications(1);
+  }
+
+  @Test(expected = SQLException.class)
   public void testGetNotifExSet() throws SQLException{
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    messageToUserDAO.getNotifications(1);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void testGetNotifExSet2() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(any())).thenReturn("admin");
+    when(mockResultSet.getInt(any())).thenReturn(1);
+    when(mockConnection.prepareStatement(any(String.class), any(Integer.class))).thenReturn(mockPreparedStatement).thenReturn(null);
     messageToUserDAO.getNotifications(1);
   }
 

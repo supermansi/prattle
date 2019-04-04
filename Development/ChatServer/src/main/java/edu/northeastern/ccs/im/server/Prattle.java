@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -37,11 +38,11 @@ import edu.northeastern.ccs.im.services.GroupServices;
  */
 public abstract class Prattle {
 
+  protected static ConcurrentMap<String, List<String>> groupToUserMapping;
   /**
    * Don't do anything unless the server is ready.
    */
   private static boolean isReady = false;
-
   /**
    * Collection of threads that are currently being used.
    */
@@ -101,6 +102,7 @@ public abstract class Prattle {
    *                     supposed to listen.
    */
   public static void main(String[] args) {
+    initialiseCache();
     // Connect to the socket on the appropriate port to which this server connects.
     try (ServerSocketChannel serverSocket = ServerSocketChannel.open()) {
       serverSocket.configureBlocking(false);
@@ -140,6 +142,17 @@ public abstract class Prattle {
   }
 
   /**
+   * Method to initialize the cached list of user group mappings when prattle starts.
+   */
+  private static void initialiseCache() {
+    try {
+      groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
+    } catch (SQLException e) {
+      ChatLogger.error("Failed to retrieve data from database");
+    }
+  }
+
+  /**
    * Create a new thread to handle the client for which a request is received.
    *
    * @param serverSocket The channel to use.
@@ -170,14 +183,16 @@ public abstract class Prattle {
   /**
    * Method to send private message to specified receiver.
    *
-   * @param msg message to be sent
+   * @param msg      message to be sent
    * @param receiver receiver name to send to
    */
   public static void sendPrivateMessage(Message msg, String receiver) {
     for (ClientRunnable tt : active) {
       // Do not send the message to any clients that are not ready to receive it.
       if (tt.getName().equalsIgnoreCase(receiver)) {
-        tt.enqueueMessage(msg);
+        if (!tt.getDNDStatus()) {
+          tt.enqueueMessage(msg);
+        }
         break;
       }
     }
@@ -186,16 +201,39 @@ public abstract class Prattle {
   /**
    * Method to send private message to specified receiver.
    *
-   * @param msg message to be sent
+   * @param msg       message to be sent
    * @param groupName receiver name to send to
    */
-  public static void sendGroupMessage(Message msg, String groupName) throws SQLException {
-    List<String> listOfUsersInGroup = GroupServices.getAllUsersInGroup(groupName);
-    for(ClientRunnable cr : active){
-      if(listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName())){
-        cr.enqueueMessage(msg);
+  public static boolean sendGroupMessage(Message msg, String groupName) {
+    if (groupToUserMapping.containsKey(groupName) && groupToUserMapping.get(groupName).contains(msg.getName())) {
+
+      List listOfUsersInGroup = groupToUserMapping.get(groupName);
+      for (ClientRunnable cr : active) {
+        if (listOfUsersInGroup.contains(cr.getName()) && !cr.getName().equals(msg.getName()) && !cr.getDNDStatus()) {
+          cr.enqueueMessage(msg);
+        }
+      }
+      return true;
+
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Method to determine if a given user is currently online.
+   *
+   * @param receiverName name of the user to check their online status
+   * @return true if the user is online, false otherwise
+   */
+  public static boolean isUserOnline(String receiverName) {
+    boolean flag = false;
+    for (ClientRunnable cr : active) {
+      if (cr.getName().equals(receiverName)) {
+        flag = true;
+        break;
       }
     }
-
+    return flag;
   }
 }

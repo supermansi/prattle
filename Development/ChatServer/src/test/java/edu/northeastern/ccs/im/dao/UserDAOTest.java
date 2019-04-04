@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
-import javax.xml.crypto.Data;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;

@@ -16,6 +16,7 @@ public class GroupDAO {
 
   protected static IConnectionManager connectionManager;
   private static GroupDAO groupDAO;
+  private static UserDAO userDAO;
 
   /**
    * Private constructor for the group DAO.
@@ -32,6 +33,7 @@ public class GroupDAO {
   public static GroupDAO getInstance() {
     if (groupDAO == null) {
       connectionManager = new ConnectionManager();
+      userDAO = UserDAO.getInstance();
       groupDAO = new GroupDAO();
     }
     return groupDAO;
@@ -125,6 +127,14 @@ public class GroupDAO {
     }
   }
 
+  /**
+   * Method to check if a group exists based on prepared statment.
+   *
+   * @param statement statement containing either group name or group id
+   * @param result result set from another query
+   * @return true if the group is found, false otherwise
+   * @throws SQLException if the queries cant be found
+   */
   private boolean checkGroup(PreparedStatement statement, ResultSet result) throws SQLException {
     try {
       result = statement.executeQuery();
@@ -167,14 +177,15 @@ public class GroupDAO {
    * @return true if the user is the admin of the group, false otherwise
    */
   public boolean validateGroupAdmin(String groupName, int adminID) throws SQLException {
-    String validate = "SELECT * FROM Groups WHERE grpName=? AND adminID=?;";
+    String adminName = userDAO.getUserByUserID(adminID).getUsername();
+    String validate = "SELECT * FROM Groups WHERE grpName=? AND admins LIKE ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet result = null;
     try {
       preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, groupName);
-      preparedStatement.setInt(2, adminID);
+      preparedStatement.setString(2, "%"+adminName+"%");
       return checkGroup(preparedStatement, result);
     } finally {
       if (preparedStatement != null) {
@@ -228,6 +239,13 @@ public class GroupDAO {
     }
   }
 
+  /**
+   * Method to get a group model object from the database.
+   *
+   * @param preparedStatement prepared statement to use as query
+   * @return a group model object
+   * @throws SQLException if the prepared statement query fails
+   */
   private Groups getGroups(PreparedStatement preparedStatement) throws SQLException {
     ResultSet resultSet = null;
     try {
@@ -249,6 +267,13 @@ public class GroupDAO {
     }
   }
 
+  /**
+   * Method to update the admin of a group.
+   *
+   * @param groupName the group to update the admin of
+   * @param adminName the name of the user to make admin
+   * @throws SQLException if the user calling this is not already a group admin
+   */
   public void updateAdmin(String groupName, String adminName) throws SQLException {
     String updateAdmin = "UPDATE Groups SET admins=? WHERE grpName=?";
     Connection connection = connectionManager.getConnection();
@@ -266,6 +291,13 @@ public class GroupDAO {
     }
   }
 
+  /**
+   * Method to get the restriction level of a group H(high) or L(low).
+   *
+   * @param grpName the name of the group to find the restriction level of
+   * @return string representing the groups restriction level
+   * @throws SQLException if the group is not found in the database
+   */
   public String getGroupRestriction(String grpName) throws SQLException {
     String getRestriction = "SELECT restricted FROM Groups WHERE grpName=?;";
     Connection connection = connectionManager.getConnection();
@@ -295,6 +327,14 @@ public class GroupDAO {
     return restriction;
   }
 
+
+  /**
+   * Method to change the restriction level of a group.
+   *
+   * @param grpName the name of the group to change the restriction of
+   * @param restriction string representing the restriction level, either H or L
+   * @throws SQLException if the group cannot be found
+   */
   public void changeGroupRestriction(String grpName, String restriction) throws SQLException {
     String updateRestriction = "UPDATE Groups SET restricted=? WHERE grpName=?;";
     Connection connection = connectionManager.getConnection();
@@ -312,19 +352,43 @@ public class GroupDAO {
     }
   }
 
-  public void setGroupAsThread(String groupName) throws SQLException {
-    String setThread = "UPDATE Groups SET isThread = True WHERE grpName = ?;";
+  /**
+   * Method to assign someone else in a group to be admin if the sole admin of the group leaves.
+   *
+   * @param groupId the #id of the group
+   * @throws SQLException if the group cannot be found in the database
+   */
+  public void replaceAdminWhenAdminLeaves(int groupId) throws SQLException {
+    String replaceAdmin = "UPDATE Groups SET admins = (SELECT username FROM User WHERE userID = (SELECT userID FROM GroupToUserMap WHERE groupID = ? LIMIT 1 OFFSET 1)) WHERE grpID = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
-      preparedStatement = connection.prepareStatement(setThread, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, groupName);
+      preparedStatement = connection.prepareStatement(replaceAdmin, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, groupId);
+      preparedStatement.setInt(2, groupId);
       preparedStatement.executeUpdate();
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
       }
       connection.close();
+    }
+  }
+
+  public void setGroupAsThread(String groupName) throws SQLException {
+    String setThread = "UPDATE Groups SET isThread = True WHERE grpName = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+        preparedStatement = connection.prepareStatement(setThread, Statement.RETURN_GENERATED_KEYS);
+        preparedStatement.setString(1, groupName);
+        preparedStatement.executeUpdate();
+    }
+    finally {
+        if (preparedStatement != null) {
+            preparedStatement.close();
+        }
+        connection.close();
     }
   }
 }
