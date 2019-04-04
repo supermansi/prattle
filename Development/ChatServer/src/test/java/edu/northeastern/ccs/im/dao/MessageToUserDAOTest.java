@@ -278,4 +278,55 @@ public class MessageToUserDAOTest {
     doThrow(new DatabaseConnectionException("Custom")).when(mockPreparedStatement).executeQuery();
     List<String> chat = messageToUserDAO.getMessagesBetween("r", "j", "00000000", "11111111");
   }
+
+  @Test
+  public void testGetMessageFromBetweenGroups() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", "admin1 admin2"));
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString("message")).thenReturn("Test GRP MSG");
+    Class clazz = MessageToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(messageToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+
+    List<String> testList = messageToUserDAO.getMessagesFromGroupBetween("Group 123", "00000000", "11111111");
+
+    assertEquals("r Test GRP MSG", testList.get(0));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMessageFromGroupsBetweenExceptionPrepareSet() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    doThrow(new DatabaseConnectionException("Custom")).when(mockConnection).prepareStatement(anyString(), any(Integer.class));
+    messageToUserDAO.getMessagesFromGroupBetween("Group 123", "00000000", "11111111");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMessageFromGroupsBetweenExceptionResultSet() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    when(mockGroupDAO.getGroupByGroupName(any())).thenReturn(new Groups(123, "Group", "admin1 admin2"));
+
+    UserDAO mockUserDAO = mock(UserDAO.class);
+    when(mockUserDAO.getUserByUserID(any(Integer.class))).thenReturn(new User("r", "r", "r", "r", "r"));
+
+    doThrow(new DatabaseConnectionException("Custom")).when(mockPreparedStatement).executeQuery();
+    Class clazz = MessageToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(messageToUserDAO, mockGroupDAO);
+
+    Field usrDao = clazz.getDeclaredField("userDAO");
+    usrDao.setAccessible(true);
+    usrDao.set(messageToUserDAO, mockUserDAO);
+
+    messageToUserDAO.getMessagesFromGroupBetween("Group 123", "00000000", "11111111");
+  }
 }

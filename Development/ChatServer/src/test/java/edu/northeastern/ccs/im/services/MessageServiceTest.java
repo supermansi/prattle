@@ -170,4 +170,9 @@ public class MessageServiceTest {
     when(mockMessageToUserDAO.getNotifications(52)).thenReturn(notifications);
     assertEquals(1, MessageServices.getPushNotifications("Daba").size());
   }
+
+  @Test
+  public void testRetrieveGroupMessagesTime() throws SQLException {
+    MessageServices.getGroupMessagesBetween(createdGroup.getGrpName(), "0000", "1111");
+  }
 }

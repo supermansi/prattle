@@ -110,4 +110,8 @@ public class MessageServices {
     return messageUserDAO.getMessagesBetween(sender, receiver, startDate, endDate);
   }
 
+  public static List<String> getGroupMessagesBetween(String groupName, String start, String end) throws SQLException {
+      return messageUserDAO.getMessagesFromGroupBetween(groupName, start, end);
+  }
+
 }
