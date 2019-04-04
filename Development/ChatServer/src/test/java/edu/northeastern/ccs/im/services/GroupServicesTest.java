@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
+import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -222,5 +223,10 @@ public class GroupServicesTest {
     when(mockGroupDAO.getGroupByGroupName(any(String.class))).thenReturn(new Groups("group1", "admin1"));
     doNothing().when(mockGroupDAO).updateAdmin(any(String.class), any(String.class));
     GroupServices.makeAdmin("group1", "oldAdmin", "newAdmin");
+  }
+
+  @Test
+  public void testCreateThread() throws SQLException {
+    GroupServices.createThread("x", "g1");
   }
 }

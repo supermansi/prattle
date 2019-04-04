@@ -152,4 +152,10 @@ public class GroupServices {
 			throw new DatabaseConnectionException("Unable to change group restrictions.");
 		}
 	}
+
+	public static void createThread(String username, String threadName) throws SQLException {
+		createGroup(threadName, username);
+		groupDAO.setGroupAsThread(threadName);
+	}
+
 }

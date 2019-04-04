@@ -311,4 +311,20 @@ public class GroupDAO {
       connection.close();
     }
   }
+
+  public void setGroupAsThread(String groupName) throws SQLException {
+    String setThread = "UPDATE Groups SET isThread = True WHERE grpName = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(setThread, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, groupName);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }
