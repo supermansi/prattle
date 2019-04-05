@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
-import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.User;
 
 /**
@@ -20,6 +19,7 @@ public class UserDAO {
   protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
   private static final String EXCEPTION_MSG = "User not found.";
+  private static final String GET_USER_QUERY = "SELECT * FROM USER WHERE USERID = ?;";
 
   /**
    * Private constructor for the user DAO
@@ -151,7 +151,7 @@ public class UserDAO {
        * @return a user model object
        */
   public User getUserByUserID(int userId) throws SQLException {
-    String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
+    String insertUser = GET_USER_QUERY;
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
@@ -211,7 +211,7 @@ public class UserDAO {
    * @return true if the user is in the database, false otherwise
    */
   public boolean isUserExists(int userId) throws SQLException {
-    String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
+    String insertUser = GET_USER_QUERY;
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
@@ -416,7 +416,7 @@ public class UserDAO {
   }
 
   public User getUserProfile(int userId) throws SQLException {
-    String getUserProfile = "SELECT * FROM USER WHERE USERID = ?;";
+    String getUserProfile = GET_USER_QUERY;
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
