@@ -12,6 +12,7 @@ public class User {
   private String email;
   private String password;
   private String lastSeen;
+  private boolean isTapped;
 
   public enum UserParams {
     USERNAME, FIRSTNAME, LASTNAME, EMAIL;
@@ -169,4 +170,11 @@ public class User {
     this.lastSeen = lastSeen;
   }
 
+  public boolean isTapped() {
+    return isTapped;
+  }
+
+  public void setTapped(boolean tapped) {
+    isTapped = tapped;
+  }
 }
