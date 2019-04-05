@@ -141,6 +141,7 @@ public class UserDAO {
     String email = resultSet.getString("email");
     String password = resultSet.getString("password");
     user = new User(userID, username, userFN, userLN, email, password);
+    user.setTapped(resultSet.getBoolean("isTapped"));
     return user;
   }
 
@@ -535,6 +536,25 @@ public class UserDAO {
           resultSet.close();
         }
       }
+    }
+    finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public void setWireTappedStatus(String username, boolean isTapped) throws SQLException {
+    String setUserWireTapped = "UPDATE USER SET ISTAPPED = ? WHERE USERNAME = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(setUserWireTapped, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setBoolean(1,isTapped);
+      preparedStatement.setString(2,username);
+      preparedStatement.executeUpdate();
     }
     finally {
       if (preparedStatement != null) {
