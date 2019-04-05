@@ -345,8 +345,25 @@ public class GroupsDAOTest {
 
     @Test(expected = SQLException.class)
     public void testReplaceAdminUpdateException() throws SQLException {
-      doThrow(new SQLException()).when(mockStatement).executeUpdate();
-      groupDAO.replaceAdminWhenAdminLeaves(2);
+        doThrow(new SQLException()).when(mockStatement).executeUpdate();
+        groupDAO.replaceAdminWhenAdminLeaves(2);
+    }
+
+    @Test
+    public void testThread() throws SQLException {
+      groupDAO.setGroupAsThread("group1");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testThreadNullStatement() throws SQLException {
+        when(mockConnection.prepareStatement(any(String.class),any(Integer.class))).thenReturn(null);
+        groupDAO.setGroupAsThread("group1");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testThreadException() throws SQLException {
+        doThrow(new SQLException()).when(mockStatement).executeUpdate();
+        groupDAO.setGroupAsThread("group1");
     }
 
 }
