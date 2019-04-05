@@ -1,7 +1,10 @@
 package edu.northeastern.ccs.im.services;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
+
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
@@ -41,9 +44,10 @@ public class MessageServices {
    * @param sender sender name
    * @param receiver receiver name
    * @param message message text
+   * @param chatID
    * @return true if message is added to database, false otherwise
    */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID) throws SQLException {
     if (msgType == Message.MsgType.PVT) {
       if (userDAO.isUserExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();
@@ -112,6 +116,14 @@ public class MessageServices {
 
   public static List<String> getGroupMessagesBetween(String groupName, String start, String end) throws SQLException {
       return messageUserDAO.getMessagesFromGroupBetween(groupName, start, end);
+  }
+
+  public static ConcurrentMap<String,Integer> getChatIDForGroups(){
+    return null;
+  }
+
+  public static MultiKeyMap getChatIDForUsers(){
+    return null;
   }
 
 }
