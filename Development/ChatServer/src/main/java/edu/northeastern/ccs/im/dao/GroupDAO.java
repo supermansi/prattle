@@ -131,7 +131,7 @@ public class GroupDAO {
    * Method to check if a group exists based on prepared statment.
    *
    * @param statement statement containing either group name or group id
-   * @param result result set from another query
+   * @param result    result set from another query
    * @return true if the group is found, false otherwise
    * @throws SQLException if the queries cant be found
    */
@@ -185,7 +185,7 @@ public class GroupDAO {
     try {
       preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, groupName);
-      preparedStatement.setString(2, "%"+adminName+"%");
+      preparedStatement.setString(2, "%" + adminName + "%");
       return checkGroup(preparedStatement, result);
     } finally {
       if (preparedStatement != null) {
@@ -256,6 +256,7 @@ public class GroupDAO {
         String grpName = resultSet.getString("grpName");
         String admins = resultSet.getString("admins");
         group = new Groups(grpID, grpName, admins);
+        group.setThread(resultSet.getBoolean("isThread"));
         return group;
       } else {
         throw new SQLException("Group not found.");
@@ -307,14 +308,13 @@ public class GroupDAO {
     try {
       preparedStatement = connection.prepareStatement(getRestriction, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, grpName);
-      try{
+      try {
         resultSet = preparedStatement.executeQuery();
-        if(resultSet.next()) {
+        if (resultSet.next()) {
           restriction = resultSet.getString(1);
         }
-      }
-      finally {
-        if(resultSet != null) {
+      } finally {
+        if (resultSet != null) {
           resultSet.close();
         }
       }
@@ -331,7 +331,7 @@ public class GroupDAO {
   /**
    * Method to change the restriction level of a group.
    *
-   * @param grpName the name of the group to change the restriction of
+   * @param grpName     the name of the group to change the restriction of
    * @param restriction string representing the restriction level, either H or L
    * @throws SQLException if the group cannot be found
    */

@@ -15,7 +15,7 @@ public class Message {
 	private int chatSenderID;
 
 	public enum MsgType {
-		PVT, GRP, BCT;
+		PVT, GRP, BCT, TRD;
 	}
 
 	/**

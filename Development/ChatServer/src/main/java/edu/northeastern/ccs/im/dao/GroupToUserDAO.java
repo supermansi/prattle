@@ -6,11 +6,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
+import edu.northeastern.ccs.im.model.Message;
 
 /**
  * This class is the dao for a group to user mapping.
@@ -297,6 +300,46 @@ public class GroupToUserDAO {
         }
       }
     } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public Map<String, List<String>> getMapOfAllUserAndFollowers() throws SQLException {
+    String getUsersAndFollowers = "SELECT * FROM FOLLOW ORDER BY FOLLOWING;";
+    Map<String, List<String>> hashTagMap = new HashMap<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getUsersAndFollowers, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        String username = "";
+        List<String> followers = new ArrayList<>();
+        while (resultSet.next()) {
+          if (!resultSet.getString(3).equals(username)) {
+            if (!username.equals("")) {
+              hashTagMap.put(username, followers);
+            }
+            username = resultSet.getString(3);
+            followers = new ArrayList<>();
+          }
+          followers.add(resultSet.getString(2));
+        }
+        if(!followers.isEmpty()) {
+          hashTagMap.put(username,followers);
+        }
+        return hashTagMap;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    }
+    finally {
       if (preparedStatement != null) {
         preparedStatement.close();
       }
