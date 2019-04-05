@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -165,5 +166,13 @@ public class UserServices {
 
   public static List<String> getFollowing(String username) throws SQLException {
     return userDAO.getFollowing(username);
+  }
+
+  public static List<String> getListOfTappedUsers(){
+    return new ArrayList<>();
+  }
+
+  public void setWireTapStatus(String username,boolean isTapped){
+
   }
 }

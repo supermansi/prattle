@@ -25,6 +25,7 @@ import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
+import edu.northeastern.ccs.im.services.UserServices;
 
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
@@ -46,6 +47,8 @@ public abstract class Prattle {
   protected static ConcurrentMap<String,Integer> chatIDToGroupMap;
 
   protected static MultiKeyMap<String,Integer> chatIDToUserMap;
+
+  protected  static List<String> listOfWireTappedUsers;
   /**
    * Don't do anything unless the server is ready.
    */
@@ -156,6 +159,7 @@ public abstract class Prattle {
       groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
       chatIDToGroupMap = MessageServices.getChatIDForGroups();
       chatIDToUserMap = MessageServices.getChatIDForUsers();
+      listOfWireTappedUsers = UserServices.getListOfTappedUsers();
     } catch (SQLException e) {
       ChatLogger.error("Failed to retrieve data from database");
     }
