@@ -24,6 +24,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import edu.northeastern.ccs.im.model.Groups;
+import org.mockito.internal.matchers.Null;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupsDAOTest {
@@ -364,6 +365,25 @@ public class GroupsDAOTest {
     public void testThreadException() throws SQLException {
         doThrow(new SQLException()).when(mockStatement).executeUpdate();
         groupDAO.setGroupAsThread("group1");
+    }
+
+    @Test
+    public void testGetAllThreads() throws SQLException {
+      when(mockResultSet.getString(any())).thenReturn("x");
+      when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+      assertEquals(2, groupDAO.getAllThreads().size());
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGetAllThreadsNullException() throws SQLException {
+        when(mockConnection.prepareStatement(any(String.class),any(Integer.class))).thenReturn(null);
+        assertEquals(2, groupDAO.getAllThreads().size());
+    }
+
+    @Test(expected = SQLException.class)
+    public void testGetAllThreadsException() throws SQLException {
+        doThrow(new SQLException()).when(mockStatement).executeQuery();
+        assertEquals(2, groupDAO.getAllThreads().size());
     }
 
 }

@@ -202,8 +202,12 @@ public class GroupServices {
     groupUserDAO.addUserToGroup(userID, groupID);
   }
 
-
   public static Map<String, List<String>> getUserToFollowerMap() throws SQLException {
     return groupUserDAO.getMapOfAllUserAndFollowers();
   }
+
+  public static List<String> retrieveAllThreads() throws  SQLException {
+      return groupDAO.getAllThreads();
+  }
+
 }
