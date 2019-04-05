@@ -495,10 +495,17 @@ public class UserDAO {
     try {
       preparedStatement = connection.prepareStatement(query);
       preparedStatement.setString(1, user);
-      resultSet = preparedStatement.executeQuery();
-      while(resultSet.next()){
-        listOfUsers.add(resultSet.getString(1));
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          listOfUsers.add(resultSet.getString(1));
+        }
+      } finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
       }
+
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
