@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
@@ -389,6 +391,33 @@ public class GroupDAO {
             preparedStatement.close();
         }
         connection.close();
+    }
+  }
+
+  public List<String> getAllThreads() throws SQLException {
+    String getThreads = "SELECT grpName FROM Groups WHERE isThread = True;";
+    List<String> listOfThreads = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getThreads, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          listOfThreads.add(resultSet.getString(1));
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+      return listOfThreads;
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
     }
   }
 }

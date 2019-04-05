@@ -9,7 +9,7 @@ public class Groups {
 	private String grpName;
 	private String admins;
 	private Restricted restricted;
-	private Boolean isThread;
+	private boolean isThread;
 
 	public enum Restricted {
 		H, L;
@@ -101,11 +101,11 @@ public class Groups {
 		this.restricted = restricted;
 	}
 
-	public Boolean getThread() {
+	public boolean isThread() {
 		return isThread;
 	}
 
-	public void setThread(Boolean thread) {
+	public void setThread(boolean thread) {
 		isThread = thread;
 	}
 }

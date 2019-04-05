@@ -204,4 +204,8 @@ public class GroupServices {
         int groupID = groupDAO.getGroupByGroupName(threadName).getGrpID();
         groupUserDAO.addUserToGroup(userID, groupID);
     }
+
+    public static List<String> retrieveAllThreads() throws  SQLException {
+        return groupDAO.getAllThreads();
+    }
 }
