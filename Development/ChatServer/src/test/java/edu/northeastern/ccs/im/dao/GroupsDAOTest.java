@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.dao;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
+import edu.northeastern.ccs.im.model.User;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -18,14 +19,11 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyByte;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import edu.northeastern.ccs.im.model.Groups;
-import edu.northeastern.ccs.im.model.User;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupsDAOTest {
@@ -103,10 +101,16 @@ public class GroupsDAOTest {
 
   @Test(expected = SQLException.class)
   public void testGroupExistsNameException() throws SQLException {
-      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
-      doThrow(new SQLException()).when(mockStatement).executeQuery();
+      doThrow(new SQLException()).when(mockConnection).prepareStatement(any());
       groupDAO.checkGroupExists("g1");
   }
+
+  @Test(expected = SQLException.class)
+  public void testGroupExistsNameExceptionQuery() throws SQLException {
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    groupDAO.checkGroupExists("g1");
+  }
+
 
   @Test
   public void testGroupExistsID() throws SQLException {
@@ -115,11 +119,16 @@ public class GroupsDAOTest {
   }
 
   @Test(expected = SQLException.class)
-  public void testGroupExistsIDExceptio() throws SQLException {
-      doThrow(new SQLException()).when(mockConnection).prepareStatement(any(),any(Integer.class));
-      doThrow(new SQLException()).when(mockStatement).executeQuery();
+  public void testGroupExistsIDException() throws SQLException {
+      doThrow(new SQLException()).when(mockConnection).prepareStatement(any());
       groupDAO.checkGroupExists(1);
   }
+
+    @Test(expected = SQLException.class)
+    public void testGroupExistsIDExceptionQuery() throws SQLException {
+        doThrow(new SQLException()).when(mockStatement).executeQuery();
+        groupDAO.checkGroupExists(1);
+    }
 
   @Test
   public void testValidateAdmin() throws SQLException, NoSuchFieldException, IllegalAccessException {
@@ -336,8 +345,25 @@ public class GroupsDAOTest {
 
     @Test(expected = SQLException.class)
     public void testReplaceAdminUpdateException() throws SQLException {
-      doThrow(new SQLException()).when(mockStatement).executeUpdate();
-      groupDAO.replaceAdminWhenAdminLeaves(2);
+        doThrow(new SQLException()).when(mockStatement).executeUpdate();
+        groupDAO.replaceAdminWhenAdminLeaves(2);
+    }
+
+    @Test
+    public void testThread() throws SQLException {
+      groupDAO.setGroupAsThread("group1");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testThreadNullStatement() throws SQLException {
+        when(mockConnection.prepareStatement(any(String.class),any(Integer.class))).thenReturn(null);
+        groupDAO.setGroupAsThread("group1");
+    }
+
+    @Test(expected = SQLException.class)
+    public void testThreadException() throws SQLException {
+        doThrow(new SQLException()).when(mockStatement).executeUpdate();
+        groupDAO.setGroupAsThread("group1");
     }
 
 }

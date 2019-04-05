@@ -73,27 +73,13 @@ public class MessageToUserDAO {
    * @return a list of strings that contain the messages sent to a group
    */
   public List<String> getMessagesFromGroup(String groupName) throws SQLException {
-    List<String> messages = new ArrayList<>();
     String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
       preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, groupDAO.getGroupByGroupName(groupName).getGrpID());
-      ResultSet resultSet = null;
-      try {
-        resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()) {
-          String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
-          String message = resultSet.getString("message");
-          messages.add(username + " " + message);
-        }
-      } finally {
-        if(resultSet!=null){
-          resultSet.close();
-        }
-      }
-      return messages;
+      return getGroupMessages(preparedStatement);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -120,20 +106,7 @@ public class MessageToUserDAO {
       statement.setInt(2, userDAO.getUserByUsername(receiver).getUserID());
       statement.setInt(3, userDAO.getUserByUsername(receiver).getUserID());
       statement.setInt(4, userDAO.getUserByUsername(sender).getUserID());
-      ResultSet resultSet = null;
-      try {
-        resultSet = statement.executeQuery();
-        while (resultSet.next()) {
-          int senderId = resultSet.getInt("senderID");
-          String msg = resultSet.getString("message");
-          chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
-        }
-      } finally {
-        if(resultSet!=null){
-          resultSet.close();
-        }
-      }
-      return chat;
+      return getMessages(statement);
     } finally {
       if (statement != null) {
         statement.close();
@@ -209,4 +182,98 @@ public class MessageToUserDAO {
     return notifs;
   }
 
+  public List<String> getMessagesBetween(String sender, String receiver, String start, String end) throws SQLException {
+    String getMessages = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? order by timestamp;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    try {
+      statement = connection.prepareStatement(getMessages);
+      statement.setInt(1, userDAO.getUserByUsername(sender).getUserID());
+      statement.setInt(2, userDAO.getUserByUsername(receiver).getUserID());
+      statement.setString(3, start);
+      statement.setString(4, end);
+      statement.setInt(5, userDAO.getUserByUsername(receiver).getUserID());
+      statement.setInt(6, userDAO.getUserByUsername(sender).getUserID());
+      statement.setString(7, start);
+      statement.setString(8, end);
+      return getMessages(statement);
+    } finally {
+      if (statement != null) {
+        statement.close();
+      }
+      connection.close();
+    }
+  }
+
+  private List<String> getMessages(PreparedStatement statement) throws SQLException {
+    List<String> chat = new ArrayList<>();
+    ResultSet resultSet = null;
+    try {
+      resultSet = statement.executeQuery();
+      while (resultSet.next()) {
+        int senderId = resultSet.getInt("senderID");
+        String msg = resultSet.getString("message");
+        chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
+      }
+    } finally {
+      if(resultSet!=null){
+        resultSet.close();
+      }
+    }
+    return chat;
+  }
+
+  public List<String> getMessagesFromGroupBetween(String groupName, String start, String end) throws SQLException {
+    String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?) AND timestamp >= ? AND timestamp <= ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(retrieveQuery, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, groupDAO.getGroupByGroupName(groupName).getGrpID());
+      preparedStatement.setString(2, start);
+      preparedStatement.setString(3, end);
+      return getGroupMessages(preparedStatement);
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  private List<String> getGroupMessages(PreparedStatement preparedStatement) throws SQLException {
+    List<String> messages = new ArrayList<>();
+    ResultSet resultSet = null;
+    try {
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
+        String message = resultSet.getString("message");
+        messages.add(username + " " + message);
+      }
+    } finally {
+      if(resultSet!=null){
+        resultSet.close();
+      }
+    }
+    return messages;
+  }
+
+  public void mapMsgIdToReceiverThreadId(Message message, int receiverId) throws SQLException {
+    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
+    // Check if group exists and user exists
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    try {
+      statement = connection.prepareStatement(insertMSgToUserMap);
+      statement.setInt(1, message.getMsgID());
+      statement.setInt(2, receiverId);
+      statement.executeUpdate();
+    } finally {
+      if (statement != null) {
+        statement.close();
+      }
+      connection.close();
+    }
+  }
 }

@@ -2,6 +2,7 @@ package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
@@ -60,16 +61,13 @@ public class GroupServices {
     if (groupDAO.getGroupRestriction(groupName).equals("L")) {
       if (groupUserDAO.checkIfUserInGroup(admin.getUserID(), group.getGrpID())) {
         groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
-      }
-      else {
+      } else {
         throw new DatabaseConnectionException("Unable to add user to group.");
       }
-    }
-    else {
+    } else {
       if (groupDAO.validateGroupAdmin(groupName, admin.getUserID())) {
         groupUserDAO.addUserToGroup(user.getUserID(), group.getGrpID());
-      }
-      else {
+      } else {
         throw new DatabaseConnectionException("Unable to add user to group.");
       }
     }
@@ -186,11 +184,26 @@ public class GroupServices {
   }
 
   public static List<String> getAllGroupsUserBelongsTo(String username) throws SQLException {
-    if(userDAO.isUserExists(username)) {
+    if (userDAO.isUserExists(username)) {
       return groupUserDAO.getAllGroupsUserBelongsTo(userDAO.getUserByUsername(username).getUserID());
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("User not found.");
     }
+  }
+
+  public static void createThread(String username, String threadName) throws SQLException {
+    createGroup(threadName, username);
+    groupDAO.setGroupAsThread(threadName);
+  }
+
+  public static void subscribeToThread(String threadName, String username) throws SQLException {
+    int userID = userDAO.getUserByUsername(username).getUserID();
+    int groupID = groupDAO.getGroupByGroupName(threadName).getGrpID();
+    groupUserDAO.addUserToGroup(userID, groupID);
+  }
+
+
+  public static Map<String, List<String>> getUserToFollowerMap() throws SQLException {
+    return groupUserDAO.getMapOfAllUserAndFollowers();
   }
 }

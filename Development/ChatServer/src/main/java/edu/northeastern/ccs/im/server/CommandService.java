@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,6 +66,7 @@ public class CommandService {
     commandServiceMap.put(MessageType.GET_USER_PROFILE, new GetUserProfileCommand());
     commandServiceMap.put(MessageType.DO_NOT_DISTURB, new DNDCommand());
     commandServiceMap.put(MessageType.GET_ALL_GROUP_USER_BELONGS, new GetAllGroupsUserBelongsToCommand());
+    commandServiceMap.put(MessageType.GET_MESSAGES_BETWEEN, new GetMessagesBetweenCommand());
   }
 
 }
@@ -74,8 +76,10 @@ class PrivateMessageCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverId = cr.getReceiverName(msg.getText());
-    Prattle.sendPrivateMessage(msg, receiverId);
-    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(),receiverId);
+    Message message = Message.makePrivateMessage(msg.getName(),chatId+" "+msg.getText());
+    Prattle.sendPrivateMessage(message, receiverId);
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText(), chatId,"" ,"" ,false );
   }
 
 }
@@ -85,8 +89,10 @@ class GroupMessageCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverId = cr.getReceiverName(msg.getText());
-    if (Prattle.sendGroupMessage(msg, receiverId)) {
-      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromGroupMap(receiverId);
+    Message message = Message.makeGroupMessage(msg.getName(),chatId+" "+msg.getText());
+    if (Prattle.sendGroupMessage(message, receiverId)) {
+      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText(),chatId,"" ,"" ,false );
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
               "do not have permission to send message to the group");
@@ -358,6 +364,33 @@ class GetUserProfileCommand implements ICommandMessage {
     sb.append("Last Name: " + userProfile.get(User.UserParams.LASTNAME) + "\n");
     sb.append("Email: " + userProfile.get(User.UserParams.EMAIL) + "\n");
 
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
+  }
+}
+
+class GetMessagesBetweenCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    String[] split = message.getText().split(" ");
+
+    String pattern = "MM/dd/yyyy";
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+    Date start = new Date();
+    Date end = new Date();
+
+    try{
+      start = simpleDateFormat.parse(split[2]);
+      end = simpleDateFormat.parse(split[3]);
+    } catch (ParseException e) {
+      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Date not formatted correctly, please enter date in the form of mm/dd/yyyy");
+    }
+
+    List<String> messages = MessageServices.getMessagesBetween(message.getName(),split[1], start.toString(), end.toString());
+    StringBuilder sb = new StringBuilder();
+    for (String s: messages) {
+      sb.append(s + "\n");
+    }
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }

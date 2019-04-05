@@ -28,4 +28,10 @@ public class MessageToUserMapTest {
 		assertEquals(234, messageUserMap.getReceiverID());
 	}
 
+	@Test
+	public void testReceiverIP (){
+		messageUserMap.setReceiverIP("00000000");
+		assertEquals("00000000", messageUserMap.getReceiverIP());
+	}
+
 }

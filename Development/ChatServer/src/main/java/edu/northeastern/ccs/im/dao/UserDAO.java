@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
@@ -17,6 +19,7 @@ public class UserDAO {
   protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
   private static final String EXCEPTION_MSG = "User not found.";
+  private static final String GET_USER_QUERY = "SELECT * FROM USER WHERE USERID = ?;";
 
   /**
    * Private constructor for the user DAO
@@ -148,7 +151,7 @@ public class UserDAO {
        * @return a user model object
        */
   public User getUserByUserID(int userId) throws SQLException {
-    String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
+    String insertUser = GET_USER_QUERY;
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
@@ -208,7 +211,7 @@ public class UserDAO {
    * @return true if the user is in the database, false otherwise
    */
   public boolean isUserExists(int userId) throws SQLException {
-    String insertUser = "SELECT * FROM USER WHERE USERID = ?;";
+    String insertUser = GET_USER_QUERY;
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
@@ -413,7 +416,7 @@ public class UserDAO {
   }
 
   public User getUserProfile(int userId) throws SQLException {
-    String getUserProfile = "SELECT * FROM USER WHERE USERID = ?;";
+    String getUserProfile = GET_USER_QUERY;
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
@@ -438,5 +441,77 @@ public class UserDAO {
       }
       connection.close();
     }
+  }
+
+  public void followUser(String follower, String following) throws SQLException {
+    String insertFollow = "INSERT INTO Follow(follower, following) VALUES(?, ?);";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(insertFollow);
+      preparedStatement.setString(1, follower);
+      preparedStatement.setString(2, following);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public void unfollow(String follower, String following) throws SQLException {
+    String deleteFollow = "DELETE FROM Follow WHERE follower=? AND following=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(deleteFollow);
+      preparedStatement.setString(1, follower);
+      preparedStatement.setString(2, following);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public List<String> getFollowers(String user) throws SQLException {
+    String getFollowersQuery = "SELECT follower FROM Follow WHERE following = ?;";
+    return getFollow(getFollowersQuery, user);
+  }
+
+  public List<String> getFollowing(String user) throws SQLException {
+    String getFollowingQuery = "SELECT following FROM Follow WHERE follower = ?;";
+    return getFollow(getFollowingQuery, user);
+  }
+
+  private List<String> getFollow(String query, String user) throws SQLException {
+    List<String> listOfUsers = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(query);
+      preparedStatement.setString(1, user);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          listOfUsers.add(resultSet.getString(1));
+        }
+      } finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
+      }
+
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return listOfUsers;
   }
 }

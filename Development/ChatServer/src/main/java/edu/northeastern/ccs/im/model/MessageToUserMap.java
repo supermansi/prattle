@@ -8,6 +8,7 @@ public class MessageToUserMap {
 	private int id;
 	private int msgID;
 	private int receiverID;
+	private String receiverIP;
 
 	/**
 	 * Method to get the #ID of this mapping.
@@ -63,4 +64,11 @@ public class MessageToUserMap {
 		this.receiverID = receiverID;
 	}
 
+	public String getReceiverIP() {
+		return receiverIP;
+	}
+
+	public void setReceiverIP(String receiverIP) {
+		this.receiverIP = receiverIP;
+	}
 }

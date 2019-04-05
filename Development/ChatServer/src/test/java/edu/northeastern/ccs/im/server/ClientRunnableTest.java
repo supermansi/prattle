@@ -665,7 +665,9 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
     mockStatic(MessageServices.class);
-    when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);
+    mockStatic(Prattle.class);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
+    when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class) )).thenReturn(true);
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -684,7 +686,9 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessagePVTDBException() throws Exception {
     mockStatic(MessageServices.class);
-    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
+    mockStatic(Prattle.class);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
+    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class));
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -703,7 +707,9 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessagePVTSQLException() throws Exception {
     mockStatic(MessageServices.class);
-    PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
+    mockStatic(Prattle.class);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
+    PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class));
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -745,6 +751,7 @@ public class ClientRunnableTest {
     mockStatic(MessageServices.class);
     mockStatic(GroupServices.class);
     mockStatic(Prattle.class);
+    when(Prattle.updateAndGetChatIDFromGroupMap(any())).thenReturn(1);
     List<String> list = new ArrayList();
     list.add("r");
     list.add("j");
@@ -806,6 +813,8 @@ public class ClientRunnableTest {
   public void testUserFunctions() throws InvocationTargetException, IllegalAccessException {
     clientRunnable.setName("test");
     mockStatic(UserServices.class);
+    mockStatic(Prattle.class);
+    when(Prattle.updateAndGetChatIDFromGroupMap(any())).thenReturn(1);
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;

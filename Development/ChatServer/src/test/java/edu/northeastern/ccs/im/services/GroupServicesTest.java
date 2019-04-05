@@ -2,7 +2,6 @@ package edu.northeastern.ccs.im.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -27,9 +26,6 @@ import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-import org.mockito.*;
-
-import javax.xml.crypto.Data;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GroupServicesTest {
@@ -96,7 +92,7 @@ public class GroupServicesTest {
   }
 
   @Test
-  public void testAddUserToGroupRestricted() throws SQLException {
+  public void testAddUserToGroupRestricted()throws SQLException {
     when(mockGroupDAO.getGroupRestriction("g1")).thenReturn("H");
     when(mockGroupDAO.validateGroupAdmin("g1", 123)).thenReturn(true);
     groupServices.addUserToGroup("g1", "a", "u");
@@ -339,5 +335,33 @@ public class GroupServicesTest {
     when(mockGroupDAO.getGroupByGroupName("g")).thenReturn(group);
     when(mockGroupUserDAO.checkIfUserInGroup(user.getUserID(),group.getGrpID())).thenReturn(false);
     assertEquals(false,GroupServices.leaveGroup(user.getUsername(),group.getGrpName()));
+  }
+
+  @Test
+  public void testGetAllGroupsUserBelongsTo() throws SQLException {
+    User user = new User(52, "test", "test", "test", "test@gmail.com", "test");
+    when(mockUserDAO.isUserExists("test")).thenReturn(true);
+    when(mockUserDAO.getUserByUsername("test")).thenReturn(user);
+    List<String> groups = new ArrayList<>();
+    groups.add("Group1");
+    groups.add("Group2");
+    when(mockGroupUserDAO.getAllGroupsUserBelongsTo(52)).thenReturn(groups);
+    assertEquals(groups,GroupServices.getAllGroupsUserBelongsTo("test"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testGetAllGroupsUserBelongsToException() throws SQLException {
+    when(mockUserDAO.isUserExists("test")).thenReturn(false);
+    GroupServices.getAllGroupsUserBelongsTo("test");
+  }
+
+  @Test
+  public void testCreateThread() throws SQLException {
+    GroupServices.createThread("x", "g1");
+  }
+
+  @Test
+  public void testSubscribe() throws SQLException {
+      GroupServices.subscribeToThread("t1", "x");
   }
 }
