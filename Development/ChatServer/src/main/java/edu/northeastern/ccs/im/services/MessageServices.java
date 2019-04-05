@@ -4,6 +4,7 @@ import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
@@ -119,11 +120,11 @@ public class MessageServices {
   }
 
   public static ConcurrentMap<String,Integer> getChatIDForGroups(){
-    return null;
+    return new ConcurrentHashMap<>();
   }
 
   public static MultiKeyMap getChatIDForUsers(){
-    return null;
+    return new MultiKeyMap();
   }
 
 }
