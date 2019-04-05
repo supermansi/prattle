@@ -1,9 +1,12 @@
 package edu.northeastern.ccs.im.services;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
+
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
@@ -44,10 +47,15 @@ public class MessageServices {
    * @param msgType  msgType describing type of message
    * @param sender   sender name
    * @param receiver receiver name
+<<<<<<< HEAD
    * @param message  message text
+=======
+   * @param message message text
+   * @param chatID
+>>>>>>> 2fd6bee133990c596ef9a43aa22ec2bc32884081
    * @return true if message is added to database, false otherwise
    */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID) throws SQLException {
     if (msgType == Message.MsgType.PVT) {
       if (userDAO.isUserExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();
@@ -130,6 +138,14 @@ public class MessageServices {
     }
     return groupToUserDAO.getMapOfAllUserAndFollowers();
 
+  }
+
+  public static ConcurrentMap<String,Integer> getChatIDForGroups(){
+    return new ConcurrentHashMap<>();
+  }
+
+  public static MultiKeyMap getChatIDForUsers(){
+    return new MultiKeyMap();
   }
 
 }

@@ -108,5 +108,4 @@ public class Groups {
   public void setThread(boolean thread) {
     isThread = thread;
   }
-
 }

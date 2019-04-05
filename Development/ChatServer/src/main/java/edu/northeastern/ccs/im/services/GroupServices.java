@@ -193,4 +193,15 @@ public class GroupServices {
             throw new IllegalArgumentException("User not found.");
         }
     }
+
+	public static void createThread(String username, String threadName) throws SQLException {
+		createGroup(threadName, username);
+		groupDAO.setGroupAsThread(threadName);
+	}
+
+	public static void subscribeToThread(String threadName, String username) throws SQLException {
+        int userID = userDAO.getUserByUsername(username).getUserID();
+        int groupID = groupDAO.getGroupByGroupName(threadName).getGrpID();
+        groupUserDAO.addUserToGroup(userID, groupID);
+    }
 }

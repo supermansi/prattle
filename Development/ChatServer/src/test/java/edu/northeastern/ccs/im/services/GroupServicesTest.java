@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
+import java.security.acl.Group;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -352,5 +353,15 @@ public class GroupServicesTest {
   public void testGetAllGroupsUserBelongsToException() throws SQLException {
     when(mockUserDAO.isUserExists("test")).thenReturn(false);
     GroupServices.getAllGroupsUserBelongsTo("test");
+  }
+
+  @Test
+  public void testCreateThread() throws SQLException {
+    GroupServices.createThread("x", "g1");
+  }
+
+  @Test
+  public void testSubscribe() throws SQLException {
+      GroupServices.subscribeToThread("t1", "x");
   }
 }

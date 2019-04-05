@@ -428,4 +428,41 @@ public class UserDAOTest {
     userDAO.followUser("r", "j");
   }
 
+  @Test
+  public void testGetFollowers() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(1)).thenReturn("j");
+    assertEquals(1, userDAO.getFollowers("r").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowersConnection() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    userDAO.getFollowers("r");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowersSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    userDAO.getFollowers("r");
+  }
+
+  @Test
+  public void testGetFollowing() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(1)).thenReturn("j");
+    assertEquals(1, userDAO.getFollowing("r").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowingConnection() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    assertEquals(1, userDAO.getFollowing("r").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowingSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertEquals(1, userDAO.getFollowing("r").size());
+  }
 }
