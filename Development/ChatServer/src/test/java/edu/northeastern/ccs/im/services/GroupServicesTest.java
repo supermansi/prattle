@@ -359,4 +359,9 @@ public class GroupServicesTest {
   public void testCreateThread() throws SQLException {
     GroupServices.createThread("x", "g1");
   }
+
+  @Test
+  public void testSubscribe() throws SQLException {
+      GroupServices.subscribeToThread("t1", "x");
+  }
 }
