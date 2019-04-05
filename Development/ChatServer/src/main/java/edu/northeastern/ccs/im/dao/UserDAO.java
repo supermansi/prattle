@@ -514,4 +514,33 @@ public class UserDAO {
     }
     return listOfUsers;
   }
+
+  public List<String> getListOfTappedUsers() throws SQLException {
+    String getTappedUsers = "SELECT * FROM USER WHERE ISTAPPED = TRUE;";
+    List<String> tappedUsersList = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getTappedUsers, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while(resultSet.next()) {
+          tappedUsersList.add(resultSet.getString("username"));
+        }
+        return tappedUsersList;
+      }
+      finally {
+        if(resultSet != null) {
+          resultSet.close();
+        }
+      }
+    }
+    finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }

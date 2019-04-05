@@ -168,8 +168,8 @@ public class UserServices {
     return userDAO.getFollowing(username);
   }
 
-  public static List<String> getListOfTappedUsers(){
-    return new ArrayList<>();
+  public static List<String> getListOfTappedUsers() throws SQLException {
+    return userDAO.getListOfTappedUsers();
   }
 
   public void setWireTapStatus(String username,boolean isTapped){
