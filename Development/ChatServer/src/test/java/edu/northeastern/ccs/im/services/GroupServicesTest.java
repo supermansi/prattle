@@ -364,4 +364,10 @@ public class GroupServicesTest {
   public void testSubscribe() throws SQLException {
       GroupServices.subscribeToThread("t1", "x");
   }
+
+  @Test
+  public void testGetAllThreads() throws SQLException {
+    when(mockGroupDAO.getAllThreads()).thenReturn(new ArrayList<>());
+    assertEquals(0, GroupServices.retrieveAllThreads().size());
+  }
 }
