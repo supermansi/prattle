@@ -24,7 +24,6 @@ public class MessageServices {
   private static UserDAO userDAO;
   private static MessageDAO messageDAO;
   private static MessageToUserDAO messageUserDAO;
-  private static GroupToUserDAO groupToUserDAO;
 
   /**
    * Private constructor for the message service instance.
@@ -38,7 +37,6 @@ public class MessageServices {
     userDAO = UserDAO.getInstance();
     messageDAO = MessageDAO.getInstance();
     messageUserDAO = MessageToUserDAO.getInstance();
-    groupToUserDAO = GroupToUserDAO.getInstance();
   }
 
   /**
@@ -126,7 +124,7 @@ public class MessageServices {
     return messageUserDAO.getMessagesFromGroupBetween(groupName, start, end);
   }
 
-  public static Map<String, List<String>> postMessageToThread(Message.MsgType msgType, String sender, String receiverThread, String message) throws SQLException {
+  public static void postMessageToThread(Message.MsgType msgType, String sender, String receiverThread, String message) throws SQLException {
     if (groupDAO.checkGroupExists(receiverThread) && groupDAO.getGroupByGroupName(receiverThread).isThread()) {
       if (msgType == Message.MsgType.TRD) {
         Message sendMessage = new Message(msgType, userDAO.getUserByUsername(sender).getUserID(), message, Long.toString(System.currentTimeMillis()));
@@ -136,8 +134,6 @@ public class MessageServices {
     } else {
       throw new DatabaseConnectionException("No such thread exists");
     }
-    return groupToUserDAO.getMapOfAllUserAndFollowers();
-
   }
 
   public static ConcurrentMap<String,Integer> getChatIDForGroups(){
