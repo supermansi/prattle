@@ -112,28 +112,28 @@ public class MessageServiceTest {
 
   @Test
   public void testSendPVT() throws SQLException {
-    assertEquals(true,MessageServices.addMessage(msg.getMsgType(),createdUser.getUsername(),createdReceiver.getUsername(),msg.getMessageText(), 0));
+    assertEquals(true,MessageServices.addMessage(msg.getMsgType(),createdUser.getUsername(),createdReceiver.getUsername(),msg.getMessageText(), 0, "", "",false ));
   }
 
 
   @Test
   public void testSendGRP() throws SQLException {
-    assertEquals(true,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0));
+    assertEquals(true,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, "", "",false));
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testSendFalse() throws SQLException {
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.BCT,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0));
+    assertEquals(false,MessageServices.addMessage(Message.MsgType.BCT,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, "", "",false));
   }
 
   @Test
   public void testSendPVTReceiverNotExist() throws SQLException {
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.PVT,createdUser.getUsername(),"ABCD",msg.getMessageText(),0 ));
+    assertEquals(false,MessageServices.addMessage(Message.MsgType.PVT,createdUser.getUsername(),"ABCD",msg.getMessageText(),0, "", "",false));
   }
 
   @Test
   public void testSendGRPReceiverNotExist() throws SQLException {
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),"ABCD",msg.getMessageText(), 0));
+    assertEquals(false,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),"ABCD",msg.getMessageText(), 0, "", "",false));
   }
 
   @Test

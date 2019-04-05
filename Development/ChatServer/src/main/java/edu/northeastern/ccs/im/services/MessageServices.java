@@ -50,12 +50,14 @@ public class MessageServices {
 <<<<<<< HEAD
    * @param message  message text
 =======
-   * @param message message text
    * @param chatID
 >>>>>>> 2fd6bee133990c596ef9a43aa22ec2bc32884081
+   * @param senderIP
+   * @param receiverIP
+   * @param isSecret
    * @return true if message is added to database, false otherwise
    */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, String senderIP, String receiverIP, boolean isSecret) throws SQLException {
     if (msgType == Message.MsgType.PVT) {
       if (userDAO.isUserExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();

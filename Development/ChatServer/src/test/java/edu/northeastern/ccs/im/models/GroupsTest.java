@@ -44,7 +44,7 @@ public class GroupsTest {
 	@Test
 	public void testThread() {
 		group.setThread(true);
-		assertTrue(group.getThread());
+		assertTrue(group.isThread());
 	}
 
 }
