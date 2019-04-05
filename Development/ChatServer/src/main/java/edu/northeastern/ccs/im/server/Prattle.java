@@ -246,7 +246,7 @@ public abstract class Prattle {
     return flag;
   }
 
-  protected static int getChatIDFromGroupMap(String groupName){
+  protected static int updateAndGetChatIDFromGroupMap(String groupName){
     if(chatIDToGroupMap.containsKey(groupName)){
       //Increment chat id if group exists in the map
       chatIDToGroupMap.put(groupName,chatIDToGroupMap.get(groupName)+1);
@@ -256,7 +256,7 @@ public abstract class Prattle {
     return chatIDToGroupMap.get(groupName);
   }
 
-  protected static synchronized int getChatIDFromUserMap(String sender,String receiver){
+  protected static synchronized int updateAndGetChatIDFromUserMap(String sender, String receiver){
     if(chatIDToUserMap.containsKey(sender,receiver)){
       chatIDToUserMap.put(sender,receiver,chatIDToUserMap.get(sender,receiver)+1);
       return chatIDToUserMap.get(sender,receiver);

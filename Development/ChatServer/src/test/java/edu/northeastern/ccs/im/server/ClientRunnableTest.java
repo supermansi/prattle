@@ -666,7 +666,7 @@ public class ClientRunnableTest {
   public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
     mockStatic(MessageServices.class);
     mockStatic(Prattle.class);
-    when(Prattle.getChatIDFromUserMap(any(),any())).thenReturn(1);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
     when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class) )).thenReturn(true);
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
@@ -687,7 +687,7 @@ public class ClientRunnableTest {
   public void testProcessMessagePVTDBException() throws Exception {
     mockStatic(MessageServices.class);
     mockStatic(Prattle.class);
-    when(Prattle.getChatIDFromUserMap(any(),any())).thenReturn(1);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
     PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class));
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
@@ -708,7 +708,7 @@ public class ClientRunnableTest {
   public void testProcessMessagePVTSQLException() throws Exception {
     mockStatic(MessageServices.class);
     mockStatic(Prattle.class);
-    when(Prattle.getChatIDFromUserMap(any(),any())).thenReturn(1);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
     PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class));
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
@@ -751,7 +751,7 @@ public class ClientRunnableTest {
     mockStatic(MessageServices.class);
     mockStatic(GroupServices.class);
     mockStatic(Prattle.class);
-    when(Prattle.getChatIDFromGroupMap(any())).thenReturn(1);
+    when(Prattle.updateAndGetChatIDFromGroupMap(any())).thenReturn(1);
     List<String> list = new ArrayList();
     list.add("r");
     list.add("j");
@@ -814,7 +814,7 @@ public class ClientRunnableTest {
     clientRunnable.setName("test");
     mockStatic(UserServices.class);
     mockStatic(Prattle.class);
-    when(Prattle.getChatIDFromGroupMap(any())).thenReturn(1);
+    when(Prattle.updateAndGetChatIDFromGroupMap(any())).thenReturn(1);
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;

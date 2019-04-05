@@ -76,9 +76,10 @@ class PrivateMessageCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverId = cr.getReceiverName(msg.getText());
-    Message message = Message.makePrivateMessage(msg.getName(),Prattle.getChatIDFromUserMap(msg.getName(),receiverId)+" "+msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(),receiverId);
+    Message message = Message.makePrivateMessage(msg.getName(),chatId+" "+msg.getText());
     Prattle.sendPrivateMessage(message, receiverId);
-    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText(), Prattle.getChatIDFromUserMap(msg.getName(),receiverId));
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText(), chatId);
   }
 
 }
@@ -88,9 +89,10 @@ class GroupMessageCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverId = cr.getReceiverName(msg.getText());
-    Message message = Message.makeGroupMessage(msg.getName(),Prattle.getChatIDFromGroupMap(receiverId)+" "+msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromGroupMap(receiverId);
+    Message message = Message.makeGroupMessage(msg.getName(),chatId+" "+msg.getText());
     if (Prattle.sendGroupMessage(message, receiverId)) {
-      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText(),Prattle.getChatIDFromGroupMap(receiverId) );
+      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText(),chatId);
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
               "do not have permission to send message to the group");
