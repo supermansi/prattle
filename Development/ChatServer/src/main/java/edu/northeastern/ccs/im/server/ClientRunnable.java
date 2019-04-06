@@ -465,4 +465,8 @@ public class ClientRunnable implements Runnable {
     // And remove the client from our client pool.
     runnableMe.cancel(true);
   }
+
+  protected NetworkConnection getConnection(){
+    return this.connection;
+  }
 }
