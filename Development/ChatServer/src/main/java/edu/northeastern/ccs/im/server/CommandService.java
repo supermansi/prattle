@@ -76,6 +76,9 @@ public class CommandService {
     commandServiceMap.put(MessageType.UNFOLLOW_USER, new UnfollowUserCommand());
     commandServiceMap.put(MessageType.FOWARD_MESSAGE, new ForwardMessageCommand());
     commandServiceMap.put(MessageType.SECRET_MESSAGE, new SecretMessageCommand());
+    commandServiceMap.put(MessageType.REPLY, new ReplyCommand());
+    commandServiceMap.put(MessageType.GET_LIST_OF_WIRETAPPED_USERS, new GetListOfWireTappedUserCommand());
+    commandServiceMap.put(MessageType.GET_DATA_WIRETAPPED_USER, new GetWiretappedUserDataCommand());
   }
 
 }
@@ -528,6 +531,31 @@ class SecretMessageCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
     //todo secret messages
+  }
+}
+
+class ReplyCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo reply service calls
+  }
+}
+
+class GetListOfWireTappedUserCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo get wiretapped user list
+  }
+}
+
+
+class GetWiretappedUserDataCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo get data for wiretapped user
   }
 }
 
