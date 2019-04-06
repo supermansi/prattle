@@ -6,14 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
-import edu.northeastern.ccs.im.model.Message;
 
 /**
  * This class is the dao for a group to user mapping.
@@ -307,9 +304,9 @@ public class GroupToUserDAO {
     }
   }
 
-  public Map<String, List<String>> getMapOfAllUserAndFollowers() throws SQLException {
+  public ConcurrentMap<String, List<String>> getMapOfAllUserAndFollowers() throws SQLException {
     String getUsersAndFollowers = "SELECT * FROM FOLLOW ORDER BY FOLLOWING;";
-    Map<String, List<String>> hashTagMap = new HashMap<>();
+    ConcurrentMap<String, List<String>> hashTagMap = new ConcurrentHashMap<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;

@@ -2,7 +2,6 @@ package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
@@ -202,7 +201,7 @@ public class GroupServices {
     groupUserDAO.addUserToGroup(userID, groupID);
   }
 
-  public static Map<String, List<String>> getUserToFollowerMap() throws SQLException {
+  public static ConcurrentMap<String, List<String>> getUserToFollowerMap() throws SQLException {
     return groupUserDAO.getMapOfAllUserAndFollowers();
   }
 
