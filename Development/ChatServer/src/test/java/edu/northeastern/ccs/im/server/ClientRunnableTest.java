@@ -72,6 +72,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testGetUserId() throws SQLException {
+    mockStatic(Prattle.class);
     List<Message> nameList = new ArrayList();
     mockStatic(UserServices.class);
     List<String> pushMsgs = new ArrayList<>();
@@ -141,6 +142,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testTerminateMessage() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -178,6 +180,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testDualHelloMessage() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -218,6 +221,7 @@ public class ClientRunnableTest {
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
+    mockStatic(Prattle.class);
     when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
 
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -270,6 +274,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRunForDifferentNames() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -309,6 +314,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRunForNullMessageName() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -341,6 +347,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testBasicRunMethod() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);

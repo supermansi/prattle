@@ -81,8 +81,8 @@ class PrivateMessageCommand implements ICommandMessage {
     int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(),receiverName);
     Message message = Message.makePrivateMessage(msg.getName(),chatId+" "+msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
-    String sourceIP = Prattle.getIP(msg.getName());
-    String receiverIP = Prattle.getIP(receiverName);
+    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
+    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
     Map<IPType,String> ipMap = new HashMap();
     ipMap.put(IPType.SENDERIP,sourceIP);
     ipMap.put(IPType.RECEIVERIP,receiverIP);
@@ -102,7 +102,7 @@ class GroupMessageCommand implements ICommandMessage {
     int chatId = Prattle.updateAndGetChatIDFromGroupMap(receiverName);
     Message message = Message.makeGroupMessage(msg.getName(),chatId+" "+msg.getText());
 
-    String sourceIP = Prattle.getIP(msg.getName());
+    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
     String receiverIP = null;
     Map<IPType,String> ipMap = new HashMap();
     ipMap.put(IPType.SENDERIP,sourceIP);

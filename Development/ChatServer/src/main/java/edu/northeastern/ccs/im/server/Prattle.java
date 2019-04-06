@@ -282,7 +282,7 @@ public abstract class Prattle {
     }
   }
 
-  protected static String getIP(String name) {
+  protected static String getIPFromActiveRunnables(String name) {
     String ip = null;
     for (ClientRunnable tt : active) {
       if (tt.getName().equalsIgnoreCase(name)) {
@@ -295,5 +295,15 @@ public abstract class Prattle {
       }
     }
     return ip;
+  }
+
+  protected static String getIPForUser(ClientRunnable clientRunnable){
+    String ipAddress = null;
+    try {
+       ipAddress = clientRunnable.getConnection().getChannel().getRemoteAddress().toString();
+    } catch (IOException e) {
+      ChatLogger.error("Could not fetch IP Address");
+    }
+    return ipAddress;
   }
 }
