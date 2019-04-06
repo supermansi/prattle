@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
- * This is a test class for the ClientRunnable class.
+ * This is a test class for all methods of the ClientRunnable class.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({UserServices.class, MessageServices.class, GroupServices.class,Prattle.class})
