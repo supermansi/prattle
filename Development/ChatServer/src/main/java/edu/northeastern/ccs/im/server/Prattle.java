@@ -287,7 +287,7 @@ public abstract class Prattle {
   }
 
   protected static String getIP(String name) {
-    String ip = "";
+    String ip = null;
     for (ClientRunnable tt : active) {
       if (tt.getName().equalsIgnoreCase(name)) {
         try {

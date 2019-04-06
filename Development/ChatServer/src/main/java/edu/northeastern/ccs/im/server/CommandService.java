@@ -111,7 +111,7 @@ class GroupMessageCommand implements ICommandMessage {
     Message message = Message.makeGroupMessage(msg.getName(),chatId+" "+msg.getText());
 
     String sourceIP = Prattle.getIP(msg.getName());
-    String receiverIP = "";
+    String receiverIP = null;
     Map<IPType,String> ipMap = new HashMap();
     ipMap.put(IPType.SENDERIP,sourceIP);
     ipMap.put(IPType.RECEIVERIP,receiverIP);
