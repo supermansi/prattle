@@ -171,8 +171,16 @@ public class Message {
       result = makeForwardMessageMessage(srcName,text);
     } else if (handle.compareTo(MessageType.SECRET_MESSAGE.toString()) == 0) {
       result = makeSecretMessageMessage(srcName,text);
-    }else if (handle.compareTo(MessageType.SET_WIRETAP_MESSAGE.toString()) == 0) {
+    } else if (handle.compareTo(MessageType.SET_WIRETAP_MESSAGE.toString()) == 0) {
       result = makeWireTapMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_LIST_OF_WIRETAPPED_USERS.toString()) == 0) {
+      result = makeGetListWiretappedUsers(srcName, text);
+    } else if (handle.compareTo(MessageType.REPLY.toString()) == 0) {
+      result = makeReplyMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_DATA_WIRETAPPED_USER.toString()) == 0) {
+      result = makeGetDataOfWiretappedUser(srcName,text);
+    } else if (handle.compareTo(MessageType.SET_WIRETAP_MESSAGE.toString()) == 0) {
+      result = makeSetWiretapMessage(srcName, text);
     }
       return result;
   }
@@ -512,6 +520,22 @@ public class Message {
     return new Message(MessageType.GET_MESSAGES_BETWEEN, srcName, text);
   }
 
+  private static Message makeSetWiretapMessage(String srcName, String text) {
+    return new Message(MessageType.SET_WIRETAP_MESSAGE, srcName, text);
+  }
+
+  private static Message makeGetDataOfWiretappedUser(String srcName, String text) {
+    return new Message(MessageType.GET_DATA_WIRETAPPED_USER, srcName, text);
+  }
+
+  private static Message makeReplyMessage(String srcName, String text) {
+    return new Message(MessageType.REPLY, srcName, text);
+  }
+
+  private static Message makeGetListWiretappedUsers(String srcName, String text) {
+    return new Message(MessageType.GET_LIST_OF_WIRETAPPED_USERS, srcName, text);
+  }
+
 
   /**
    * Return the name of the sender of this message.
@@ -823,6 +847,22 @@ public class Message {
 
   public boolean isGetMessagesBetween() {
     return (msgType == MessageType.GET_MESSAGES_BETWEEN);
+  }
+
+  public boolean isGetListOfWiretapUsers() {
+    return (msgType == MessageType.GET_LIST_OF_WIRETAPPED_USERS);
+  }
+
+  public boolean isReply() {
+    return (msgType == MessageType.REPLY);
+  }
+
+  public boolean isGetDataWiretappedUser() {
+    return (msgType == MessageType.GET_DATA_WIRETAPPED_USER);
+  }
+
+  public boolean isSetWiretapMessage() {
+    return (msgType == MessageType.SET_WIRETAP_MESSAGE);
   }
 
   public boolean isWireTapStatusMessage() {
