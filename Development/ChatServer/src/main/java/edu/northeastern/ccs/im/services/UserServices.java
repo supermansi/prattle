@@ -168,11 +168,19 @@ public class UserServices {
     return userDAO.getFollowing(username);
   }
 
-  public static List<String> getListOfTappedUsers(){
-    return new ArrayList<>();
+  public static List<String> getListOfTappedUsers() throws SQLException {
+    return userDAO.getListOfTappedUsers();
   }
 
-  public void setWireTapStatus(String username,boolean isTapped){
-
+  public static void setWireTapStatus(String username,boolean isTapped) throws SQLException {
+    if(userDAO.isUserExists(username)) {
+      if(isTapped == userDAO.getUserByUsername(username).isTapped()) {
+        throw new IllegalStateException("The current wire tapped status of the user is the same as that trying to be set.");
+      } else {
+        userDAO.setWireTappedStatus(username,isTapped);
+      }
+    } else {
+      throw new DatabaseConnectionException("User not found");
+    }
   }
 }
