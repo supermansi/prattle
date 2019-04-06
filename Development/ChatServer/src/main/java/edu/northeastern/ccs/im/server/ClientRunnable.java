@@ -431,6 +431,10 @@ public class ClientRunnable implements Runnable {
   protected boolean getDNDStatus(){
     return isDND;
   }
+
+  protected void setDNDStatus(boolean status){
+    isDND = status;
+  }
   /**
    * Store the object used by this client runnable to control when it is scheduled for execution in
    * the thread pool.
@@ -460,5 +464,9 @@ public class ClientRunnable implements Runnable {
     Prattle.removeClient(this);
     // And remove the client from our client pool.
     runnableMe.cancel(true);
+  }
+
+  protected NetworkConnection getConnection(){
+    return this.connection;
   }
 }

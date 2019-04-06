@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.models;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
 
@@ -84,6 +85,12 @@ public class UserTest {
 		String time = Long.toString(System.currentTimeMillis());
 		user.setLastSeen(time);
 		assertEquals(time, user.getLastSeen());
+	}
+
+	@Test
+	public void testTapped() {
+		user.setTapped(true);
+		assertTrue(user.isTapped());
 	}
 	
 }

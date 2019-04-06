@@ -291,5 +291,9 @@ public class NetworkConnection implements Iterable<Message> {
     }
   }
 
+  public SocketChannel getChannel(){
+    return channel;
+  }
+
 
 }
