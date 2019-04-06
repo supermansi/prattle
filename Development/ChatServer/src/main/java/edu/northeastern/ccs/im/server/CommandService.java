@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.model.Message.MsgType;
+import edu.northeastern.ccs.im.model.Message.IPType;
 import edu.northeastern.ccs.im.model.User;
 import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
@@ -75,9 +77,19 @@ class PrivateMessageCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
-    String receiverId = cr.getReceiverName(msg.getText());
-    Prattle.sendPrivateMessage(msg, receiverId);
-    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText());
+    String receiverName = cr.getReceiverName(msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(),receiverName);
+    Message message = Message.makePrivateMessage(msg.getName(),chatId+" "+msg.getText());
+    Prattle.sendPrivateMessage(message, receiverName);
+    String sourceIP = Prattle.getIP(msg.getName());
+    String receiverIP = Prattle.getIP(receiverName);
+    Map<IPType,String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP,sourceIP);
+    ipMap.put(IPType.RECEIVERIP,receiverIP);
+    if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| Prattle.listOfWireTappedUsers.contains(receiverName)){
+      Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
+    }
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId,ipMap , false );
   }
 
 }
@@ -86,9 +98,28 @@ class GroupMessageCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
-    String receiverId = cr.getReceiverName(msg.getText());
-    if (Prattle.sendGroupMessage(msg, receiverId)) {
-      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText());
+    String receiverName = cr.getReceiverName(msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromGroupMap(receiverName);
+    Message message = Message.makeGroupMessage(msg.getName(),chatId+" "+msg.getText());
+
+    String sourceIP = Prattle.getIP(msg.getName());
+    String receiverIP = null;
+    Map<IPType,String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP,sourceIP);
+    ipMap.put(IPType.RECEIVERIP,receiverIP);
+    boolean doesGroupMemberHasWireTap = false;
+
+    if (Prattle.sendGroupMessage(message, receiverName)) {
+      for( String user : Prattle.listOfWireTappedUsers){
+        if(Prattle.groupToUserMapping.get(receiverName).contains(user)){
+          doesGroupMemberHasWireTap = true;
+          break;
+        }
+      }
+      if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| doesGroupMemberHasWireTap){
+        Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
+      }
+      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(),chatId,ipMap , false );
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
               "do not have permission to send message to the group");
@@ -317,10 +348,10 @@ class GetAllUsersInGroupCommand implements ICommandMessage {
 }
 
 class GetAllGroupsUserBelongsToCommand implements ICommandMessage {
-  StringBuilder groups = new StringBuilder();
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
+    StringBuilder groups = new StringBuilder();
     for (String group : Prattle.groupToUserMapping.keySet()) {
       if (Prattle.groupToUserMapping.get(group).contains(message.getName())) {
         groups.append(group + "\n");
@@ -339,6 +370,7 @@ class DNDCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
     boolean status = message.getText().split(" ")[1].equalsIgnoreCase("T");
+    cr.setDNDStatus(status);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "DND Status Changed to +" + status + "+ successfully");
     if (status) {
       UserServices.updateLastSeen(cr.getName(), System.currentTimeMillis());

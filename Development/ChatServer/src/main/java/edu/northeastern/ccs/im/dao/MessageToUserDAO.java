@@ -10,6 +10,8 @@ import java.util.List;
 
 import edu.northeastern.ccs.im.model.Message;
 
+import static edu.northeastern.ccs.im.model.Message.MsgType.PVT;
+
 /**
  * Class for the message to user DAO.
  */
@@ -258,5 +260,42 @@ public class MessageToUserDAO {
       }
     }
     return messages;
+  }
+
+  public void mapMsgIdToReceiverThreadId(Message message, int receiverId) throws SQLException {
+    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
+    // Check if group exists and user exists
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement statement = null;
+    try {
+      statement = connection.prepareStatement(insertMSgToUserMap);
+      statement.setInt(1, message.getMsgID());
+      statement.setInt(2, receiverId);
+      statement.executeUpdate();
+    } finally {
+      if (statement != null) {
+        statement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public void updateReceiverIP(int receiverID, String receiverIP) throws SQLException {
+    String updateIP = "UPDATE MESSAGETOUSERMAP SET RECEIVERIP = ? WHERE RECEIVERIP IS NULL AND RECEIVERID = ? AND msgID IN (SELECT msgID FROM MESSAGE WHERE MSGTYPE = 'PVT');";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(updateIP, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1,receiverIP);
+      preparedStatement.setInt(2,receiverID);
+      preparedStatement.executeUpdate();
+    }
+    finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
   }
 }

@@ -157,9 +157,9 @@ public class MessageDAO {
   }
 
   /**
-   *Method to get the time stamp of the last message sent between two given users.
+   * Method to get the time stamp of the last message sent between two given users.
    *
-   * @param senderID int representing the id of the message sender
+   * @param senderID   int representing the id of the message sender
    * @param receiverID int representing the id of the message receiver
    * @return String representing the timestamp of the last message
    * @throws SQLException if sender or receiver id are not found
@@ -174,14 +174,13 @@ public class MessageDAO {
       preparedStatement = connection.prepareStatement(getTimeStamp, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, senderID);
       preparedStatement.setInt(2, receiverID);
-      try{
+      try {
         resultSet = preparedStatement.executeQuery();
-        if(resultSet.next()) {
+        if (resultSet.next()) {
           timestamp = resultSet.getString(1);
         }
-      }
-      finally {
-        if(resultSet != null) {
+      } finally {
+        if (resultSet != null) {
           resultSet.close();
         }
       }
@@ -195,9 +194,9 @@ public class MessageDAO {
   }
 
   /**
-   *Method to get the #id of the last message sent between two given users.
+   * Method to get the #id of the last message sent between two given users.
    *
-   * @param senderID int representing the id of the message sender
+   * @param senderID   int representing the id of the message sender
    * @param receiverID int representing the id of the message receiver
    * @return Int representing the #id of the last message
    * @throws SQLException if sender or receiver id are not found
@@ -212,14 +211,13 @@ public class MessageDAO {
       preparedStatement = connection.prepareStatement(getTimeStamp, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, senderID);
       preparedStatement.setInt(2, receiverID);
-      try{
+      try {
         resultSet = preparedStatement.executeQuery();
-        if(resultSet.next()) {
+        if (resultSet.next()) {
           msgID = resultSet.getInt(1);
         }
-      }
-      finally {
-        if(resultSet != null) {
+      } finally {
+        if (resultSet != null) {
           resultSet.close();
         }
       }
@@ -236,11 +234,11 @@ public class MessageDAO {
    * Method to delete a message by its #id.
    *
    * @param tableName String representing the name of the database table to search
-   * @param msgID int representing the #id for the message to delete
+   * @param msgID     int representing the #id for the message to delete
    * @throws SQLException if the table name of message id cannot be found
    */
   public void deleteMessageByID(String tableName, int msgID) throws SQLException {
-    String deleteMessage = "DELETE FROM " + tableName +" WHERE msgID = ?;";
+    String deleteMessage = "DELETE FROM " + tableName + " WHERE msgID = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
@@ -254,4 +252,38 @@ public class MessageDAO {
       connection.close();
     }
   }
+
+  public Message addMessageToThread(Message message) throws SQLException {
+    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, message.getMsgType().name());
+      preparedStatement.setInt(2, message.getSenderID());
+      preparedStatement.setString(3, message.getMessageText());
+      preparedStatement.setString(4, message.getTimestamp());
+      preparedStatement.executeUpdate();
+      try {
+        resultSet = preparedStatement.getGeneratedKeys();
+        if (resultSet.next()) {
+          int msgID = resultSet.getInt(1);
+          message.setMsgID(msgID);
+        }
+        return message;
+
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
 }

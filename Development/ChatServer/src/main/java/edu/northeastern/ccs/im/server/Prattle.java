@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.server;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
@@ -22,6 +24,8 @@ import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.NetworkConnection;
 import edu.northeastern.ccs.im.services.GroupServices;
+import edu.northeastern.ccs.im.services.MessageServices;
+import edu.northeastern.ccs.im.services.UserServices;
 
 /**
  * A network server that communicates with IM clients that connect to it. This version of the server
@@ -39,6 +43,12 @@ import edu.northeastern.ccs.im.services.GroupServices;
 public abstract class Prattle {
 
   protected static ConcurrentMap<String, List<String>> groupToUserMapping;
+
+  protected static ConcurrentMap<String, Integer> chatIDToGroupMap;
+
+  protected static MultiKeyMap<String, Integer> chatIDToUserMap;
+
+  protected static List<String> listOfWireTappedUsers;
   /**
    * Don't do anything unless the server is ready.
    */
@@ -147,6 +157,9 @@ public abstract class Prattle {
   private static void initialiseCache() {
     try {
       groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
+      chatIDToGroupMap = MessageServices.getChatIDForGroups();
+      chatIDToUserMap = MessageServices.getChatIDForUsers();
+      listOfWireTappedUsers = UserServices.getListOfTappedUsers();
     } catch (SQLException e) {
       ChatLogger.error("Failed to retrieve data from database");
     }
@@ -198,6 +211,15 @@ public abstract class Prattle {
     }
   }
 
+  protected static void sendMessageToAgency(Message msg, String receiver, String senderIP, String receiverIP) {
+    Message message = Message.makePrivateMessage(msg.getName(),msg.getText()+" sourceIP:-"+senderIP+" receiverIP:-"+receiver);
+    for (ClientRunnable tt : active) {
+      if(tt.getName().equalsIgnoreCase("CIA")){
+        tt.enqueueMessage(message);
+      }
+    }
+  }
+
   /**
    * Method to send private message to specified receiver.
    *
@@ -235,5 +257,43 @@ public abstract class Prattle {
       }
     }
     return flag;
+  }
+
+  protected static int updateAndGetChatIDFromGroupMap(String groupName) {
+    if (chatIDToGroupMap.containsKey(groupName)) {
+      //Increment chat id if group exists in the map
+      chatIDToGroupMap.put(groupName, chatIDToGroupMap.get(groupName) + 1);
+    } else {
+      chatIDToGroupMap.put(groupName, 1);
+    }
+    return chatIDToGroupMap.get(groupName);
+  }
+
+  protected static synchronized int updateAndGetChatIDFromUserMap(String sender, String receiver) {
+    if (chatIDToUserMap.containsKey(sender, receiver)) {
+      chatIDToUserMap.put(sender, receiver, chatIDToUserMap.get(sender, receiver) + 1);
+      return chatIDToUserMap.get(sender, receiver);
+    } else if (chatIDToUserMap.containsKey(receiver, sender)) {
+      chatIDToUserMap.put(receiver, sender, chatIDToUserMap.get(receiver, sender) + 1);
+      return chatIDToUserMap.get(receiver, sender);
+    } else {
+      chatIDToUserMap.put(sender, receiver, 1);
+      return chatIDToUserMap.get(sender, receiver);
+    }
+  }
+
+  protected static String getIP(String name) {
+    String ip = null;
+    for (ClientRunnable tt : active) {
+      if (tt.getName().equalsIgnoreCase(name)) {
+        try {
+          ip = tt.getConnection().getChannel().getRemoteAddress().toString();
+        } catch (IOException e) {
+          ChatLogger.error("Could not fetch IP Address");
+        }
+        break;
+      }
+    }
+    return ip;
   }
 }
