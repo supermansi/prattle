@@ -54,7 +54,7 @@ public class MessageTest {
 	@Test
 	public void testSecret() {
 		message.setSecret(true);
-		assertTrue(message.getSecret());
+		assertTrue(message.isSecret());
 	}
 
 	@Test
