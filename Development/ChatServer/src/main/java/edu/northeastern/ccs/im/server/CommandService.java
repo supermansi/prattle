@@ -84,7 +84,7 @@ class PrivateMessageCommand implements ICommandMessage {
     if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| Prattle.listOfWireTappedUsers.contains(receiverName)){
       Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
     }
-    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId,"" ,"" ,false );
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId,null , false );
   }
 
 }
@@ -111,7 +111,7 @@ class GroupMessageCommand implements ICommandMessage {
       if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| doesGroupMemberHasWireTap){
         Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
       }
-      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(),chatId,"" ,"" ,false );
+      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(),chatId,null , false );
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
               "do not have permission to send message to the group");

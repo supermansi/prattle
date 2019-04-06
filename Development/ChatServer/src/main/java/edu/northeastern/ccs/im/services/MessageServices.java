@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import edu.northeastern.ccs.im.dao.GroupDAO;
-import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
 import edu.northeastern.ccs.im.dao.MessageToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
@@ -50,12 +49,11 @@ public class MessageServices {
 =======
    * @param chatID
 >>>>>>> 2fd6bee133990c596ef9a43aa22ec2bc32884081
-   * @param senderIP
-   * @param receiverIP
+   * @param SenderReceiverIPMap
    * @param isSecret
    * @return true if message is added to database, false otherwise
    */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, String senderIP, String receiverIP, boolean isSecret) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, boolean isSecret) throws SQLException {
     if (msgType == Message.MsgType.PVT) {
       if (userDAO.isUserExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();

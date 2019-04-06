@@ -18,6 +18,10 @@ public class Message {
 		PVT, GRP, BCT, TRD;
 	}
 
+	public enum IPType {
+		SENDERIP,RECEIVERIP;
+	}
+
 	/**
 	 * Constructor for a messageText model object.
 	 *
