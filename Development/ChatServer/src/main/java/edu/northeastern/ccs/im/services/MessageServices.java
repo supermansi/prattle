@@ -146,4 +146,8 @@ public class MessageServices {
     return new MultiKeyMap();
   }
 
+  public static void updateReceiverIP(String receiverName, String receiverIP) throws SQLException {
+    messageUserDAO.updateReceiverIP(userDAO.getUserByUsername(receiverName).getUserID(),receiverIP);
+  }
+
 }
