@@ -99,7 +99,6 @@ public class MessageToUserDAO {
    */
   public List<String> retrieveUserMsg(String sender, String receiver) throws SQLException {
     String selectQuery = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";
-    List<String> chat = new ArrayList<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
     try {

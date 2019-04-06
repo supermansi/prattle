@@ -6,14 +6,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
-import edu.northeastern.ccs.im.model.Message;
 
 /**
  * This class is the dao for a group to user mapping.

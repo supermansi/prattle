@@ -46,13 +46,7 @@ public class MessageServices {
    * @param receiver receiver name
    * @param message  message text
    * @param chatID
-<<<<<<< HEAD
-   * @param senderIP
-   * @param receiverIP
-=======
->>>>>>> 2fd6bee133990c596ef9a43aa22ec2bc32884081
    * @param SenderReceiverIPMap
->>>>>>> 987825e273eb6aaeb68214f29ea9050b2c7eb22f
    * @param isSecret
    * @return true if message is added to database, false otherwise
    */
