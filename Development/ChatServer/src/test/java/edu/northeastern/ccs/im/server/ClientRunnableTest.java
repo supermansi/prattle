@@ -773,6 +773,9 @@ public class ClientRunnableTest {
 
   @Test
   public void testProcessMessageGRP() throws Exception {
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     clientRunnable.setName("test");
     mockStatic(MessageServices.class);
     mockStatic(GroupServices.class);
