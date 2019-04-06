@@ -151,7 +151,23 @@ public enum MessageType {
 
   GET_ALL_GROUP_USER_BELONGS("GUG"),
 
-  GET_MESSAGES_BETWEEN("GMB");
+  GET_MESSAGES_BETWEEN("GMB"),
+
+  CREATE_THREAD("TRD"),
+
+  POST_ON_THREAD("POT"),
+
+  FOLLOW_USER("FUS"),
+
+  GET_ALL_THREADS("GAT"),
+
+  GET_THREAD_MESSAGES("GTM"),
+
+  UNFOLLOW_USER("UUS"),
+
+  FOWARD_MESSAGE("FWD"),
+
+  SECRET_MESSAGE("SMS");
 
   /**
    * Store the short name of this message type.

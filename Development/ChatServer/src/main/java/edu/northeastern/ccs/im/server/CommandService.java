@@ -67,6 +67,14 @@ public class CommandService {
     commandServiceMap.put(MessageType.DO_NOT_DISTURB, new DNDCommand());
     commandServiceMap.put(MessageType.GET_ALL_GROUP_USER_BELONGS, new GetAllGroupsUserBelongsToCommand());
     commandServiceMap.put(MessageType.GET_MESSAGES_BETWEEN, new GetMessagesBetweenCommand());
+    commandServiceMap.put(MessageType.CREATE_THREAD, new CreateThreadCommand());
+    commandServiceMap.put(MessageType.POST_ON_THREAD, new PostOnThreadCommand());
+    commandServiceMap.put(MessageType.FOLLOW_USER, new FollowUserCommand());
+    commandServiceMap.put(MessageType.GET_ALL_THREADS, new GetAllThreadsCommand());
+    commandServiceMap.put(MessageType.GET_THREAD_MESSAGES, new GetThreadMessagesCommand());
+    commandServiceMap.put(MessageType.UNFOLLOW_USER, new UnfollowUserCommand());
+    commandServiceMap.put(MessageType.FOWARD_MESSAGE, new ForwardMessageCommand());
+    commandServiceMap.put(MessageType.SECRET_MESSAGE, new SecretMessageCommand());
   }
 
 }
@@ -391,6 +399,90 @@ class GetMessagesBetweenCommand implements ICommandMessage {
       sb.append(s + "\n");
     }
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
+  }
+}
+
+class CreateThreadCommand implements ICommandMessage {
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    GroupServices.createThread(message.getName(),message.getText().split(" ")[1]);
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME,"Thread created successfully.");
+  }
+}
+
+class PostOnThreadCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    MessageServices.postMessageToThread(MsgType.TRD,message.getName(),cr.getReceiverName(message.getText()),message.getText());
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Message posted to " + cr.getReceiverName(message.getText()));
+
+  }
+}
+
+class FollowUserCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+      String following = message.getText().split(" ")[1];
+      UserServices.followUser(message.getName(), following);
+      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are now following " + following);
+  }
+}
+
+class GetAllThreadsCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    List<String> threads = GroupServices.retrieveAllThreads();
+    StringBuilder sb = new StringBuilder();
+    for (String s: threads) {
+      sb.append(s + "\n");
+    }
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
+  }
+
+}
+
+class GetThreadMessagesCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+
+    List<String> messages = MessageServices.retrieveGroupMessages(message.getText().split(" ")[1]);
+    StringBuilder sb = new StringBuilder();
+    for (String s: messages) {
+      sb.append(s + "\n");
+    }
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
+    }
+
+  }
+
+
+class UnfollowUserCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    String unfollowing = message.getText().split(" ")[1];
+    UserServices.unFollowUser(message.getName(), unfollowing);
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are no longer following " + unfollowing);
+  }
+}
+
+class ForwardMessageCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo forward messages
+  }
+}
+
+class SecretMessageCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo secret messages
   }
 }
 

@@ -153,9 +153,31 @@ public class Message {
       result = makeGetAllGroupsUserBelongsMessage(srcName, text);
     } else if (handle.compareTo(MessageType.DO_NOT_DISTURB.toString()) == 0) {
       result = makeDNDMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_ALL_GROUP_USER_BELONGS.toString()) == 0) {
+      result = makeGetAllGroupsUserBelongsMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_MESSAGES_BETWEEN.toString()) == 0) {
+      result = makeGetMessagesBetweenMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.CREATE_THREAD.toString()) == 0) {
+      result = makeCreateThreadMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.POST_ON_THREAD.toString()) == 0) {
+      result = makePostOnThreadMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.FOLLOW_USER.toString()) == 0) {
+      result = makeFollowUserMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.GET_ALL_THREADS.toString()) == 0) {
+      result = makeGetAllThreadsMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.GET_THREAD_MESSAGES.toString()) == 0) {
+      result = makeGetThreadMessagesMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.UNFOLLOW_USER.toString()) == 0) {
+      result = makeUnfollowUserMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.FOWARD_MESSAGE.toString()) == 0) {
+      result = makeForwardMessageMessage(srcName,text);
+    } else if (handle.compareTo(MessageType.SECRET_MESSAGE.toString()) == 0) {
+      result = makeSecretMessageMessage(srcName,text);
+
     }
     return result;
   }
+
 
   private static Message makeDNDMessage(String srcName, String text) {
     return new Message(MessageType.DO_NOT_DISTURB, srcName, text);
@@ -451,6 +473,43 @@ public class Message {
   }
 
 
+  private static Message makeSecretMessageMessage(String srcName, String text) {
+    return new Message(MessageType.SECRET_MESSAGE, srcName, text);
+  }
+
+  private static Message makeForwardMessageMessage(String srcName, String text) {
+    return new Message(MessageType.FOWARD_MESSAGE, srcName, text);
+  }
+
+  private static Message makeUnfollowUserMessage(String srcName, String text) {
+    return new Message(MessageType.UNFOLLOW_USER, srcName, text);
+  }
+
+  private static Message makeGetThreadMessagesMessage(String srcName, String text) {
+    return new Message(MessageType.GET_THREAD_MESSAGES, srcName, text);
+  }
+
+  private static Message makeGetAllThreadsMessage(String srcName, String text) {
+    return new Message(MessageType.GET_ALL_THREADS, srcName, text);
+  }
+
+  private static Message makeFollowUserMessage(String srcName, String text) {
+    return new Message(MessageType.FOLLOW_USER, srcName, text);
+  }
+
+  private static Message makePostOnThreadMessage(String srcName, String text) {
+    return new Message(MessageType.POST_ON_THREAD, srcName, text);
+  }
+
+  private static Message makeCreateThreadMessage(String srcName, String text) {
+    return new Message(MessageType.CREATE_THREAD, srcName, text);
+  }
+
+  private static Message makeGetMessagesBetweenMessage(String srcName, String text) {
+    return new Message(MessageType.GET_MESSAGES_BETWEEN, srcName, text);
+  }
+
+
   /**
    * Return the name of the sender of this message.
    *
@@ -729,6 +788,37 @@ public class Message {
     return (msgType == MessageType.DO_NOT_DISTURB);
   }
 
+  public boolean isSecretMessage() {
+    return (msgType == MessageType.SECRET_MESSAGE);
+  }
+
+  public boolean isForwardMessage() {
+    return (msgType == MessageType.FOWARD_MESSAGE);
+  }
+
+  public boolean isUnfollowUser() {
+    return (msgType == MessageType.UNFOLLOW_USER);
+  }
+
+  public boolean isFollowUser() {
+    return (msgType == MessageType.FOLLOW_USER);
+  }
+
+  public boolean isGetThreadMessages() {
+    return (msgType == MessageType.GET_THREAD_MESSAGES);
+  }
+
+  public boolean isGetAllThreads() {
+    return (msgType == MessageType.GET_ALL_THREADS);
+  }
+
+  public boolean isPostOnThread() {
+    return (msgType == MessageType.POST_ON_THREAD);
+  }
+
+  public boolean isGetMessagesBetween() {
+    return (msgType == MessageType.GET_MESSAGES_BETWEEN);
+  }
 
   public MessageType getMessageType() {
     return this.msgType;

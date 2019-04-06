@@ -46,6 +46,8 @@ public abstract class Prattle {
   protected static ConcurrentMap<String,Integer> chatIDToGroupMap;
 
   protected static MultiKeyMap<String,Integer> chatIDToUserMap;
+
+  protected static ConcurrentMap<String, List<String>> userToFollowerMap;
   /**
    * Don't do anything unless the server is ready.
    */
@@ -156,6 +158,7 @@ public abstract class Prattle {
       groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
       chatIDToGroupMap = MessageServices.getChatIDForGroups();
       chatIDToUserMap = MessageServices.getChatIDForUsers();
+      //todo initialize userToFollowerMap
     } catch (SQLException e) {
       ChatLogger.error("Failed to retrieve data from database");
     }
