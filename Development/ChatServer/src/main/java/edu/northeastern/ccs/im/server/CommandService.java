@@ -75,11 +75,16 @@ class PrivateMessageCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
-    String receiverId = cr.getReceiverName(msg.getText());
-    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(),receiverId);
+    String receiverName = cr.getReceiverName(msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(),receiverName);
     Message message = Message.makePrivateMessage(msg.getName(),chatId+" "+msg.getText());
-    Prattle.sendPrivateMessage(message, receiverId);
-    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverId, msg.getText(), chatId,"" ,"" ,false );
+    Prattle.sendPrivateMessage(message, receiverName);
+    String sourceIP = Prattle.getIP(msg.getName());
+    String receiverIP = Prattle.getIP(receiverName);
+    if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| Prattle.listOfWireTappedUsers.contains(receiverName)){
+      Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
+    }
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId,"" ,"" ,false );
   }
 
 }
@@ -88,11 +93,25 @@ class GroupMessageCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
-    String receiverId = cr.getReceiverName(msg.getText());
-    int chatId = Prattle.updateAndGetChatIDFromGroupMap(receiverId);
+    String receiverName = cr.getReceiverName(msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromGroupMap(receiverName);
     Message message = Message.makeGroupMessage(msg.getName(),chatId+" "+msg.getText());
-    if (Prattle.sendGroupMessage(message, receiverId)) {
-      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverId, msg.getText(),chatId,"" ,"" ,false );
+
+    String sourceIP = Prattle.getIP(msg.getName());
+    String receiverIP = "";
+    boolean doesGroupMemberHasWireTap = false;
+
+    if (Prattle.sendGroupMessage(message, receiverName)) {
+      for( String user : Prattle.listOfWireTappedUsers){
+        if(Prattle.groupToUserMapping.get(receiverName).contains(user)){
+          doesGroupMemberHasWireTap = true;
+          break;
+        }
+      }
+      if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| doesGroupMemberHasWireTap){
+        Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
+      }
+      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(),chatId,"" ,"" ,false );
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
               "do not have permission to send message to the group");

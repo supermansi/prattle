@@ -666,6 +666,9 @@ public class ClientRunnableTest {
   public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
     mockStatic(MessageServices.class);
     mockStatic(Prattle.class);
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
     when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class) )).thenReturn(true);
     clientRunnable.setName("test");
@@ -687,6 +690,9 @@ public class ClientRunnableTest {
   public void testProcessMessagePVTDBException() throws Exception {
     mockStatic(MessageServices.class);
     mockStatic(Prattle.class);
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
     PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class));
     clientRunnable.setName("test");
@@ -708,6 +714,9 @@ public class ClientRunnableTest {
   public void testProcessMessagePVTSQLException() throws Exception {
     mockStatic(MessageServices.class);
     mockStatic(Prattle.class);
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
     PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class));
     clientRunnable.setName("test");
@@ -728,6 +737,16 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessageGrpFalse() throws Exception {
 
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Whitebox.setInternalState(Prattle.class,"groupToUserMapping",hm);
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
