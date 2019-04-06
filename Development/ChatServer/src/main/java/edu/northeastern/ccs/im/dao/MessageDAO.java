@@ -46,7 +46,7 @@ public class MessageDAO {
    * @return a message model object
    */
   public Message createMessage(Message message) throws SQLException {
-    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
+    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp, senderIP) VALUES(?,?,?,?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
@@ -56,6 +56,7 @@ public class MessageDAO {
       preparedStatement.setInt(2, message.getSenderID());
       preparedStatement.setString(3, message.getMessageText());
       preparedStatement.setString(4, message.getTimestamp());
+      preparedStatement.setString(5, message.getSenderIP());
       preparedStatement.executeUpdate();
       try {
         resultSet = preparedStatement.getGeneratedKeys();

@@ -48,8 +48,8 @@ public class MessageToUserDAO {
    * @param message    message to map
    * @param receiverId receiverID to map
    */
-  public void mapMsgIdToReceiverId(Message message, int receiverId) throws SQLException {
-    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
+  public void mapMsgIdToReceiverId(Message message, int receiverId, String receiverIP) throws SQLException {
+    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID, RECEIVERIP) VALUES(?,?,?);";
     // Check if group exists and user exists
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
@@ -57,6 +57,7 @@ public class MessageToUserDAO {
       statement = connection.prepareStatement(insertMSgToUserMap);
       statement.setInt(1, message.getMsgID());
       statement.setInt(2, receiverId);
+      statement.setString(3, receiverIP);
       statement.executeUpdate();
     } finally {
       if (statement != null) {

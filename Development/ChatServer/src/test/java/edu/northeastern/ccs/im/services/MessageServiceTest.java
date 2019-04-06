@@ -3,6 +3,7 @@ package edu.northeastern.ccs.im.services;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -89,7 +90,7 @@ public class MessageServiceTest {
     grpChat = new ArrayList<>();
     grpChat.add(createdUser.getUsername() + " /grp " + createdGroup.getGrpName() + " " + createdMsg.getMessageText());
     when(mockMessageDAO.createMessage(msg)).thenReturn(createdMsg);
-    doNothing().when(mockMessageToUserDAO).mapMsgIdToReceiverId(createdMsg,createdReceiver.getUserID());
+    doNothing().when(mockMessageToUserDAO).mapMsgIdToReceiverId(createdMsg,createdReceiver.getUserID(),any(String.class));
     when(mockMessageToUserDAO.retrieveUserMsg(createdUser.getUsername(),createdReceiver.getUsername())).thenReturn(pvtChat);
     when(mockMessageToUserDAO.getMessagesFromGroup("MSD")).thenReturn(grpChat);
 
