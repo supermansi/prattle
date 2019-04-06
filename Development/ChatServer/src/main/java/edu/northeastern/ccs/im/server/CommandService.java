@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.model.Message.MsgType;
+import edu.northeastern.ccs.im.model.Message.IPType;
 import edu.northeastern.ccs.im.model.User;
 import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
@@ -81,10 +83,13 @@ class PrivateMessageCommand implements ICommandMessage {
     Prattle.sendPrivateMessage(message, receiverName);
     String sourceIP = Prattle.getIP(msg.getName());
     String receiverIP = Prattle.getIP(receiverName);
+    Map<IPType,String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP,sourceIP);
+    ipMap.put(IPType.RECEIVERIP,receiverIP);
     if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| Prattle.listOfWireTappedUsers.contains(receiverName)){
       Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
     }
-    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId,null , false );
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId,ipMap , false );
   }
 
 }
@@ -99,6 +104,9 @@ class GroupMessageCommand implements ICommandMessage {
 
     String sourceIP = Prattle.getIP(msg.getName());
     String receiverIP = "";
+    Map<IPType,String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP,sourceIP);
+    ipMap.put(IPType.RECEIVERIP,receiverIP);
     boolean doesGroupMemberHasWireTap = false;
 
     if (Prattle.sendGroupMessage(message, receiverName)) {
@@ -111,7 +119,7 @@ class GroupMessageCommand implements ICommandMessage {
       if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| doesGroupMemberHasWireTap){
         Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
       }
-      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(),chatId,null , false );
+      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(),chatId,ipMap , false );
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
               "do not have permission to send message to the group");
