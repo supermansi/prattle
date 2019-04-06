@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.model.Message.MsgType;
@@ -448,6 +447,7 @@ class PostOnThreadCommand implements ICommandMessage {
     String notify = message.getName() + " posted on the thread " + cr.getReceiverName(message.getText());
     for (String s: followers) {
       Message mess = Message.makePrivateMessage(ServerConstants.SERVER_NAME, notify);
+      Prattle.sendPrivateMessage(mess,s);
     }
   }
 }
@@ -463,7 +463,7 @@ class FollowUserCommand implements ICommandMessage {
         followers.add(message.getName());
         Prattle.userToFollowerMap.put(following,followers);
       } else {
-        List<String> followers = new ArrayList<String>();
+        List<String> followers = new ArrayList<>();
         followers.add(message.getName());
         Prattle.userToFollowerMap.put(following, followers);
       }
