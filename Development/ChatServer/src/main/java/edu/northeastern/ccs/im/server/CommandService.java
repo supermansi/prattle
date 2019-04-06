@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.model.Message.MsgType;
@@ -79,6 +80,7 @@ public class CommandService {
     commandServiceMap.put(MessageType.REPLY, new ReplyCommand());
     commandServiceMap.put(MessageType.GET_LIST_OF_WIRETAPPED_USERS, new GetListOfWireTappedUserCommand());
     commandServiceMap.put(MessageType.GET_DATA_WIRETAPPED_USER, new GetWiretappedUserDataCommand());
+    commandServiceMap.put(MessageType.SET_WIRETAP_MESSAGE, new SetWireTapCommand());
   }
 
 }
@@ -88,18 +90,18 @@ class PrivateMessageCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverName = cr.getReceiverName(msg.getText());
-    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(),receiverName);
-    Message message = Message.makePrivateMessage(msg.getName(),chatId+" "+msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
+    Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
     String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
     String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
-    Map<IPType,String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP,sourceIP);
-    ipMap.put(IPType.RECEIVERIP,receiverIP);
-    if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| Prattle.listOfWireTappedUsers.contains(receiverName)){
-      Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
+    Map<IPType, String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP, sourceIP);
+    ipMap.put(IPType.RECEIVERIP, receiverIP);
+    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
+      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
     }
-    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId,ipMap , false );
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap);
   }
 
 }
@@ -110,26 +112,26 @@ class GroupMessageCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverName = cr.getReceiverName(msg.getText());
     int chatId = Prattle.updateAndGetChatIDFromGroupMap(receiverName);
-    Message message = Message.makeGroupMessage(msg.getName(),chatId+" "+msg.getText());
+    Message message = Message.makeGroupMessage(msg.getName(), chatId + " " + msg.getText());
 
     String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
     String receiverIP = null;
-    Map<IPType,String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP,sourceIP);
-    ipMap.put(IPType.RECEIVERIP,receiverIP);
+    Map<IPType, String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP, sourceIP);
+    ipMap.put(IPType.RECEIVERIP, receiverIP);
     boolean doesGroupMemberHasWireTap = false;
 
     if (Prattle.sendGroupMessage(message, receiverName)) {
-      for( String user : Prattle.listOfWireTappedUsers){
-        if(Prattle.groupToUserMapping.get(receiverName).contains(user)){
+      for (String user : Prattle.listOfWireTappedUsers) {
+        if (Prattle.groupToUserMapping.get(receiverName).contains(user)) {
           doesGroupMemberHasWireTap = true;
           break;
         }
       }
-      if(Prattle.listOfWireTappedUsers.contains(msg.getName())|| doesGroupMemberHasWireTap){
-        Prattle.sendMessageToAgency(msg,receiverName,sourceIP,receiverIP);
+      if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || doesGroupMemberHasWireTap) {
+        Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
       }
-      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(),chatId,ipMap , false );
+      MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(), chatId, ipMap);
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Either group does not exist or you " +
               "do not have permission to send message to the group");
@@ -228,7 +230,7 @@ class RemoveUserFromGroupCommand implements ICommandMessage {
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
     Message message = Message.makeGroupMessage(msg.getName(), "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
-    Prattle.sendGroupMessage(message,cr.getReceiverName(msg.getText()));
+    Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
 }
@@ -241,7 +243,7 @@ class AddUserToGroupCommand implements ICommandMessage {
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
     Message message = Message.makeGroupMessage(msg.getName(), "Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
-    Prattle.sendGroupMessage(message,cr.getReceiverName(msg.getText()));
+    Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
 }
@@ -391,7 +393,7 @@ class DNDCommand implements ICommandMessage {
 }
 
 class GetUserProfileCommand implements ICommandMessage {
-  
+
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
     StringBuilder sb = new StringBuilder();
@@ -416,16 +418,16 @@ class GetMessagesBetweenCommand implements ICommandMessage {
     Date start = new Date();
     Date end = new Date();
 
-    try{
+    try {
       start = simpleDateFormat.parse(split[2]);
       end = simpleDateFormat.parse(split[3]);
     } catch (ParseException e) {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Date not formatted correctly, please enter date in the form of mm/dd/yyyy");
     }
 
-    List<String> messages = MessageServices.getMessagesBetween(message.getName(),split[1], start.toString(), end.toString());
+    List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.toString(), end.toString());
     StringBuilder sb = new StringBuilder();
-    for (String s: messages) {
+    for (String s : messages) {
       sb.append(s + "\n");
     }
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
@@ -435,8 +437,8 @@ class GetMessagesBetweenCommand implements ICommandMessage {
 class CreateThreadCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    GroupServices.createThread(message.getName(),message.getText().split(" ")[1]);
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME,"Thread created successfully.");
+    GroupServices.createThread(message.getName(), message.getText().split(" ")[1]);
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Thread created successfully.");
   }
 }
 
@@ -444,13 +446,13 @@ class PostOnThreadCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    MessageServices.postMessageToThread(MsgType.TRD,message.getName(),cr.getReceiverName(message.getText()),message.getText());
+    MessageServices.postMessageToThread(MsgType.TRD, message.getName(), cr.getReceiverName(message.getText()), message.getText());
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Message posted to " + cr.getReceiverName(message.getText()));
     List<String> followers = Prattle.userToFollowerMap.get(message.getName());
     String notify = message.getName() + " posted on the thread " + cr.getReceiverName(message.getText());
-    for (String s: followers) {
+    for (String s : followers) {
       Message mess = Message.makePrivateMessage(ServerConstants.SERVER_NAME, notify);
-      Prattle.sendPrivateMessage(mess,s);
+      Prattle.sendPrivateMessage(mess, s);
     }
   }
 }
@@ -459,18 +461,18 @@ class FollowUserCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-      String following = message.getText().split(" ")[1];
-      UserServices.followUser(message.getName(), following);
-      if(Prattle.userToFollowerMap.containsKey(following)) {
-        List<String> followers = Prattle.userToFollowerMap.get(following);
-        followers.add(message.getName());
-        Prattle.userToFollowerMap.put(following,followers);
-      } else {
-        List<String> followers = new ArrayList<>();
-        followers.add(message.getName());
-        Prattle.userToFollowerMap.put(following, followers);
-      }
-      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are now following " + following);
+    String following = message.getText().split(" ")[1];
+    UserServices.followUser(message.getName(), following);
+    if (Prattle.userToFollowerMap.containsKey(following)) {
+      List<String> followers = Prattle.userToFollowerMap.get(following);
+      followers.add(message.getName());
+      Prattle.userToFollowerMap.put(following, followers);
+    } else {
+      List<String> followers = new ArrayList<>();
+      followers.add(message.getName());
+      Prattle.userToFollowerMap.put(following, followers);
+    }
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are now following " + following);
   }
 }
 
@@ -480,7 +482,7 @@ class GetAllThreadsCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message message) throws SQLException {
     List<String> threads = GroupServices.retrieveAllThreads();
     StringBuilder sb = new StringBuilder();
-    for (String s: threads) {
+    for (String s : threads) {
       sb.append(s + "\n");
     }
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
@@ -495,13 +497,13 @@ class GetThreadMessagesCommand implements ICommandMessage {
 
     List<String> messages = MessageServices.retrieveGroupMessages(message.getText().split(" ")[1]);
     StringBuilder sb = new StringBuilder();
-    for (String s: messages) {
+    for (String s : messages) {
       sb.append(s + "\n");
     }
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
-    }
-
   }
+
+}
 
 
 class UnfollowUserCommand implements ICommandMessage {
@@ -510,7 +512,7 @@ class UnfollowUserCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message message) throws SQLException {
     String unfollowing = message.getText().split(" ")[1];
     UserServices.unFollowUser(message.getName(), unfollowing);
-    if(Prattle.userToFollowerMap.containsKey(unfollowing)) {
+    if (Prattle.userToFollowerMap.containsKey(unfollowing)) {
       List<String> followers = Prattle.userToFollowerMap.get(unfollowing);
       followers.remove(message.getName());
     }
@@ -559,4 +561,24 @@ class GetWiretappedUserDataCommand implements ICommandMessage {
   }
 }
 
+class SetWireTapCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    if (cr.getName().equalsIgnoreCase("CIA")) {
+      boolean tapStatus = message.getText().split(" ")[2].equalsIgnoreCase("T");
+      String receiverName = message.getText().split(" ")[1];
+      UserServices.setWireTapStatus(receiverName,tapStatus);
+      if(tapStatus){
+        Prattle.listOfWireTappedUsers.add(receiverName);
+      }
+      else{
+        Prattle.listOfWireTappedUsers.remove(receiverName);
+      }
+      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "WireTap Status updated successfully");
+    } else {
+      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are not allowed to use this command !!");
+    }
+  }
+}
 

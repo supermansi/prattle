@@ -173,7 +173,10 @@ public enum MessageType {
 
   REPLY("REP"),
 
-  GET_DATA_WIRETAPPED_USER("GWU");
+  GET_DATA_WIRETAPPED_USER("GWU"),
+
+  SET_WIRETAP_MESSAGE("WTM");
+
 
   /**
    * Store the short name of this message type.
