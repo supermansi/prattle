@@ -153,9 +153,7 @@ public class Message {
       result = makeGetAllGroupsUserBelongsMessage(srcName, text);
     } else if (handle.compareTo(MessageType.DO_NOT_DISTURB.toString()) == 0) {
       result = makeDNDMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.GET_ALL_GROUP_USER_BELONGS.toString()) == 0) {
-      result = makeGetAllGroupsUserBelongsMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.GET_MESSAGES_BETWEEN.toString()) == 0) {
+    }  else if (handle.compareTo(MessageType.GET_MESSAGES_BETWEEN.toString()) == 0) {
       result = makeGetMessagesBetweenMessage(srcName,text);
     } else if (handle.compareTo(MessageType.CREATE_THREAD.toString()) == 0) {
       result = makeCreateThreadMessage(srcName,text);
@@ -815,6 +813,8 @@ public class Message {
   public boolean isPostOnThread() {
     return (msgType == MessageType.POST_ON_THREAD);
   }
+
+  public boolean isCreateThread() { return (msgType == MessageType.CREATE_THREAD); }
 
   public boolean isGetMessagesBetween() {
     return (msgType == MessageType.GET_MESSAGES_BETWEEN);
