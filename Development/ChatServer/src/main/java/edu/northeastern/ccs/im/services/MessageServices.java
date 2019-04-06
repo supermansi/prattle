@@ -55,16 +55,20 @@ public class MessageServices {
       if (userDAO.isUserExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();
         Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+        sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+        sendMessage.setChatSenderID(chatID);
+        sendMessage.setSecret(isSecret);
         messageDAO.createMessage(sendMessage);
-        messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID());
+        messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID(), SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
         return true;
       }
     } else if (msgType == Message.MsgType.GRP) {
       if (groupDAO.checkGroupExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();
         Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+        sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
         messageDAO.createMessage(sendMessage);
-        messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID());
+        messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID(), SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
         return true;
       }
     } else {
