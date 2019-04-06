@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.model.Message.MsgType;
+import edu.northeastern.ccs.im.model.MessageToUserMap;
 import edu.northeastern.ccs.im.model.User;
 import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
@@ -436,7 +437,11 @@ class PostOnThreadCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message message) throws SQLException {
     MessageServices.postMessageToThread(MsgType.TRD,message.getName(),cr.getReceiverName(message.getText()),message.getText());
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Message posted to " + cr.getReceiverName(message.getText()));
-
+    List<String> followers = Prattle.userToFollowerMap.get(message.getName());
+    String notify = message.getName() + " posted on the thread " + cr.getReceiverName(message.getText());
+    for (String s: followers) {
+      Message mess = Message.makePrivateMessage(ServerConstants.SERVER_NAME, notify);
+    }
   }
 }
 
@@ -446,6 +451,15 @@ class FollowUserCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message message) throws SQLException {
       String following = message.getText().split(" ")[1];
       UserServices.followUser(message.getName(), following);
+      if(Prattle.userToFollowerMap.containsKey(following)) {
+        List<String> followers = Prattle.userToFollowerMap.get(following);
+        followers.add(message.getName());
+        Prattle.userToFollowerMap.put(following,followers);
+      } else {
+        List<String> followers = new ArrayList<String>();
+        followers.add(message.getName());
+        Prattle.userToFollowerMap.put(following, followers);
+      }
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are now following " + following);
   }
 }
@@ -486,6 +500,10 @@ class UnfollowUserCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message message) throws SQLException {
     String unfollowing = message.getText().split(" ")[1];
     UserServices.unFollowUser(message.getName(), unfollowing);
+    if(Prattle.userToFollowerMap.containsKey(unfollowing)) {
+      List<String> followers = Prattle.userToFollowerMap.get(unfollowing);
+      followers.remove(message.getName());
+    }
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are no longer following " + unfollowing);
   }
 }

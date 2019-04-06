@@ -202,7 +202,7 @@ public class GroupServices {
     groupUserDAO.addUserToGroup(userID, groupID);
   }
 
-  public static Map<String, List<String>> getUserToFollowerMap() throws SQLException {
+  public static ConcurrentMap<String, List<String>> getUserToFollowerMap() throws SQLException {
     return groupUserDAO.getMapOfAllUserAndFollowers();
   }
 

@@ -49,7 +49,7 @@ public abstract class Prattle {
   protected static MultiKeyMap<String,Integer> chatIDToUserMap;
 
   protected static ConcurrentMap<String, List<String>> userToFollowerMap;
-  
+
   protected static List<String> listOfWireTappedUsers;
 
   /**
@@ -163,7 +163,7 @@ public abstract class Prattle {
       chatIDToGroupMap = MessageServices.getChatIDForGroups();
       chatIDToUserMap = MessageServices.getChatIDForUsers();
       listOfWireTappedUsers = UserServices.getListOfTappedUsers();
-      //todo initialize userToFollowerMap
+      userToFollowerMap = GroupServices.getUserToFollowerMap();
     } catch (SQLException e) {
       ChatLogger.error("Failed to retrieve data from database");
     }

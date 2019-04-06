@@ -307,9 +307,9 @@ public class GroupToUserDAO {
     }
   }
 
-  public Map<String, List<String>> getMapOfAllUserAndFollowers() throws SQLException {
+  public ConcurrentMap<String, List<String>> getMapOfAllUserAndFollowers() throws SQLException {
     String getUsersAndFollowers = "SELECT * FROM FOLLOW ORDER BY FOLLOWING;";
-    Map<String, List<String>> hashTagMap = new HashMap<>();
+    ConcurrentMap<String, List<String>> hashTagMap = new ConcurrentHashMap<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
