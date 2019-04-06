@@ -10,7 +10,7 @@ public class Message {
 	private int senderID;
 	private String messageText;
 	private String timestamp;
-	private Boolean isSecret;
+	private boolean isSecret;
 	private String senderIP;
 	private int chatSenderID;
 
@@ -152,11 +152,11 @@ public class Message {
 		this.timestamp = timestamp;
 	}
 
-	public Boolean getSecret() {
+	public boolean isSecret() {
 		return isSecret;
 	}
 
-	public void setSecret(Boolean secret) {
+	public void setSecret(boolean secret) {
 		isSecret = secret;
 	}
 

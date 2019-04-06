@@ -56,6 +56,8 @@ public class MessageServices {
         int senderID = userDAO.getUserByUsername(sender).getUserID();
         Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
         sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+        sendMessage.setChatSenderID(chatID);
+        sendMessage.setSecret(isSecret);
         messageDAO.createMessage(sendMessage);
         messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID(), SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
         return true;
