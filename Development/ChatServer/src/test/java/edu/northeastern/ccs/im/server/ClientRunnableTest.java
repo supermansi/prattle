@@ -670,7 +670,7 @@ public class ClientRunnableTest {
     wt.add("r");
     Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
-    when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class) )).thenReturn(true);
+    when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any(), any(Boolean.class) )).thenReturn(true);
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -694,7 +694,7 @@ public class ClientRunnableTest {
     wt.add("r");
     Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
-    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class));
+    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any() ,any(Boolean.class));
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -718,7 +718,7 @@ public class ClientRunnableTest {
     wt.add("r");
     Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
-    PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any(),any() ,any(Boolean.class));
+    PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class),any() ,any(Boolean.class));
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();

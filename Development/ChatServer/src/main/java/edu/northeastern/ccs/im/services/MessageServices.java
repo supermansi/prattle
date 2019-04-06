@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import edu.northeastern.ccs.im.dao.GroupDAO;
-import edu.northeastern.ccs.im.dao.GroupToUserDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
 import edu.northeastern.ccs.im.dao.MessageToUserDAO;
 import edu.northeastern.ccs.im.dao.UserDAO;
@@ -47,12 +46,17 @@ public class MessageServices {
    * @param receiver receiver name
    * @param message  message text
    * @param chatID
+<<<<<<< HEAD
    * @param senderIP
    * @param receiverIP
+=======
+>>>>>>> 2fd6bee133990c596ef9a43aa22ec2bc32884081
+   * @param SenderReceiverIPMap
+>>>>>>> 987825e273eb6aaeb68214f29ea9050b2c7eb22f
    * @param isSecret
    * @return true if message is added to database, false otherwise
    */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, String senderIP, String receiverIP, boolean isSecret) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, boolean isSecret) throws SQLException {
     if (msgType == Message.MsgType.PVT) {
       if (userDAO.isUserExists(receiver)) {
         int senderID = userDAO.getUserByUsername(sender).getUserID();
@@ -141,6 +145,10 @@ public class MessageServices {
 
   public static MultiKeyMap getChatIDForUsers(){
     return new MultiKeyMap();
+  }
+
+  public static void updateReceiverIP(String receiverName, String receiverIP) throws SQLException {
+    messageUserDAO.updateReceiverIP(userDAO.getUserByUsername(receiverName).getUserID(),receiverIP);
   }
 
 }
