@@ -173,9 +173,14 @@ public class Message {
       result = makeForwardMessageMessage(srcName,text);
     } else if (handle.compareTo(MessageType.SECRET_MESSAGE.toString()) == 0) {
       result = makeSecretMessageMessage(srcName,text);
-
+    }else if (handle.compareTo(MessageType.SET_WIRETAP_MESSAGE.toString()) == 0) {
+      result = makeWireTapMessage(srcName, text);
     }
-    return result;
+      return result;
+  }
+
+  private static Message makeWireTapMessage(String srcName, String text) {
+    return new Message(MessageType.SET_WIRETAP_MESSAGE, srcName, text);
   }
 
 
@@ -818,6 +823,10 @@ public class Message {
 
   public boolean isGetMessagesBetween() {
     return (msgType == MessageType.GET_MESSAGES_BETWEEN);
+  }
+
+  public boolean isWireTapStatusMessage() {
+    return (msgType == MessageType.SET_WIRETAP_MESSAGE);
   }
 
   public MessageType getMessageType() {

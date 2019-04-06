@@ -216,7 +216,7 @@ public abstract class Prattle {
   }
 
   protected static void sendMessageToAgency(Message msg, String receiver, String senderIP, String receiverIP) {
-    Message message = Message.makePrivateMessage(msg.getName(),msg.getText()+" sourceIP:-"+senderIP+" receiverIP:-"+receiver);
+    Message message = Message.makePrivateMessage(msg.getName(),msg.getText()+" sourceIP:-"+senderIP+" receiverIP:-"+receiverIP);
     for (ClientRunnable tt : active) {
       if(tt.getName().equalsIgnoreCase("CIA")){
         tt.enqueueMessage(message);
