@@ -328,4 +328,72 @@ public class MessageToUserDAO {
       connection.close();
     }
   }
+
+  public List<String> getTappedMessagesSender(String username) throws SQLException {
+    String getMessages = "SELECT U.USERNAME ReceiverName, M.SENDERIP, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN USER U ON U.USERID = MAP.receiverID WHERE M.senderID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE) ORDER BY MAP.RECEIVERID;";
+    List<String> messages = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        String receiverUseraName, senderIP, receiverIP, message, timestamp;
+        while (resultSet.next()) {
+          receiverUseraName = resultSet.getString("ReceiverName");
+          senderIP = resultSet.getString(2);
+          receiverIP = resultSet.getString(3);
+          message = resultSet.getString(4);
+          timestamp = resultSet.getString(5);
+          messages.add(receiverUseraName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+        }
+        return messages;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    }finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public List<String> getTappedMessagesReceiver(String username) throws SQLException {
+    String getMessages = "SELECT U.USERNAME SenderName, M.SENDERIP, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN USER U ON U.USERID = M.senderID WHERE MAP.receiverID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE) ORDER BY M.SENDERID;";
+    List<String> messages = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        String senderUseraName, senderIP, receiverIP, message, timestamp;
+        while (resultSet.next()) {
+          senderUseraName = resultSet.getString(1);
+          senderIP = resultSet.getString(2);
+          receiverIP = resultSet.getString(3);
+          message = resultSet.getString(4);
+          timestamp = resultSet.getString(5);
+          messages.add(senderUseraName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+        }
+        return messages;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    }finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }
