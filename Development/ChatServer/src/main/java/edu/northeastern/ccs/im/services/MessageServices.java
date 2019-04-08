@@ -3,6 +3,7 @@ package edu.northeastern.ccs.im.services;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,4 +146,10 @@ public class MessageServices {
     messageUserDAO.updateReceiverIP(userDAO.getUserByUsername(receiverName).getUserID(),receiverIP);
   }
 
+  public static List<String> getAllDataForCIA(String username) throws SQLException {
+    List<String> ciaData = new ArrayList<>();
+    ciaData.addAll(messageUserDAO.getGroupMessagesForTappedUser(username));
+
+    return ciaData;
+  }
 }
