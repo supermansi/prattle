@@ -677,11 +677,7 @@ public class ClientRunnableTest {
     wt.add("r");
     Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
-<<<<<<< Updated upstream
     when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any(), any(Boolean.class) )).thenReturn(true);
-=======
-    //when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any())).thenReturn(true);
->>>>>>> Stashed changes
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
