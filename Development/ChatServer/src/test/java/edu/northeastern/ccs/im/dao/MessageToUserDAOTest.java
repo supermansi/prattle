@@ -65,14 +65,14 @@ public class MessageToUserDAOTest {
   @Test
   public void testAddMsg() throws SQLException {
     int receiverId = 242;
-    messageToUserDAO.mapMsgIdToReceiverId(message, receiverId);
+    messageToUserDAO.mapMsgIdToReceiverId(message, receiverId, "00000000");
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testAddMsgException() throws SQLException {
     int receiverId = 242;
     doThrow(new DatabaseConnectionException("Custom")).when(mockConnection).prepareStatement(any());
-    messageToUserDAO.mapMsgIdToReceiverId(message, receiverId);
+    messageToUserDAO.mapMsgIdToReceiverId(message, receiverId, "00000000");
   }
 
   @Test

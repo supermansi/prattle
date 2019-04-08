@@ -18,7 +18,9 @@ import org.junit.runners.MethodSorters;
 import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.northeastern.ccs.im.dao.GroupDAO;
 import edu.northeastern.ccs.im.dao.MessageDAO;
@@ -89,7 +91,7 @@ public class MessageServiceTest {
     grpChat = new ArrayList<>();
     grpChat.add(createdUser.getUsername() + " /grp " + createdGroup.getGrpName() + " " + createdMsg.getMessageText());
     when(mockMessageDAO.createMessage(msg)).thenReturn(createdMsg);
-    doNothing().when(mockMessageToUserDAO).mapMsgIdToReceiverId(createdMsg,createdReceiver.getUserID(),any(String.class));
+    doNothing().when(mockMessageToUserDAO).mapMsgIdToReceiverId(createdMsg,createdReceiver.getUserID(),"00000000");
     when(mockMessageToUserDAO.retrieveUserMsg(createdUser.getUsername(),createdReceiver.getUsername())).thenReturn(pvtChat);
     when(mockMessageToUserDAO.getMessagesFromGroup("MSD")).thenReturn(grpChat);
 
@@ -113,28 +115,43 @@ public class MessageServiceTest {
 
   @Test
   public void testSendPVT() throws SQLException {
-    assertEquals(true,MessageServices.addMessage(msg.getMsgType(),createdUser.getUsername(),createdReceiver.getUsername(),msg.getMessageText(), 0, null));
-  }
+    Map<Message.IPType, String> map = new HashMap<>();
+    map.put(Message.IPType.RECEIVERIP, "00000000");
+    map.put(Message.IPType.SENDERIP, "00000000");
+    assertEquals(true,MessageServices.addMessage(msg.getMsgType(),createdUser.getUsername(),createdReceiver.getUsername(),msg.getMessageText(), 0, map, false ));
+}
 
 
   @Test
   public void testSendGRP() throws SQLException {
-    assertEquals(true,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, null));
-  }
+    Map<Message.IPType, String> map = new HashMap<>();
+    map.put(Message.IPType.RECEIVERIP, "00000000");
+    map.put(Message.IPType.SENDERIP, "00000000");
+    assertEquals(true,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, map, false));
+}
 
   @Test(expected = DatabaseConnectionException.class)
   public void testSendFalse() throws SQLException {
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.BCT,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, null));
+    Map<Message.IPType, String> map = new HashMap<>();
+    map.put(Message.IPType.RECEIVERIP, "00000000");
+    map.put(Message.IPType.SENDERIP, "00000000");
+    assertEquals(false,MessageServices.addMessage(Message.MsgType.BCT,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, map, false));
   }
 
   @Test
   public void testSendPVTReceiverNotExist() throws SQLException {
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.PVT,createdUser.getUsername(),"ABCD",msg.getMessageText(),0, null));
+    Map<Message.IPType, String> map = new HashMap<>();
+    map.put(Message.IPType.RECEIVERIP, "00000000");
+    map.put(Message.IPType.SENDERIP, "00000000");
+    assertEquals(false,MessageServices.addMessage(Message.MsgType.PVT,createdUser.getUsername(),"ABCD",msg.getMessageText(),0, map, false));
   }
 
   @Test
   public void testSendGRPReceiverNotExist() throws SQLException {
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),"ABCD",msg.getMessageText(), 0, null));
+    Map<Message.IPType, String> map = new HashMap<>();
+    map.put(Message.IPType.RECEIVERIP, "00000000");
+    map.put(Message.IPType.SENDERIP, "00000000");
+    assertEquals(false,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),"ABCD",msg.getMessageText(), 0, map, false));
   }
 
   @Test
