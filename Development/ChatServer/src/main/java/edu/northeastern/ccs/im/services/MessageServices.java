@@ -149,7 +149,8 @@ public class MessageServices {
     public static List<String> getAllDataForCIA(String username) throws SQLException {
         List<String> ciaData = new ArrayList<>();
         ciaData.addAll(messageUserDAO.getGroupMessagesForTappedUser(username));
-
+        ciaData.addAll(messageUserDAO.getTappedMessagesReceiver(username));
+        ciaData.addAll(messageUserDAO.getTappedMessagesSender(username));
         return ciaData;
     }
 }
