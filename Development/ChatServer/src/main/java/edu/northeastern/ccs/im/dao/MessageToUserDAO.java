@@ -119,8 +119,8 @@ public class MessageToUserDAO {
 
 
   /**
-   * Method to get a list of strings representing notifications for the user about messages received that
-   * have not been viewed by the user.
+   * Method to get a list of strings representing notifications for the user about messages received
+   * that have not been viewed by the user.
    *
    * @param userID int representing the user #id
    * @return a list of strings representing notifications for the user
@@ -169,8 +169,7 @@ public class MessageToUserDAO {
             resultSet2.close();
           }
         }
-      }
-      finally {
+      } finally {
         if (preparedStatement2 != null) {
           preparedStatement2.close();
         }
@@ -218,7 +217,7 @@ public class MessageToUserDAO {
         chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
       }
     } finally {
-      if(resultSet!=null){
+      if (resultSet != null) {
         resultSet.close();
       }
     }
@@ -254,7 +253,7 @@ public class MessageToUserDAO {
         messages.add(username + " " + message);
       }
     } finally {
-      if(resultSet!=null){
+      if (resultSet != null) {
         resultSet.close();
       }
     }
@@ -286,11 +285,112 @@ public class MessageToUserDAO {
     ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(updateIP, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1,receiverIP);
-      preparedStatement.setInt(2,receiverID);
+      preparedStatement.setString(1, receiverIP);
+      preparedStatement.setInt(2, receiverID);
       preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
     }
-    finally {
+  }
+
+  public List<String> getGroupMessagesForTappedUser(String username) throws SQLException {
+    String getGroupMsges = "SELECT U.USERNAME SenderName, M.SENDERIP, G.grpName ReceiverName, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN Groups G ON G.grpID = MAP.receiverID JOIN USER U ON U.userID = M.senderID WHERE M.msgType = 'GRP' AND MAP.receiverID IN (SELECT groupID FROM GroupToUserMAP WHERE userID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE)) ORDER BY MAP.RECEIVERID;;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    List<String> tappedMsgs = new ArrayList<>();
+    try {
+      preparedStatement = connection.prepareStatement(getGroupMsges, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          String senderName = resultSet.getString(1);
+          String senderIP = resultSet.getString(2);
+          String receiverName = resultSet.getString(3);
+          String receiverIP = resultSet.getString(4);
+          String message = resultSet.getString(5);
+          String timestamp = resultSet.getString(6);
+          tappedMsgs.add(senderName + " " + senderIP + " " + receiverName + " " + receiverIP + " " + message + " " + timestamp);
+        }
+        return tappedMsgs;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public List<String> getTappedMessagesSender(String username) throws SQLException {
+    String getMessages = "SELECT U.USERNAME ReceiverName, M.SENDERIP, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN USER U ON U.USERID = MAP.receiverID WHERE M.senderID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE) ORDER BY MAP.RECEIVERID;";
+    List<String> messages = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        String receiverUseraName, senderIP, receiverIP, message, timestamp;
+        while (resultSet.next()) {
+          receiverUseraName = resultSet.getString("ReceiverName");
+          senderIP = resultSet.getString(2);
+          receiverIP = resultSet.getString(3);
+          message = resultSet.getString(4);
+          timestamp = resultSet.getString(5);
+          messages.add(receiverUseraName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+        }
+        return messages;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    }finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public List<String> getTappedMessagesReceiver(String username) throws SQLException {
+    String getMessages = "SELECT U.USERNAME SenderName, M.SENDERIP, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN USER U ON U.USERID = M.senderID WHERE MAP.receiverID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE) ORDER BY M.SENDERID;";
+    List<String> messages = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        String senderUseraName, senderIP, receiverIP, message, timestamp;
+        while (resultSet.next()) {
+          senderUseraName = resultSet.getString(1);
+          senderIP = resultSet.getString(2);
+          receiverIP = resultSet.getString(3);
+          message = resultSet.getString(4);
+          timestamp = resultSet.getString(5);
+          messages.add(senderUseraName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+        }
+        return messages;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    }finally {
       if (preparedStatement != null) {
         preparedStatement.close();
       }
