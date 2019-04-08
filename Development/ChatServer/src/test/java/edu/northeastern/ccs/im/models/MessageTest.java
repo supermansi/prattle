@@ -68,4 +68,10 @@ public class MessageTest {
 		message.setChatSenderID(1);
 		assertEquals(1, message.getChatSenderID());
 	}
+
+	@Test
+	public void testReplyID() {
+		message.setReplyID(1);
+		assertEquals(1, message.getReplyID());
+	}
 }

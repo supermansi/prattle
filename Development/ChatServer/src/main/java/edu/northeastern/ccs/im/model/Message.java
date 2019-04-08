@@ -13,6 +13,7 @@ public class Message {
 	private boolean isSecret;
 	private String senderIP;
 	private int chatSenderID;
+	private int replyID;
 
 	public enum MsgType {
 		PVT, GRP, BCT, TRD;
@@ -175,6 +176,10 @@ public class Message {
 	public void setChatSenderID(int chatSenderID) {
 		this.chatSenderID = chatSenderID;
 	}
+
+	public int getReplyID() {return replyID; }
+
+	public void setReplyID(int replyID) { this.replyID = replyID; }
 
 
 }

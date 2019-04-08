@@ -70,9 +70,11 @@ public class MessageServiceTest {
     when(mockUserDAO.isUserExists(user.getUserID())).thenReturn(true);
 
     when(mockUserDAO.getUserByUsername(receiver.getUsername())).thenReturn(createdReceiver);
+    when(mockUserDAO.getUserByUsername(createdReceiver.getUsername())).thenReturn(createdReceiver);
     when(mockUserDAO.getUserByUserID(receiver.getUserID())).thenReturn(createdReceiver);
     when(mockUserDAO.isUserExists(receiver.getUsername())).thenReturn(true);
-    when(mockUserDAO.isUserExists(receiver.getUserID())).thenReturn(true);
+    //when(mockUserDAO.isUserExists(receiver.getUserID())).thenReturn(true);
+    when(mockUserDAO.isUserExists(any(Integer.class))).thenReturn(true);
 
     updatedTime = Long.toString(System.currentTimeMillis());
 

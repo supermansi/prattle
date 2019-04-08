@@ -1,5 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
+import com.sun.istack.internal.NotNull;
+import edu.northeastern.ccs.im.model.MessageToUserMap;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.sql.SQLException;
@@ -39,43 +41,65 @@ public class MessageServices {
     messageUserDAO = MessageToUserDAO.getInstance();
   }
 
-  /**
-   * Method to add a message to the database.
-   *
-   * @param msgType  msgType describing type of message
-   * @param sender   sender name
-   * @param receiver receiver name
-   * @param message  message text
-   * @param chatID
-   * @param SenderReceiverIPMap
-   * @return true if message is added to database, false otherwise
-   */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap) throws SQLException {
-    if (msgType == Message.MsgType.PVT) {
-      if (userDAO.isUserExists(receiver)) {
-        int senderID = userDAO.getUserByUsername(sender).getUserID();
-        Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
-        sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
-        sendMessage.setChatSenderID(chatID);
-        sendMessage.setSecret(isSecret);
-        messageDAO.createMessage(sendMessage);
-        messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID(), SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
-        return true;
+  private static boolean addMessage(@NotNull Message sendMessage, String receiver, String receiverIP) throws SQLException {
+      if(sendMessage.getMsgType() == Message.MsgType.PVT) {
+          if(userDAO.isUserExists(receiver)){
+              sendMessage = messageDAO.createMessage(sendMessage);
+              messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID(), receiverIP);
+              return true;
+          }
+      } else if(sendMessage.getMsgType() == Message.MsgType.GRP) {
+          if (groupDAO.checkGroupExists(receiver)) {
+              sendMessage = messageDAO.createMessage(sendMessage);
+              messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID(), receiver);
+              return true;
+          }
+      } else {
+          throw new DatabaseConnectionException("This is not a valid handle.");
       }
-    } else if (msgType == Message.MsgType.GRP) {
-      if (groupDAO.checkGroupExists(receiver)) {
-        int senderID = userDAO.getUserByUsername(sender).getUserID();
-        Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
-        sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
-        messageDAO.createMessage(sendMessage);
-        messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID(), SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
-        return true;
-      }
-    } else {
-      throw new DatabaseConnectionException("This is not a valid handle.");
-    }
-    return false;
+      return false;
   }
+
+    /**
+     * Method to add a message to the database.
+     *
+     * @param msgType  msgType describing type of message
+     * @param sender   sender name
+     * @param receiver receiver name
+     * @param message  message text
+     * @param chatID
+     * @param SenderReceiverIPMap
+     * @return true if message is added to database, false otherwise
+     */
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap) throws SQLException {
+      int senderID = userDAO.getUserByUsername(sender).getUserID();
+      Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+      sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+      sendMessage.setChatSenderID(chatID);
+      sendMessage.setSecret(false);
+      sendMessage.setReplyID(-1);
+      return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+  }
+
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, boolean isSecret) throws SQLException {
+      int senderID = userDAO.getUserByUsername(sender).getUserID();
+      Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+      sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+      sendMessage.setChatSenderID(chatID);
+      sendMessage.setSecret(isSecret);
+      sendMessage.setReplyID(-1);
+      return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+  }
+
+    public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, int replyID) throws SQLException {
+      int senderID = userDAO.getUserByUsername(sender).getUserID();
+      Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+      sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+      sendMessage.setChatSenderID(chatID);
+      sendMessage.setSecret(false);
+      sendMessage.setReplyID(replyID);
+      return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+    }
 
     /**
      * Method to return a list of messages between users.
