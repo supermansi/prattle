@@ -52,7 +52,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * Test class for the methods in the Prattle class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GroupServices.class})
+@PrepareForTest({GroupServices.class,UserServices.class})
 @PowerMockIgnore("javax.net.ssl.*")
 
 public class PrattleTest {
@@ -499,6 +499,7 @@ public class PrattleTest {
 
   @Test
   public void testInitCacheNonException() throws InvocationTargetException, IllegalAccessException, IOException {
+    mockStatic(UserServices.class);
     Class<Prattle> clazz = Prattle.class;
     mockStatic(GroupServices.class);
     Method method[] = clazz.getDeclaredMethods();
@@ -517,6 +518,7 @@ public class PrattleTest {
   @Test
   public void testInitCacheException() throws Exception {
     Class<Prattle> clazz = Prattle.class;
+    mockStatic(UserServices.class);
     mockStatic(GroupServices.class);
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
