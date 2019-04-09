@@ -93,11 +93,14 @@ public class MessageServices {
 
     public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, int replyID) throws SQLException {
       int senderID = userDAO.getUserByUsername(sender).getUserID();
+      int receiverID = userDAO.getUserByUsername(receiver).getUserID();
       Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
       sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
       sendMessage.setChatSenderID(chatID);
       sendMessage.setSecret(false);
-      sendMessage.setReplyID(replyID);
+      // To Do: find the msdID and populate that instead of the replyID
+        int replyMessageID = messageUserDAO.getMessageFromChatID(senderID, receiverID, chatID);
+      sendMessage.setReplyID(replyMessageID);
       return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
     }
 

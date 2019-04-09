@@ -408,9 +408,9 @@ public class MessageToUserDAO {
     try {
       preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, senderID);
-      preparedStatement.setInt(2,receiverID);
-      preparedStatement.setInt(3,receiverID);
-      preparedStatement.setInt(4,senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setInt(3, receiverID);
+      preparedStatement.setInt(4, senderID);
       try {
         resultSet = preparedStatement.executeQuery();
         int replyID = -1;
@@ -433,5 +433,35 @@ public class MessageToUserDAO {
       }
       connection.close();
     }
+  }
+
+  public int getMessageFromChatID(int senderID, int receiverID, int chatMsgID) throws SQLException {
+    String getMessageID = "SELECT M.msgID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE senderID = ? AND receiverID = ? AND chatSenderID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    int messageID = -1;
+    try {
+      preparedStatement = connection.prepareStatement(getMessageID, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setInt(3, chatMsgID);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          messageID = resultSet.getInt(1);
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return messageID;
   }
 }
