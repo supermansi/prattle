@@ -289,4 +289,33 @@ public class MessageDAO {
     }
   }
 
+  public boolean isSecret(int senderID, int receiverID, int chatID) throws SQLException {
+    String isSecretQuery = "SELECT isSecret FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE M.senderID=? AND MAP.receiverID=? AND M.chatSenderID=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(isSecretQuery, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setInt(3, chatID);
+
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          return resultSet.getBoolean("isSecret");
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return false;
+  }
 }

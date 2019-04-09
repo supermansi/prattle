@@ -180,4 +180,10 @@ public class MessageServices {
         ciaData.addAll(messageUserDAO.getTappedMessagesSender(username));
         return ciaData;
     }
+
+    public static boolean isSecret(String sender, String receiver, int chatID) throws SQLException {
+        int senderID = userDAO.getUserByUsername(sender).getUserID();
+        int receiverID = userDAO.getUserByUsername(receiver).getUserID();
+        return messageDAO.isSecret(senderID, receiverID, chatID);
+    }
 }
