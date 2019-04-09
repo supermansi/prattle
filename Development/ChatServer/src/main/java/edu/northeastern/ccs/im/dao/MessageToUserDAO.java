@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import edu.northeastern.ccs.im.model.Message;
@@ -374,14 +375,14 @@ public class MessageToUserDAO {
       preparedStatement.setString(1, username);
       try {
         resultSet = preparedStatement.executeQuery();
-        String senderUseraName, senderIP, receiverIP, message, timestamp;
+        String senderUserName, senderIP, receiverIP, message, timestamp;
         while (resultSet.next()) {
-          senderUseraName = resultSet.getString(1);
+          senderUserName = resultSet.getString(1);
           senderIP = resultSet.getString(2);
           receiverIP = resultSet.getString(3);
           message = resultSet.getString(4);
           timestamp = resultSet.getString(5);
-          messages.add(senderUseraName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+          messages.add(senderUserName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
         }
         return messages;
       } finally {
@@ -390,6 +391,42 @@ public class MessageToUserDAO {
         }
       }
     }finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public List<String> getMessageThread(int senderID, int receiverID, int chatMsgID) throws SQLException {
+    String getMessages = "SELECT User.username, T.* FROM User JOIN (SELECT M.msgID, M.senderID, M.message, M.chatSenderID, M.replyID, MAP.receiverID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE (senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY chatSenderID DESC) AS T  ON T.senderID = User.userID;";
+    List<String> messages = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2,receiverID);
+      preparedStatement.setInt(3,receiverID);
+      preparedStatement.setInt(4,senderID);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        int replyID = -1;
+        while (resultSet.next()) {
+          if (resultSet.getInt("chatSenderID") == chatMsgID || resultSet.getInt("msgID") == replyID) {
+            messages.add(resultSet.getString("username") + " " + resultSet.getString("message"));
+            replyID = resultSet.getInt("replyID");
+          }
+        }
+        Collections.reverse(messages);
+        return messages;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
       }
