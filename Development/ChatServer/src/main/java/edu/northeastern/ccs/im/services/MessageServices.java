@@ -1,7 +1,5 @@
 package edu.northeastern.ccs.im.services;
 
-import com.sun.istack.internal.NotNull;
-import edu.northeastern.ccs.im.model.MessageToUserMap;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.sql.SQLException;
@@ -41,7 +39,7 @@ public class MessageServices {
     messageUserDAO = MessageToUserDAO.getInstance();
   }
 
-  private static boolean addMessage(@NotNull Message sendMessage, String receiver, String receiverIP) throws SQLException {
+  private static boolean addMessage(Message sendMessage, String receiver, String receiverIP) throws SQLException {
       if(sendMessage.getMsgType() == Message.MsgType.PVT) {
           if(userDAO.isUserExists(receiver)){
               sendMessage = messageDAO.createMessage(sendMessage);
