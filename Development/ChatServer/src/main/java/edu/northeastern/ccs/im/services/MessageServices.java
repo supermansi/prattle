@@ -189,4 +189,10 @@ public class MessageServices {
         int receiverID = userDAO.getUserByUsername(receiver).getUserID();
         return messageDAO.isSecret(senderID, receiverID, chatID);
     }
+
+    public static List<String> getReplyThread(String user1, String user2, int chatID) throws SQLException {
+        int user1ID = userDAO.getUserByUsername(user1).getUserID();
+        int user2ID = userDAO.getUserByUsername(user2).getUserID();
+        return messageUserDAO.getMessageThread(user1ID, user2ID, chatID);
+    }
 }
