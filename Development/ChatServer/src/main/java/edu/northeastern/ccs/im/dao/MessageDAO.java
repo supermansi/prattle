@@ -46,7 +46,7 @@ public class MessageDAO {
    * @return a message model object
    */
   public Message createMessage(Message message) throws SQLException {
-    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
+    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp, senderIP, chatSenderID, isSecret, replyID) VALUES(?,?,?,?,?,?,?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
@@ -56,6 +56,10 @@ public class MessageDAO {
       preparedStatement.setInt(2, message.getSenderID());
       preparedStatement.setString(3, message.getMessageText());
       preparedStatement.setString(4, message.getTimestamp());
+      preparedStatement.setString(5, message.getSenderIP());
+      preparedStatement.setInt(6, message.getChatSenderID());
+      preparedStatement.setBoolean(7, message.isSecret());
+      preparedStatement.setInt(8, message.getReplyID());
       preparedStatement.executeUpdate();
       try {
         resultSet = preparedStatement.getGeneratedKeys();
@@ -285,4 +289,33 @@ public class MessageDAO {
     }
   }
 
+  public boolean isSecret(int senderID, int receiverID, int chatID) throws SQLException {
+    String isSecretQuery = "SELECT isSecret FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE M.senderID=? AND MAP.receiverID=? AND M.chatSenderID=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(isSecretQuery, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setInt(3, chatID);
+
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          return resultSet.getBoolean("isSecret");
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return false;
+  }
 }
