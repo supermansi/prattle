@@ -181,10 +181,13 @@ public class Message {
       result = makeGetDataOfWiretappedUser(srcName,text);
     } else if (handle.compareTo(MessageType.GET_USER_PROFILE.toString()) == 0) {
       result = makeGetUserProfileMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_FOLLOWERS.toString()) == 0) {
+      result = makeGetFollowersMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_FOLLOWING.toString()) == 0) {
+      result = makeGetFollowingMessage(srcName, text);
     }
       return result;
   }
-
 
 
   private static Message makeWireTapMessage(String srcName, String text) {
@@ -540,6 +543,14 @@ public class Message {
 
   private static Message makeGetUserProfileMessage(String srcName, String text) {
     return new Message(MessageType.GET_USER_PROFILE, srcName, text);
+  }
+
+  private static Message makeGetFollowingMessage(String srcName, String text) {
+    return new Message(MessageType.GET_FOLLOWING, srcName, text);
+  }
+
+  private static Message makeGetFollowersMessage(String srcName, String text) {
+    return new Message(MessageType.GET_FOLLOWERS, srcName, text);
   }
 
   /**

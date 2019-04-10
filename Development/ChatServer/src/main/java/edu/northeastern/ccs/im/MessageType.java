@@ -175,7 +175,11 @@ public enum MessageType {
 
   GET_DATA_WIRETAPPED_USER("GWU"),
 
-  SET_WIRETAP_MESSAGE("WTM");
+  SET_WIRETAP_MESSAGE("WTM"),
+
+  GET_FOLLOWERS("GFW"),
+
+  GET_FOLLOWING("GFG");
 
 
   /**

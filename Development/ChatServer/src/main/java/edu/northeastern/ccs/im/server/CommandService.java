@@ -81,6 +81,8 @@ public class CommandService {
     commandServiceMap.put(MessageType.GET_LIST_OF_WIRETAPPED_USERS, new GetListOfWireTappedUserCommand());
     commandServiceMap.put(MessageType.GET_DATA_WIRETAPPED_USER, new GetWiretappedUserDataCommand());
     commandServiceMap.put(MessageType.SET_WIRETAP_MESSAGE, new SetWireTapCommand());
+    commandServiceMap.put(MessageType.GET_FOLLOWERS, new GetFollowersCommand());
+    commandServiceMap.put(MessageType.GET_FOLLOWING, new GetFollowingCommand());
   }
 
 }
@@ -579,6 +581,34 @@ class SetWireTapCommand implements ICommandMessage {
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are not allowed to use this command !!");
     }
+  }
+}
+
+class GetFollowersCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    List<String> followers = UserServices.getFollowers(message.getName());
+    StringBuilder sb = new StringBuilder();
+    for (String s: followers) {
+      sb.append(s + "\n");
+    }
+
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
+  }
+}
+
+class GetFollowingCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    List<String> followers = UserServices.getFollowing(message.getName());
+    StringBuilder sb = new StringBuilder();
+    for (String s: followers) {
+      sb.append(s + "\n");
+    }
+
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }
 
