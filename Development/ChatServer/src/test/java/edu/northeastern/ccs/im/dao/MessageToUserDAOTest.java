@@ -329,4 +329,65 @@ public class MessageToUserDAOTest {
 
     messageToUserDAO.getMessagesFromGroupBetween("Group 123", "00000000", "11111111");
   }
+
+  @Test
+  public void testGetMsgIDFromChatID() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true);
+    when(mockResultSet.getInt(1)).thenReturn(1);
+    assertEquals(1, messageToUserDAO.getMessageIDFromChatID(1,1,1));
+  }
+
+  @Test
+  public void testGetMsgIDFromChatIDFalse() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    assertEquals(-1, messageToUserDAO.getMessageIDFromChatID(1,1,1));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetMsgIDQueryEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    messageToUserDAO.getMessageIDFromChatID(1,1,1);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetMsgIDStatementEx() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    messageToUserDAO.getMessageIDFromChatID(1,1,1);
+  }
+
+  @Test
+  public void testGetGroupMsgsTapped() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(any(Integer.class))).thenReturn("a");
+    assertEquals(1, messageToUserDAO.getGroupMessagesForTappedUser("user1").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetGroupMsgsTappedEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertEquals(1, messageToUserDAO.getGroupMessagesForTappedUser("user1").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetGroupMsgsTappedEx2() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    assertEquals(1, messageToUserDAO.getGroupMessagesForTappedUser("user1").size());
+  }
+
+  @Test
+  public void testUpdateRecIP() throws SQLException {
+    messageToUserDAO.updateReceiverIP(1,"123");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testUpdateRecIPEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    messageToUserDAO.updateReceiverIP(1, "123");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testUpdateRecIPEx2() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    messageToUserDAO.updateReceiverIP(1, "123");
+  }
 }
