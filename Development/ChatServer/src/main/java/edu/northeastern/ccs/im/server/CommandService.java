@@ -82,6 +82,8 @@ public class CommandService {
     commandServiceMap.put(MessageType.GET_LIST_OF_WIRETAPPED_USERS, new GetListOfWireTappedUserCommand());
     commandServiceMap.put(MessageType.GET_DATA_WIRETAPPED_USER, new GetWiretappedUserDataCommand());
     commandServiceMap.put(MessageType.SET_WIRETAP_MESSAGE, new SetWireTapCommand());
+    commandServiceMap.put(MessageType.GET_FOLLOWERS, new GetFollowersCommand());
+    commandServiceMap.put(MessageType.GET_FOLLOWING, new GetFollowingCommand());
   }
 
 }
@@ -243,7 +245,7 @@ class AddUserToGroupCommand implements ICommandMessage {
     GroupServices.addUserToGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
-    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, " ADMIN : Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
     Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
@@ -608,6 +610,34 @@ class SetWireTapCommand implements ICommandMessage {
     } else {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "You are not allowed to use this command !!");
     }
+  }
+}
+
+class GetFollowersCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    List<String> followers = UserServices.getFollowers(message.getName());
+    StringBuilder sb = new StringBuilder();
+    for (String s: followers) {
+      sb.append(s + "\n");
+    }
+
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
+  }
+}
+
+class GetFollowingCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    List<String> followers = UserServices.getFollowing(message.getName());
+    StringBuilder sb = new StringBuilder();
+    for (String s: followers) {
+      sb.append(s + "\n");
+    }
+
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }
 

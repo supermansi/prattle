@@ -10,6 +10,7 @@ import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
+import org.apache.commons.collections4.map.MultiKeyMap;
 
 /**
  * Class for the message DAO.
@@ -317,5 +318,37 @@ public class MessageDAO {
       connection.close();
     }
     return false;
+  }
+
+  public MultiKeyMap getChatIDForUsers() throws SQLException {
+    String getChatID = "SELECT T2.Sender, U.username Receiver, T2.chatSenderID FROM User U JOIN (SELECT User.username Sender, T.chatSenderID, T.receiverID FROM User JOIN (SELECT M.senderID, MAP.receiverID, M.chatSenderID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID ORDER BY chatSenderID DESC) AS T ON User.userID = T.senderID) AS T2 ON U.userID = T2.receiverID;";
+    MultiKeyMap<String, Integer> chatIDForUsers = new MultiKeyMap<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getChatID, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          String sender = resultSet.getString("Sender");
+          String receiver = resultSet.getString("Receiver");
+          int chatID = resultSet.getInt(3);
+          if(!chatIDForUsers.containsKey(sender, receiver) && !chatIDForUsers.containsKey(receiver,sender)){
+            chatIDForUsers.put(sender, receiver, chatID);
+          }
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return chatIDForUsers;
   }
 }
