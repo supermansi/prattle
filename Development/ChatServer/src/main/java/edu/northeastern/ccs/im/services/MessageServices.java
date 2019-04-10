@@ -96,7 +96,7 @@ public class MessageServices {
     sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
     sendMessage.setChatSenderID(chatID);
     sendMessage.setSecret(false);
-    int replyMessageID = messageUserDAO.getMessageIDFromChatID(senderID, receiverID, chatID);
+    int replyMessageID = messageUserDAO.getMessageIDFromChatID(senderID, receiverID, replyID);
     sendMessage.setReplyID(replyMessageID);
     return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
   }
