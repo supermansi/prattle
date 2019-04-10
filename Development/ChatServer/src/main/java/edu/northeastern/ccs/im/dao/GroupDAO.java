@@ -6,7 +6,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
@@ -382,15 +384,14 @@ public class GroupDAO {
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
-        preparedStatement = connection.prepareStatement(setThread, Statement.RETURN_GENERATED_KEYS);
-        preparedStatement.setString(1, groupName);
-        preparedStatement.executeUpdate();
-    }
-    finally {
-        if (preparedStatement != null) {
-            preparedStatement.close();
-        }
-        connection.close();
+      preparedStatement = connection.prepareStatement(setThread, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, groupName);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
     }
   }
 
@@ -413,6 +414,33 @@ public class GroupDAO {
         }
       }
       return listOfThreads;
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public Map<String, Integer> getAllChatIdsForGroups() throws SQLException {
+    String getGroupChatIds = "SELECT G.GRPNAME, MAX(M.CHATSENDERID) FROM GROUPS G JOIN MESSAGETOUSERMAP MAP ON MAP.RECEIVERID = G.GRPID JOIN MESSAGE M ON M.MSGID = MAP.MSGID WHERE M.MSGTYPE != 'TRD' GROUP BY G.GRPNAME;";
+    Map<String, Integer> groupChatIds = new HashMap<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getGroupChatIds, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          groupChatIds.put(resultSet.getString(1), resultSet.getInt(2));
+        }
+        return groupChatIds;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
