@@ -366,9 +366,11 @@ public class ClientRunnable implements Runnable {
   protected void retrieveGroupMessagesForGroup(Message msg) throws SQLException {
     List<String> messages = MessageServices.retrieveGroupMessages(getReceiverName(msg.getText()));
     for (String conv : messages) {
-      String[] arr = conv.split(" ");
 
-      Message sendMessage = Message.makeGroupMessage("@" + msg.getText() + " " + arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
+      String messageWithHiddenType = filterMessageToHideType(conv);
+      String[] arr = messageWithHiddenType.split(" ");
+
+      Message sendMessage = Message.makeGroupMessage("@" + msg.getText() + " " + arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
       enqueueMessage(sendMessage);
     }
   }
@@ -381,11 +383,21 @@ public class ClientRunnable implements Runnable {
   protected void retrieveMessagesForUser(Message msg) throws SQLException {
     List<String> messages = MessageServices.retrieveUserMessages(msg.getName(), getReceiverName(msg.getText()));
     for (String conv : messages) {
-      String[] arr = conv.split(" ");
 
-      Message sendMessage = Message.makePrivateMessage(arr[0], conv.substring(arr[0].length() + arr[1].length() + arr[2].length() + 3));
+      String messageWithHiddenType = filterMessageToHideType(conv);
+      String[] arr = messageWithHiddenType.split(" ");
+
+      Message sendMessage = Message.makePrivateMessage(arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
       enqueueMessage(sendMessage);
     }
+  }
+
+  public String filterMessageToHideType(String msg) {
+    String [] brokenMsg = msg.split(" ");
+    if(msg.contains("/reply")){
+      return brokenMsg[0]+" "+brokenMsg[1]+" "+brokenMsg[2]+" "+brokenMsg[3]+" "+brokenMsg[5];
+    }
+    return msg;
   }
 
   /**

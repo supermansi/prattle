@@ -217,7 +217,7 @@ public class MessageToUserDAO {
         int senderId = resultSet.getInt("senderID");
         String msg = resultSet.getString("message");
         int chatID = resultSet.getInt("chatSenderID");
-        chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg + " " + chatID);
+        chat.add(chatID+" "+userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
       }
     } finally {
       if (resultSet != null) {
