@@ -96,8 +96,7 @@ public class MessageServices {
     sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
     sendMessage.setChatSenderID(chatID);
     sendMessage.setSecret(false);
-    // To Do: find the msdID and populate that instead of the replyID
-    int replyMessageID = messageUserDAO.getMessageFromChatID(senderID, receiverID, chatID);
+    int replyMessageID = messageUserDAO.getMessageIDFromChatID(senderID, receiverID, chatID);
     sendMessage.setReplyID(replyMessageID);
     return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
   }

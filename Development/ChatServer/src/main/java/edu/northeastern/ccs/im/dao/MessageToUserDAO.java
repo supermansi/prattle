@@ -437,7 +437,7 @@ public class MessageToUserDAO {
     }
   }
 
-  public int getMessageFromChatID(int senderID, int receiverID, int chatMsgID) throws SQLException {
+  public int getMessageIDFromChatID(int senderID, int receiverID, int chatMsgID) throws SQLException {
     String getMessageID = "SELECT M.msgID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE senderID = ? AND receiverID = ? AND chatSenderID = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;

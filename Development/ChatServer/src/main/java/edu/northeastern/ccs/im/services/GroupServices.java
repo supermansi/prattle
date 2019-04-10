@@ -210,7 +210,7 @@ public class GroupServices {
       return groupDAO.getAllThreads();
   }
 
-  public static Map<String,Integer> getAllChatIdsForGroups() throws SQLException {
+  public static ConcurrentMap<String,Integer> getAllChatIdsForGroups() throws SQLException {
     return groupDAO.getAllChatIdsForGroups();
   }
 }
