@@ -291,7 +291,7 @@ public class MessageDAO {
   }
 
   public boolean isSecret(int senderID, int receiverID, int chatID) throws SQLException {
-    String isSecretQuery = "SELECT isSecret FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE M.senderID=? AND MAP.receiverID=? AND M.chatSenderID=?;";
+    String isSecretQuery = "SELECT isSecret FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE ((M.senderID=? AND MAP.receiverID=?) OR (M.senderID=? AND MAP.receiverID=?)) AND M.chatSenderID=?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
@@ -299,7 +299,9 @@ public class MessageDAO {
       preparedStatement = connection.prepareStatement(isSecretQuery, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, senderID);
       preparedStatement.setInt(2, receiverID);
-      preparedStatement.setInt(3, chatID);
+      preparedStatement.setInt(3, receiverID);
+      preparedStatement.setInt(4, senderID);
+      preparedStatement.setInt(5, chatID);
 
       try {
         resultSet = preparedStatement.executeQuery();
