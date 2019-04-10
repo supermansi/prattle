@@ -99,7 +99,7 @@ public class MessageToUserDAO {
    * @return list of strings representing the messages
    */
   public List<String> retrieveUserMsg(String sender, String receiver) throws SQLException {
-    String selectQuery = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";
+    String selectQuery = "SELECT message.chatSenderID, message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' union SELECT message.chatSenderID, message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' order by timestamp;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
     try {
@@ -184,7 +184,7 @@ public class MessageToUserDAO {
   }
 
   public List<String> getMessagesBetween(String sender, String receiver, String start, String end) throws SQLException {
-    String getMessages = "SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? union SELECT message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? order by timestamp;";
+    String getMessages = "SELECT message.chatSenderID, message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? union SELECT message.chatSenderID, message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? order by timestamp;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
     try {
@@ -214,7 +214,8 @@ public class MessageToUserDAO {
       while (resultSet.next()) {
         int senderId = resultSet.getInt("senderID");
         String msg = resultSet.getString("message");
-        chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
+        int chatID = resultSet.getInt("chatSenderID");
+        chat.add(userDAO.getUserByUserID(senderId).getUsername() + " " + msg + " " + chatID);
       }
     } finally {
       if (resultSet != null) {
