@@ -64,7 +64,7 @@ public class MessageServiceTest {
     user = new User("Daba", "Daba", "Daba", "daba@gmail.com", "daba");
     createdUser = new User(52, "Daba", "Daba", "Daba", "daba@gmail.com", "daba");
     receiver = new User("Daba11", "Daba11", "Daba11", "daba11@gmail.com", "daba11");
-    createdReceiver = new User(12,"Daba11", "Daba11", "Daba11", "daba11@gmail.com", "daba11");
+    createdReceiver = new User(12, "Daba11", "Daba11", "Daba11", "daba11@gmail.com", "daba11");
     when(mockUserDAO.getUserByUsername(user.getUsername())).thenReturn(createdUser);
     when(mockUserDAO.getUserByUserID(user.getUserID())).thenReturn(createdUser);
     when(mockUserDAO.isUserExists(user.getUsername())).thenReturn(true);
@@ -84,9 +84,9 @@ public class MessageServiceTest {
     when(mockGroupDAO.checkGroupExists("MSD")).thenReturn(true);
     when(mockGroupDAO.getGroupByGroupName("MSD")).thenReturn(createdGroup);
     when(mockGroupDAO.getGroupByGroupID(createdGroup.getGrpID())).thenReturn(createdGroup);
-    
-    msg = new Message(Message.MsgType.PVT,createdUser.getUserID(),"Yo", time);
-    createdMsg = new Message(22,Message.MsgType.PVT,createdUser.getUserID(),"Yo", time);
+
+    msg = new Message(Message.MsgType.PVT, createdUser.getUserID(), "Yo", time);
+    createdMsg = new Message(22, Message.MsgType.PVT, createdUser.getUserID(), "Yo", time);
 
     pvtChat = new ArrayList<>();
     pvtChat.add(createdUser.getUsername() + " /pvt " + createdMsg.getMessageText());
@@ -94,8 +94,8 @@ public class MessageServiceTest {
     grpChat = new ArrayList<>();
     grpChat.add(createdUser.getUsername() + " /grp " + createdGroup.getGrpName() + " " + createdMsg.getMessageText());
     when(mockMessageDAO.createMessage(msg)).thenReturn(createdMsg);
-    doNothing().when(mockMessageToUserDAO).mapMsgIdToReceiverId(createdMsg,createdReceiver.getUserID(),"00000000");
-    when(mockMessageToUserDAO.retrieveUserMsg(createdUser.getUsername(),createdReceiver.getUsername())).thenReturn(pvtChat);
+    doNothing().when(mockMessageToUserDAO).mapMsgIdToReceiverId(createdMsg, createdReceiver.getUserID(), "00000000");
+    when(mockMessageToUserDAO.retrieveUserMsg(createdUser.getUsername(), createdReceiver.getUsername())).thenReturn(pvtChat);
     when(mockMessageToUserDAO.getMessagesFromGroup("MSD")).thenReturn(grpChat);
 
     Class clazz = MessageServices.class;
@@ -121,8 +121,8 @@ public class MessageServiceTest {
     Map<Message.IPType, String> map = new HashMap<>();
     map.put(Message.IPType.RECEIVERIP, "00000000");
     map.put(Message.IPType.SENDERIP, "00000000");
-    assertEquals(true,MessageServices.addMessage(msg.getMsgType(),createdUser.getUsername(),createdReceiver.getUsername(),msg.getMessageText(), 0, map, false ));
-}
+    assertEquals(true, MessageServices.addMessage(msg.getMsgType(), createdUser.getUsername(), createdReceiver.getUsername(), msg.getMessageText(), 0, map, false));
+  }
 
 
   @Test
@@ -130,15 +130,15 @@ public class MessageServiceTest {
     Map<Message.IPType, String> map = new HashMap<>();
     map.put(Message.IPType.RECEIVERIP, "00000000");
     map.put(Message.IPType.SENDERIP, "00000000");
-    assertEquals(true,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, map, false));
-}
+    assertEquals(true, MessageServices.addMessage(Message.MsgType.GRP, createdUser.getUsername(), createdGroup.getGrpName(), msg.getMessageText(), 0, map, false));
+  }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testSendFalse() throws SQLException {
     Map<Message.IPType, String> map = new HashMap<>();
     map.put(Message.IPType.RECEIVERIP, "00000000");
     map.put(Message.IPType.SENDERIP, "00000000");
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.BCT,createdUser.getUsername(),createdGroup.getGrpName(),msg.getMessageText(), 0, map, false));
+    assertEquals(false, MessageServices.addMessage(Message.MsgType.BCT, createdUser.getUsername(), createdGroup.getGrpName(), msg.getMessageText(), 0, map, false));
   }
 
   @Test
@@ -146,7 +146,7 @@ public class MessageServiceTest {
     Map<Message.IPType, String> map = new HashMap<>();
     map.put(Message.IPType.RECEIVERIP, "00000000");
     map.put(Message.IPType.SENDERIP, "00000000");
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.PVT,createdUser.getUsername(),"ABCD",msg.getMessageText(),0, map, false));
+    assertEquals(false, MessageServices.addMessage(Message.MsgType.PVT, createdUser.getUsername(), "ABCD", msg.getMessageText(), 0, map, false));
   }
 
   @Test
@@ -154,17 +154,17 @@ public class MessageServiceTest {
     Map<Message.IPType, String> map = new HashMap<>();
     map.put(Message.IPType.RECEIVERIP, "00000000");
     map.put(Message.IPType.SENDERIP, "00000000");
-    assertEquals(false,MessageServices.addMessage(Message.MsgType.GRP,createdUser.getUsername(),"ABCD",msg.getMessageText(), 0, map, false));
+    assertEquals(false, MessageServices.addMessage(Message.MsgType.GRP, createdUser.getUsername(), "ABCD", msg.getMessageText(), 0, map, false));
   }
 
   @Test
   public void testRetrieveUserMessages() throws SQLException {
-    assertEquals(pvtChat,MessageServices.retrieveUserMessages(createdUser.getUsername(),createdReceiver.getUsername()));
+    assertEquals(pvtChat, MessageServices.retrieveUserMessages(createdUser.getUsername(), createdReceiver.getUsername()));
   }
 
   @Test
   public void testRetrieveGroupMessages() throws SQLException {
-    assertEquals(grpChat,MessageServices.retrieveGroupMessages(createdGroup.getGrpName()));
+    assertEquals(grpChat, MessageServices.retrieveGroupMessages(createdGroup.getGrpName()));
   }
 
   @Test
@@ -201,5 +201,44 @@ public class MessageServiceTest {
     MultiKeyMap<String, Integer> map = new MultiKeyMap<>();
     when(mockMessageDAO.getChatIDForUsers()).thenReturn(map);
     assertEquals(map, MessageServices.getChatIDForUsers());
+  }
+
+  @Test
+  public void testPostMessageToThread() throws SQLException {
+    when(mockGroupDAO.checkGroupExists("ThreadTest")).thenReturn(true);
+    Groups testThread = new Groups(2, "ThreadTest", "abc");
+    testThread.setThread(true);
+    when(mockGroupDAO.getGroupByGroupName("ThreadTest")).thenReturn(testThread);
+    User testUser = new User(22, "aditi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    when(mockUserDAO.getUserByUsername("aditi")).thenReturn(testUser);
+    Message message = new Message(Message.MsgType.TRD, 22, "hello", Long.toString(System.currentTimeMillis()));
+    Message createdMessage = new Message(12, Message.MsgType.TRD, 22, "hello", Long.toString(System.currentTimeMillis()));
+    when(mockMessageDAO.addMessageToThread(message)).thenReturn(createdMessage);
+    doNothing().when(mockMessageToUserDAO).mapMsgIdToReceiverThreadId(createdMsg, 2);
+    MessageServices.postMessageToThread(Message.MsgType.TRD,testUser.getUsername(),testThread.getGrpName(),message.getMessageText());
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testPostMessageToThreadNotExist() throws SQLException {
+    when(mockGroupDAO.checkGroupExists("ThreadTest")).thenReturn(false);
+    MessageServices.postMessageToThread(Message.MsgType.TRD,"aditi","ThreadTest","hello");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testPostMessageToThreadNotThread() throws SQLException {
+    when(mockGroupDAO.checkGroupExists("ThreadTest")).thenReturn(true);
+    Groups testThread = new Groups(2, "ThreadTest", "abc");
+    testThread.setThread(false);
+    when(mockGroupDAO.getGroupByGroupName("ThreadTest")).thenReturn(testThread);
+    MessageServices.postMessageToThread(Message.MsgType.TRD,"aditi","ThreadTest","hello");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testPostMessageToThreadMsgTypeNotTRD() throws SQLException {
+    when(mockGroupDAO.checkGroupExists("ThreadTest")).thenReturn(true);
+    Groups testThread = new Groups(2,"ThreadTest","abc");
+    testThread.setThread(true);
+    when(mockGroupDAO.getGroupByGroupName("ThreadTest")).thenReturn(testThread);
+    MessageServices.postMessageToThread(Message.MsgType.GRP,"aditi",testThread.getGrpName(),"hello");
   }
 }
