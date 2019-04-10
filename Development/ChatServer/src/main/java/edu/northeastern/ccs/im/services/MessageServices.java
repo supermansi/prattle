@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.services;
 
+import edu.northeastern.ccs.im.dao.*;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.sql.SQLException;
@@ -9,10 +10,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import edu.northeastern.ccs.im.dao.GroupDAO;
-import edu.northeastern.ccs.im.dao.MessageDAO;
-import edu.northeastern.ccs.im.dao.MessageToUserDAO;
-import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
@@ -22,6 +19,7 @@ import edu.northeastern.ccs.im.model.Message;
 public class MessageServices {
 
   private static GroupDAO groupDAO;
+  private static GroupToUserDAO groupUserDAO;
   private static UserDAO userDAO;
   private static MessageDAO messageDAO;
   private static MessageToUserDAO messageUserDAO;
@@ -35,9 +33,29 @@ public class MessageServices {
 
   static {
     groupDAO = GroupDAO.getInstance();
+    groupUserDAO = GroupToUserDAO.getInstance();
     userDAO = UserDAO.getInstance();
     messageDAO = MessageDAO.getInstance();
     messageUserDAO = MessageToUserDAO.getInstance();
+  }
+
+  private static boolean addMessage(Message sendMessage, String receiver, String receiverIP) throws SQLException {
+    if(sendMessage.getMsgType() == Message.MsgType.PVT) {
+      if(userDAO.isUserExists(receiver)){
+        sendMessage = messageDAO.createMessage(sendMessage);
+        messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID(), receiverIP);
+        return true;
+      }
+    } else if(sendMessage.getMsgType() == Message.MsgType.GRP) {
+      if (groupDAO.checkGroupExists(receiver)) {
+        sendMessage = messageDAO.createMessage(sendMessage);
+        messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID(), receiver);
+        return true;
+      }
+    } else {
+      throw new DatabaseConnectionException("This is not a valid handle.");
+    }
+    return false;
   }
 
   /**
@@ -47,29 +65,41 @@ public class MessageServices {
    * @param sender   sender name
    * @param receiver receiver name
    * @param message  message text
+   * @param chatID
+   * @param SenderReceiverIPMap
    * @return true if message is added to database, false otherwise
    */
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap) throws SQLException {
+    int senderID = userDAO.getUserByUsername(sender).getUserID();
+    Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+    sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+    sendMessage.setChatSenderID(chatID);
+    sendMessage.setSecret(false);
+    sendMessage.setReplyID(-1);
+    return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+  }
+
   public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, boolean isSecret) throws SQLException {
-    if (msgType == Message.MsgType.PVT) {
-      if (userDAO.isUserExists(receiver)) {
-        int senderID = userDAO.getUserByUsername(sender).getUserID();
-        Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
-        messageDAO.createMessage(sendMessage);
-        messageUserDAO.mapMsgIdToReceiverId(sendMessage, userDAO.getUserByUsername(receiver).getUserID());
-        return true;
-      }
-    } else if (msgType == Message.MsgType.GRP) {
-      if (groupDAO.checkGroupExists(receiver)) {
-        int senderID = userDAO.getUserByUsername(sender).getUserID();
-        Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
-        messageDAO.createMessage(sendMessage);
-        messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID());
-        return true;
-      }
-    } else {
-      throw new DatabaseConnectionException("This is not a valid handle.");
-    }
-    return false;
+    int senderID = userDAO.getUserByUsername(sender).getUserID();
+    Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+    sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+    sendMessage.setChatSenderID(chatID);
+    sendMessage.setSecret(isSecret);
+    sendMessage.setReplyID(-1);
+    return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+  }
+
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, int replyID) throws SQLException {
+    int senderID = userDAO.getUserByUsername(sender).getUserID();
+    int receiverID = userDAO.getUserByUsername(receiver).getUserID();
+    Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
+    sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+    sendMessage.setChatSenderID(chatID);
+    sendMessage.setSecret(false);
+    // To Do: find the msdID and populate that instead of the replyID
+    int replyMessageID = messageUserDAO.getMessageFromChatID(senderID, receiverID, chatID);
+    sendMessage.setReplyID(replyMessageID);
+    return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
   }
 
   /**
@@ -109,7 +139,10 @@ public class MessageServices {
   }
 
   public static List<String> getPushNotifications(String username) throws SQLException {
-    return messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID());
+    List<String> notifications = new ArrayList<>();
+    notifications.addAll(messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID()));
+    notifications.addAll(groupUserDAO.getFollowThreadNotification(username));
+    return notifications;
   }
 
   public static List<String> getMessagesBetween(String sender, String receiver, String startDate, String endDate) throws SQLException {
@@ -132,16 +165,16 @@ public class MessageServices {
     }
   }
 
-  public static ConcurrentMap<String, Integer> getChatIDForGroups() {
+  public static ConcurrentMap<String,Integer> getChatIDForGroups(){
     return new ConcurrentHashMap<>();
   }
 
-  public static MultiKeyMap getChatIDForUsers() {
-    return new MultiKeyMap();
+  public static MultiKeyMap getChatIDForUsers() throws SQLException {
+    return messageDAO.getChatIDForUsers();
   }
 
   public static void updateReceiverIP(String receiverName, String receiverIP) throws SQLException {
-    messageUserDAO.updateReceiverIP(userDAO.getUserByUsername(receiverName).getUserID(), receiverIP);
+    messageUserDAO.updateReceiverIP(userDAO.getUserByUsername(receiverName).getUserID(),receiverIP);
   }
 
   public static List<String> getAllDataForCIA(String username) throws SQLException {
@@ -150,6 +183,18 @@ public class MessageServices {
     ciaData.addAll(messageUserDAO.getTappedMessagesReceiver(username));
     ciaData.addAll(messageUserDAO.getTappedMessagesSender(username));
     return ciaData;
+  }
+
+  public static boolean isSecret(String sender, String receiver, int chatID) throws SQLException {
+    int senderID = userDAO.getUserByUsername(sender).getUserID();
+    int receiverID = userDAO.getUserByUsername(receiver).getUserID();
+    return messageDAO.isSecret(senderID, receiverID, chatID);
+  }
+
+  public static List<String> getReplyThread(String user1, String user2, int chatID) throws SQLException {
+    int user1ID = userDAO.getUserByUsername(user1).getUserID();
+    int user2ID = userDAO.getUserByUsername(user2).getUserID();
+    return messageUserDAO.getMessageThread(user1ID, user2ID, chatID);
   }
 
   public static String getMessageForForwarding(String senderName, String receiverName, int chatID, Message.MsgType messageType) throws SQLException {

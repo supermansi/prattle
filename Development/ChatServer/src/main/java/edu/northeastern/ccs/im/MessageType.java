@@ -167,7 +167,16 @@ public enum MessageType {
 
   FOWARD_MESSAGE("FWD"),
 
-  SECRET_MESSAGE("SMS");
+  SECRET_MESSAGE("SMS"),
+
+  GET_LIST_OF_WIRETAPPED_USERS("WTU"),
+
+  REPLY("REP"),
+
+  GET_DATA_WIRETAPPED_USER("GWU"),
+
+  SET_WIRETAP_MESSAGE("WTM");
+
 
   /**
    * Store the short name of this message type.

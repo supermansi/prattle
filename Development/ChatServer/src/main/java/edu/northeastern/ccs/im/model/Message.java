@@ -10,9 +10,10 @@ public class Message {
 	private int senderID;
 	private String messageText;
 	private String timestamp;
-	private Boolean isSecret;
+	private boolean isSecret;
 	private String senderIP;
 	private int chatSenderID;
+	private int replyID;
 
 	public enum MsgType {
 		PVT, GRP, BCT, TRD;
@@ -152,11 +153,11 @@ public class Message {
 		this.timestamp = timestamp;
 	}
 
-	public Boolean getSecret() {
+	public boolean isSecret() {
 		return isSecret;
 	}
 
-	public void setSecret(Boolean secret) {
+	public void setSecret(boolean secret) {
 		isSecret = secret;
 	}
 
@@ -175,6 +176,10 @@ public class Message {
 	public void setChatSenderID(int chatSenderID) {
 		this.chatSenderID = chatSenderID;
 	}
+
+	public int getReplyID() {return replyID; }
+
+	public void setReplyID(int replyID) { this.replyID = replyID; }
 
 
 }

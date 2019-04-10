@@ -10,6 +10,7 @@ import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
+import org.apache.commons.collections4.map.MultiKeyMap;
 
 /**
  * Class for the message DAO.
@@ -46,7 +47,7 @@ public class MessageDAO {
    * @return a message model object
    */
   public Message createMessage(Message message) throws SQLException {
-    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
+    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp, senderIP, chatSenderID, isSecret, replyID) VALUES(?,?,?,?,?,?,?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
@@ -56,6 +57,10 @@ public class MessageDAO {
       preparedStatement.setInt(2, message.getSenderID());
       preparedStatement.setString(3, message.getMessageText());
       preparedStatement.setString(4, message.getTimestamp());
+      preparedStatement.setString(5, message.getSenderIP());
+      preparedStatement.setInt(6, message.getChatSenderID());
+      preparedStatement.setBoolean(7, message.isSecret());
+      preparedStatement.setInt(8, message.getReplyID());
       preparedStatement.executeUpdate();
       try {
         resultSet = preparedStatement.getGeneratedKeys();
@@ -285,4 +290,65 @@ public class MessageDAO {
     }
   }
 
+  public boolean isSecret(int senderID, int receiverID, int chatID) throws SQLException {
+    String isSecretQuery = "SELECT isSecret FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE M.senderID=? AND MAP.receiverID=? AND M.chatSenderID=?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(isSecretQuery, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setInt(3, chatID);
+
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          return resultSet.getBoolean("isSecret");
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return false;
+  }
+
+  public MultiKeyMap getChatIDForUsers() throws SQLException {
+    String getChatID = "SELECT T2.Sender, U.username Receiver, T2.chatSenderID FROM User U JOIN (SELECT User.username Sender, T.chatSenderID, T.receiverID FROM User JOIN (SELECT M.senderID, MAP.receiverID, M.chatSenderID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID ORDER BY chatSenderID DESC) AS T ON User.userID = T.senderID) AS T2 ON U.userID = T2.receiverID;";
+    MultiKeyMap<String, Integer> chatIDForUsers = new MultiKeyMap<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getChatID, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          String sender = resultSet.getString("Sender");
+          String receiver = resultSet.getString("Receiver");
+          int chatID = resultSet.getInt(3);
+          if(!chatIDForUsers.containsKey(sender, receiver) && !chatIDForUsers.containsKey(receiver,sender)){
+            chatIDForUsers.put(sender, receiver, chatID);
+          }
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return chatIDForUsers;
+  }
 }

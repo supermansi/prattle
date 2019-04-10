@@ -52,8 +52,8 @@ public class MessageToUserDAO {
    * @param message    message to map
    * @param receiverId receiverID to map
    */
-  public void mapMsgIdToReceiverId(Message message, int receiverId) throws SQLException {
-    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
+  public void mapMsgIdToReceiverId(Message message, int receiverId, String receiverIP) throws SQLException {
+    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID, RECEIVERIP) VALUES(?,?,?);";
     // Check if group exists and user exists
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
@@ -61,6 +61,7 @@ public class MessageToUserDAO {
       statement = connection.prepareStatement(insertMSgToUserMap);
       statement.setInt(1, message.getMsgID());
       statement.setInt(2, receiverId);
+      statement.setString(3, receiverIP);
       statement.executeUpdate();
     } finally {
       if (statement != null) {
@@ -400,17 +401,17 @@ public class MessageToUserDAO {
   }
 
   public List<String> getMessageThread(int senderID, int receiverID, int chatMsgID) throws SQLException {
-    String getMessages = "SELECT User.username, T.* FROM User JOIN (SELECT M.msgID, M.senderID, M.message, M.chatSenderID, M.replyID, MAP.receiverID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE (senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY chatSenderID DESC) AS T  ON T.senderID = User.userID;";
+    String getChat = "SELECT User.username, T.* FROM User JOIN (SELECT M.msgID, M.senderID, M.message, M.chatSenderID, M.replyID, MAP.receiverID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE (senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY chatSenderID DESC) AS T  ON T.senderID = User.userID;";
     List<String> messages = new ArrayList<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
     try {
-      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement = connection.prepareStatement(getChat, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, senderID);
-      preparedStatement.setInt(2,receiverID);
-      preparedStatement.setInt(3,receiverID);
-      preparedStatement.setInt(4,senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setInt(3, receiverID);
+      preparedStatement.setInt(4, senderID);
       try {
         resultSet = preparedStatement.executeQuery();
         int replyID = -1;
@@ -435,6 +436,36 @@ public class MessageToUserDAO {
     }
   }
 
+  public int getMessageFromChatID(int senderID, int receiverID, int chatMsgID) throws SQLException {
+    String getMessageID = "SELECT M.msgID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE senderID = ? AND receiverID = ? AND chatSenderID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    int messageID = -1;
+    try {
+      preparedStatement = connection.prepareStatement(getMessageID, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setInt(3, chatMsgID);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          messageID = resultSet.getInt(1);
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+    return messageID;
+  }
+  
   public String getMessageByChatID(int senderID, int receiverID, int chatID, Message.MsgType msgType) throws SQLException {
     String getMessage = "SELECT M.MESSAGE FROM MESSAGE M JOIN MESSAGETOUSERMAP MAP ON M.MSGID = MAP.MSGID WHERE M.SENDERID = ? AND MAP.RECEIVERID = ? AND M.MSGTYPE = ? AND M.CHATSENDERID = ?;";
     Connection connection = connectionManager.getConnection();
@@ -457,6 +488,7 @@ public class MessageToUserDAO {
         if (resultSet != null) {
           resultSet.close();
         }
+        connection.close();
       }
     } finally {
       if (preparedStatement != null) {
