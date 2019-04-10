@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
+import java.security.acl.Group;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -229,7 +230,7 @@ class RemoveUserFromGroupCommand implements ICommandMessage {
     GroupServices.removeUserFromGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
-    Message message = Message.makeGroupMessage(msg.getName(), "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
     Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
@@ -242,7 +243,7 @@ class AddUserToGroupCommand implements ICommandMessage {
     GroupServices.addUserToGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
-    Message message = Message.makeGroupMessage(msg.getName(), "Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, " ADMIN : Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
     Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
@@ -524,31 +525,58 @@ class ForwardMessageCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo forward messages
+    //todo
   }
 }
 
 class SecretMessageCommand implements ICommandMessage {
 
   @Override
-  public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo secret messages
+  public void run(ClientRunnable cr, Message msg) throws SQLException {
+    String receiverName = cr.getReceiverName(msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
+    Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
+    Prattle.sendPrivateMessage(message, receiverName);
+    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
+    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
+    Map<IPType, String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP, sourceIP);
+    ipMap.put(IPType.RECEIVERIP, receiverIP);
+    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
+      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
+    }
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap,true);
   }
+
 }
 
 class ReplyCommand implements ICommandMessage {
 
   @Override
-  public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo reply service calls
+  public void run(ClientRunnable cr, Message msg) throws SQLException {
+    String receiverName = cr.getReceiverName(msg.getText());
+    int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
+    Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
+    Prattle.sendPrivateMessage(message, receiverName);
+    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
+    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
+    Map<IPType, String> ipMap = new HashMap();
+    ipMap.put(IPType.SENDERIP, sourceIP);
+    ipMap.put(IPType.RECEIVERIP, receiverIP);
+    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
+      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
+    }
+    MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap,Integer.parseInt(msg.getText().split(" ")[2]));
   }
+
 }
 
 class GetListOfWireTappedUserCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo get wiretapped user list
+    String data = cr.getMessagesInFormat(UserServices.getListOfTappedUsers());
+    Prattle.sendMessageToAgency(Message.makePrivateMessage(ServerConstants.SERVER_NAME,data));
   }
 }
 
@@ -557,7 +585,8 @@ class GetWiretappedUserDataCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo get data for wiretapped user
+    String data = cr.getMessagesInFormat(MessageServices.getAllDataForCIA(cr.getReceiverName(message.getText())));
+    Prattle.sendMessageToAgency(Message.makePrivateMessage(ServerConstants.SERVER_NAME,data));
   }
 }
 
