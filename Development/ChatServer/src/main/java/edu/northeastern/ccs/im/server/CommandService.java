@@ -528,14 +528,14 @@ class ForwardMessageCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverName = cr.getReceiverName(msg.getText());
     int chatID = Integer.parseInt(msg.getText().split(" ")[2]); // /fwd r 2 josh
-    if(MessageServices.isSecret(msg.getName(),receiverName,chatID)){
+    if(!MessageServices.isSecret(msg.getName(),receiverName,chatID)){
       String fwdMsg;
       if(Prattle.groupToUserMapping.containsKey(receiverName)){
         fwdMsg = MessageServices.getMessageForForwarding(msg.getName(),receiverName,chatID,MsgType.GRP);
       }else{
         fwdMsg = MessageServices.getMessageForForwarding(msg.getName(),receiverName,chatID,MsgType.PVT);
       }
-      new PrivateMessageCommand().run(cr,Message.makePrivateMessage(msg.getName(),"/fwd "+receiverName+" "+fwdMsg));
+      new PrivateMessageCommand().run(cr,Message.makePrivateMessage(msg.getName(),"/fwd "+receiverName+" "+fwdMsg.split(" ")[2]));
     }else{
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Cant forward a secret message");
     }
