@@ -343,4 +343,33 @@ public class GroupToUserDAO {
       connection.close();
     }
   }
+
+  public List<String> getFollowThreadNotification(String username) throws SQLException {
+    String getFollowQuery = "SELECT DISTINCT U.username, T1.grpName FROM User U JOIN (SELECT * FROM Groups G JOIN (SELECT receiverID, T.* FROM MessageToUserMap M2 JOIN (SELECT * FROM Message WHERE msgType = 'TRD' AND timestamp > (SELECT lastSeen FROM User WHERE username = ?)) T ON M2.msgID = T.msgID) T2 ON G.grpID = T2.receiverID) T1 ON T1.senderID = U.userID AND U.username IN (SELECT following FROM Follow WHERE follower = ?);";
+    List<String> notifications = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getFollowQuery, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, username);
+      preparedStatement.setString(2, username);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          notifications.add(resultSet.getString(1) + " " + resultSet.getString(2));
+        }
+        return notifications;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
 }
