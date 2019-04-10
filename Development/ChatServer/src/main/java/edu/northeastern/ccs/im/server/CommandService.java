@@ -231,7 +231,7 @@ class RemoveUserFromGroupCommand implements ICommandMessage {
     GroupServices.removeUserFromGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
-    Message message = Message.makeGroupMessage(msg.getName(), "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
     Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
@@ -244,7 +244,7 @@ class AddUserToGroupCommand implements ICommandMessage {
     GroupServices.addUserToGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
-    Message message = Message.makeGroupMessage(msg.getName(), "Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
     Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
