@@ -1,5 +1,6 @@
 package edu.northeastern.ccs.im.services;
 
+import edu.northeastern.ccs.im.dao.*;
 import org.apache.commons.collections4.map.MultiKeyMap;
 
 import java.sql.SQLException;
@@ -8,10 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import edu.northeastern.ccs.im.dao.GroupDAO;
-import edu.northeastern.ccs.im.dao.MessageDAO;
-import edu.northeastern.ccs.im.dao.MessageToUserDAO;
-import edu.northeastern.ccs.im.dao.UserDAO;
+
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
@@ -21,6 +19,7 @@ import edu.northeastern.ccs.im.model.Message;
 public class MessageServices {
 
   private static GroupDAO groupDAO;
+  private static GroupToUserDAO groupUserDAO;
   private static UserDAO userDAO;
   private static MessageDAO messageDAO;
   private static MessageToUserDAO messageUserDAO;
@@ -34,6 +33,7 @@ public class MessageServices {
 
   static {
     groupDAO = GroupDAO.getInstance();
+    groupUserDAO = GroupToUserDAO.getInstance();
     userDAO = UserDAO.getInstance();
     messageDAO = MessageDAO.getInstance();
     messageUserDAO = MessageToUserDAO.getInstance();
@@ -139,7 +139,10 @@ public class MessageServices {
     }
 
     public static List<String> getPushNotifications(String username) throws SQLException {
-        return messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID());
+        List<String> notifications = new ArrayList<>();
+        notifications.addAll(messageUserDAO.getNotifications(userDAO.getUserByUsername(username).getUserID()));
+        notifications.addAll(groupUserDAO.getFollowThreadNotification(username));
+        return notifications;
     }
 
     public static List<String> getMessagesBetween(String sender, String receiver, String startDate, String endDate) throws SQLException {

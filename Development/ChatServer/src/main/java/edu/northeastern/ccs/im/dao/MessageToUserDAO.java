@@ -400,13 +400,13 @@ public class MessageToUserDAO {
   }
 
   public List<String> getMessageThread(int senderID, int receiverID, int chatMsgID) throws SQLException {
-    String getMessages = "SELECT User.username, T.* FROM User JOIN (SELECT M.msgID, M.senderID, M.message, M.chatSenderID, M.replyID, MAP.receiverID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE (senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY chatSenderID DESC) AS T  ON T.senderID = User.userID;";
+    String getChat = "SELECT User.username, T.* FROM User JOIN (SELECT M.msgID, M.senderID, M.message, M.chatSenderID, M.replyID, MAP.receiverID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE (senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY chatSenderID DESC) AS T  ON T.senderID = User.userID;";
     List<String> messages = new ArrayList<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
     try {
-      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement = connection.prepareStatement(getChat, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setInt(1, senderID);
       preparedStatement.setInt(2, receiverID);
       preparedStatement.setInt(3, receiverID);
