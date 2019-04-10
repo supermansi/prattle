@@ -10,6 +10,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -193,5 +194,12 @@ public class MessageServiceTest {
   @Test
   public void testRetrieveGroupMessagesTime() throws SQLException {
     MessageServices.getGroupMessagesBetween(createdGroup.getGrpName(), "0000", "1111");
+  }
+
+  @Test
+  public void testGetChatID() throws SQLException {
+    MultiKeyMap<String, Integer> map = new MultiKeyMap<>();
+    when(mockMessageDAO.getChatIDForUsers()).thenReturn(map);
+    assertEquals(map, MessageServices.getChatIDForUsers());
   }
 }

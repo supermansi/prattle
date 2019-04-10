@@ -166,8 +166,8 @@ public class MessageServices {
         return new ConcurrentHashMap<>();
     }
 
-    public static MultiKeyMap getChatIDForUsers(){
-        return new MultiKeyMap();
+    public static MultiKeyMap getChatIDForUsers() throws SQLException {
+        return messageDAO.getChatIDForUsers();
     }
 
     public static void updateReceiverIP(String receiverName, String receiverIP) throws SQLException {
