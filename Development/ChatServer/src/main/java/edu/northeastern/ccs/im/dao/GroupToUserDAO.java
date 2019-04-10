@@ -277,7 +277,7 @@ public class GroupToUserDAO {
   }
 
   public List<String> getAllGroupsUserBelongsTo(int userId) throws SQLException {
-    String getUserProfile = "SELECT * FROM GROUPTOUSERMAP WHERE USERID = ?;";
+    String getUserProfile = "SELECT * FROM GROUPTOUSERMAP WHERE USERID = ?  AND groupID IN (SELECT grpID FROM Groups WHERE isThread=0);";
     List<String> userGroups = new ArrayList<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
