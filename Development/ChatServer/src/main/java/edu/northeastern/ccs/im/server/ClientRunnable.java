@@ -124,7 +124,7 @@ public class ClientRunnable implements Runnable {
    * @param pushNotifications a list of strings representing the notifications
    * @return a string to print to the user with all the notifications
    */
-  private String getMessagesInFormat(List<String> pushNotifications) {
+  protected String getMessagesInFormat(List<String> pushNotifications) {
     StringBuilder msgs = new StringBuilder();
     for (String msg : pushNotifications) {
       msgs.append(new StringBuilder(msg + "\n"));
@@ -162,7 +162,7 @@ public class ClientRunnable implements Runnable {
       // Set that the client is initialized.
       initialized = true;
       enqueueMessage(Message.makeAckMessage(ServerConstants.SERVER_NAME, "Successfully loggedin"));
-      MessageServices.updateReceiverIP(msg.getText(),Prattle.getIPForUser(this));
+      MessageServices.updateReceiverIP(msg.getName(),Prattle.getIPForUser(this));
       pushNotificationsToClient(msg);
     } else {
       sendMessage(Message.makeNackMessage(ServerConstants.SERVER_NAME, "Invalid username or password"));

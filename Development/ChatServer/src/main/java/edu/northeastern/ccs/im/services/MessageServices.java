@@ -49,7 +49,7 @@ public class MessageServices {
     } else if(sendMessage.getMsgType() == Message.MsgType.GRP) {
       if (groupDAO.checkGroupExists(receiver)) {
         sendMessage = messageDAO.createMessage(sendMessage);
-        messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID(), receiver);
+        messageUserDAO.mapMsgIdToReceiverId(sendMessage, groupDAO.getGroupByGroupName(receiver).getGrpID(), receiverIP);
         return true;
       }
     } else {
