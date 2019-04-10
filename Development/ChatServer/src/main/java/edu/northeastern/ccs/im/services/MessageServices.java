@@ -68,36 +68,36 @@ public class MessageServices {
    * @param message  message text
    * @return true if message is added to database, false otherwise
    */
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> senderReceiverIPMap) throws SQLException {
     int senderID = userDAO.getUserByUsername(sender).getUserID();
     Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
-    sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+    sendMessage.setSenderIP(senderReceiverIPMap.get(Message.IPType.SENDERIP));
     sendMessage.setChatSenderID(chatID);
     sendMessage.setSecret(false);
     sendMessage.setReplyID(-1);
-    return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+    return addMessage(sendMessage, receiver, senderReceiverIPMap.get(Message.IPType.RECEIVERIP));
   }
 
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, boolean isSecret) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> senderReceiverIPMap, boolean isSecret) throws SQLException {
     int senderID = userDAO.getUserByUsername(sender).getUserID();
     Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
-    sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+    sendMessage.setSenderIP(senderReceiverIPMap.get(Message.IPType.SENDERIP));
     sendMessage.setChatSenderID(chatID);
     sendMessage.setSecret(isSecret);
     sendMessage.setReplyID(-1);
-    return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+    return addMessage(sendMessage, receiver, senderReceiverIPMap.get(Message.IPType.RECEIVERIP));
   }
 
-  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> SenderReceiverIPMap, int replyID) throws SQLException {
+  public static boolean addMessage(Message.MsgType msgType, String sender, String receiver, String message, int chatID, Map<Message.IPType, String> senderReceiverIPMap, int replyID) throws SQLException {
     int senderID = userDAO.getUserByUsername(sender).getUserID();
     int receiverID = userDAO.getUserByUsername(receiver).getUserID();
     Message sendMessage = new Message(msgType, senderID, message, Long.toString(System.currentTimeMillis()));
-    sendMessage.setSenderIP(SenderReceiverIPMap.get(Message.IPType.SENDERIP));
+    sendMessage.setSenderIP(senderReceiverIPMap.get(Message.IPType.SENDERIP));
     sendMessage.setChatSenderID(chatID);
     sendMessage.setSecret(false);
     int replyMessageID = messageUserDAO.getMessageIDFromChatID(senderID, receiverID, chatID);
     sendMessage.setReplyID(replyMessageID);
-    return addMessage(sendMessage, receiver, SenderReceiverIPMap.get(Message.IPType.RECEIVERIP));
+    return addMessage(sendMessage, receiver, senderReceiverIPMap.get(Message.IPType.RECEIVERIP));
   }
 
   /**
