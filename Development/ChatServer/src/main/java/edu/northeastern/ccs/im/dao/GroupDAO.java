@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
@@ -422,9 +424,9 @@ public class GroupDAO {
     }
   }
 
-  public Map<String, Integer> getAllChatIdsForGroups() throws SQLException {
+  public ConcurrentMap<String, Integer> getAllChatIdsForGroups() throws SQLException {
     String getGroupChatIds = "SELECT G.GRPNAME, MAX(M.CHATSENDERID) FROM GROUPS G JOIN MESSAGETOUSERMAP MAP ON MAP.RECEIVERID = G.GRPID JOIN MESSAGE M ON M.MSGID = MAP.MSGID WHERE M.MSGTYPE != 'TRD' GROUP BY G.GRPNAME;";
-    Map<String, Integer> groupChatIds = new HashMap<>();
+    ConcurrentMap<String, Integer> groupChatIds = new ConcurrentHashMap<>();
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
