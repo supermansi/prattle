@@ -476,8 +476,8 @@ public class ClientRunnableTest {
   @Test
   public void testRetrieveMessageForUser() throws InvocationTargetException, IllegalAccessException, SQLException {
     List<String> msgList = new ArrayList<>();
-    msgList.add("r /pvt j Hii");
-    msgList.add("j /pvt r hello back");
+    msgList.add("r 1 /pvt j Hii");
+    msgList.add("j 1 /pvt r hello back");
     mockStatic(MessageServices.class);
     when(MessageServices.retrieveUserMessages("r", "j")).thenReturn(msgList);
 
@@ -499,8 +499,8 @@ public class ClientRunnableTest {
   public void testRetrieveMessageForGRP() throws InvocationTargetException, IllegalAccessException, SQLException {
 
     List<String> msgList = new ArrayList<>();
-    msgList.add("r /grp MSD Hello");
-    msgList.add("j /grp MSD hello to the group");
+    msgList.add("r 1 /grp MSD Hello");
+    msgList.add("j 1 /grp MSD hello to the group");
     mockStatic(MessageServices.class);
     when(MessageServices.retrieveGroupMessages("MSD")).thenReturn(msgList);
 
