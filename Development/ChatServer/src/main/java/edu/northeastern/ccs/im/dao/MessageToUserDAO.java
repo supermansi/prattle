@@ -358,7 +358,7 @@ public class MessageToUserDAO {
           resultSet.close();
         }
       }
-    }finally {
+    } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
       }
@@ -392,7 +392,7 @@ public class MessageToUserDAO {
           resultSet.close();
         }
       }
-    }finally {
+    } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
       }
@@ -465,7 +465,7 @@ public class MessageToUserDAO {
     }
     return messageID;
   }
-  
+
   public String getMessageByChatID(int senderID, int receiverID, int chatID, Message.MsgType msgType) throws SQLException {
     String getMessage = "SELECT M.MESSAGE FROM MESSAGE M JOIN MESSAGETOUSERMAP MAP ON M.MSGID = MAP.MSGID WHERE M.SENDERID = ? AND MAP.RECEIVERID = ? AND M.MSGTYPE = ? AND M.CHATSENDERID = ?;";
     Connection connection = connectionManager.getConnection();
