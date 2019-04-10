@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
 import static edu.northeastern.ccs.im.model.Message.MsgType.PVT;
@@ -421,6 +422,37 @@ public class MessageToUserDAO {
         }
         Collections.reverse(messages);
         return messages;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public String getMessageByChatID(int senderID, int receiverID, int chatID, Message.MsgType msgType) throws SQLException {
+    String getMessage = "SELECT M.MESSAGE FROM MESSAGE M JOIN MESSAGETOUSERMAP MAP ON M.MSGID = MAP.MSGID WHERE M.SENDERID = ? AND MAP.RECEIVERID = ? AND M.MSGTYPE = ? AND M.CHATSENDERID = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getMessage, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setInt(1, senderID);
+      preparedStatement.setInt(2, receiverID);
+      preparedStatement.setString(3, msgType.toString());
+      preparedStatement.setInt(4, chatID);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          return resultSet.getString(1);
+        } else {
+          throw new DatabaseConnectionException("No message exists with this ID");
+        }
       } finally {
         if (resultSet != null) {
           resultSet.close();
