@@ -392,7 +392,7 @@ public class ClientRunnable implements Runnable {
     }
   }
 
-  public String filterMessageToHideType(String msg) {
+  protected String filterMessageToHideType(String msg) {
     String [] brokenMsg = msg.split(" ");
     if(msg.contains("/reply")){
       return brokenMsg[0]+" "+brokenMsg[1]+" "+brokenMsg[2]+" "+brokenMsg[3]+" "+brokenMsg[5];
