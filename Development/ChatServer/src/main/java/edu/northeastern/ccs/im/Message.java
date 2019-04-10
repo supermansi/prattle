@@ -179,11 +179,16 @@ public class Message {
       result = makeReplyMessage(srcName, text);
     } else if (handle.compareTo(MessageType.GET_DATA_WIRETAPPED_USER.toString()) == 0) {
       result = makeGetDataOfWiretappedUser(srcName,text);
-    } else if (handle.compareTo(MessageType.SET_WIRETAP_MESSAGE.toString()) == 0) {
-      result = makeSetWiretapMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_USER_PROFILE.toString()) == 0) {
+      result = makeGetUserProfileMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_FOLLOWERS.toString()) == 0) {
+      result = makeGetFollowersMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_FOLLOWING.toString()) == 0) {
+      result = makeGetFollowingMessage(srcName, text);
     }
       return result;
   }
+
 
   private static Message makeWireTapMessage(String srcName, String text) {
     return new Message(MessageType.SET_WIRETAP_MESSAGE, srcName, text);
@@ -536,6 +541,17 @@ public class Message {
     return new Message(MessageType.GET_LIST_OF_WIRETAPPED_USERS, srcName, text);
   }
 
+  private static Message makeGetUserProfileMessage(String srcName, String text) {
+    return new Message(MessageType.GET_USER_PROFILE, srcName, text);
+  }
+
+  private static Message makeGetFollowingMessage(String srcName, String text) {
+    return new Message(MessageType.GET_FOLLOWING, srcName, text);
+  }
+
+  private static Message makeGetFollowersMessage(String srcName, String text) {
+    return new Message(MessageType.GET_FOLLOWERS, srcName, text);
+  }
 
   /**
    * Return the name of the sender of this message.
