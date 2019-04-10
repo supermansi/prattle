@@ -95,14 +95,7 @@ class PrivateMessageCommand implements ICommandMessage {
     int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
     Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
-    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
-    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
-    Map<IPType, String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP, sourceIP);
-    ipMap.put(IPType.RECEIVERIP, receiverIP);
-    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
-      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
-    }
+    Map<IPType, String> ipMap = CommandServiceUtils.getIPMapAndSendToAgency(msg,receiverName);
     MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap);
   }
 
@@ -426,15 +419,12 @@ class GetMessagesBetweenCommand implements ICommandMessage {
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Date not formatted correctly, please enter date in the form of mm/dd/yyyy");
     }
 
-    List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.getTime()+"", end.getTime()+"");
-    for (String conv : messages) {
-
-      String messageWithHiddenType = cr.filterMessageToHideType(conv);
-      String[] arr = messageWithHiddenType.split(" ");
-
-      Message sndMsg = Message.makePrivateMessage(arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
-      cr.enqueueMessage(sndMsg);
+    List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.toString(), end.toString());
+    StringBuilder sb = new StringBuilder();
+    for (String s : messages) {
+      sb.append(s + "\n");
     }
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }
 
@@ -554,16 +544,9 @@ class SecretMessageCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverName = cr.getReceiverName(msg.getText());
     int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
-    Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
+    Message message = Message.makeSecretMessageMessage(msg.getName(), chatId + " " + msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
-    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
-    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
-    Map<IPType, String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP, sourceIP);
-    ipMap.put(IPType.RECEIVERIP, receiverIP);
-    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
-      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
-    }
+    Map<IPType, String> ipMap = CommandServiceUtils.getIPMapAndSendToAgency(msg,receiverName);
     MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap,true);
   }
 
@@ -575,16 +558,9 @@ class ReplyCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverName = cr.getReceiverName(msg.getText());
     int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
-    Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
+    Message message = Message.makeReplyMessage(msg.getName(), chatId + " " + msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
-    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
-    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
-    Map<IPType, String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP, sourceIP);
-    ipMap.put(IPType.RECEIVERIP, receiverIP);
-    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
-      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
-    }
+    Map<IPType, String> ipMap = CommandServiceUtils.getIPMapAndSendToAgency(msg,receiverName);
     MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap,Integer.parseInt(msg.getText().split(" ")[2]));
   }
 
