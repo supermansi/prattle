@@ -36,6 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +53,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * Test class for the methods in the Prattle class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GroupServices.class,UserServices.class})
+@PrepareForTest({GroupServices.class,UserServices.class,MessageServices.class})
 @PowerMockIgnore("javax.net.ssl.*")
 
 public class PrattleTest {
@@ -498,10 +499,15 @@ public class PrattleTest {
   }
 
   @Test
-  public void testInitCacheNonException() throws InvocationTargetException, IllegalAccessException, IOException {
+  public void testInitCacheNonException() throws InvocationTargetException, IllegalAccessException, IOException, SQLException {
     mockStatic(UserServices.class);
     Class<Prattle> clazz = Prattle.class;
     mockStatic(GroupServices.class);
+    mockStatic(MessageServices.class);
+//    when(GroupServices.getAllChatIdsForGroups()).thenReturn(null);
+//    when(MessageServices.getChatIDForUsers()).thenReturn(new MultiKeyMap());
+//    when(UserServices.getListOfTappedUsers()).thenReturn(null);
+//    when(GroupServices.getUserToFollowerMap()).thenReturn(null);
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
     for (Method m : method) {
