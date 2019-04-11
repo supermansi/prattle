@@ -12,8 +12,6 @@ import java.util.List;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
-import static edu.northeastern.ccs.im.model.Message.MsgType.PVT;
-
 /**
  * Class for the message to user DAO.
  */
