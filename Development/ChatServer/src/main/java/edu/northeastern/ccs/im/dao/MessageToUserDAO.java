@@ -309,13 +309,7 @@ public class MessageToUserDAO {
       try {
         resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-          String senderName = resultSet.getString(1);
-          String senderIP = resultSet.getString(2);
-          String receiverName = resultSet.getString(3);
-          String receiverIP = resultSet.getString(4);
-          String message = resultSet.getString(5);
-          String timestamp = resultSet.getString(6);
-          tappedMsgs.add(senderName + " " + senderIP + " " + receiverName + " " + receiverIP + " " + message + " " + timestamp);
+          tappedMsgs.add(resultSet.getString(1) + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5) + " " + resultSet.getString(6));
         }
         return tappedMsgs;
       } finally {
@@ -337,13 +331,17 @@ public class MessageToUserDAO {
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
+    return getTappedMessageCode(username, getMessages, messages, connection, preparedStatement, resultSet);
+  }
+
+  private List<String> getTappedMessageCode(String username, String getMessages, List<String> messages, Connection connection, PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
     try {
       preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, username);
       try {
         resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-          messages.add(resultSet.getString("ReceiverName") + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5));
+          messages.add(resultSet.getString(1) + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5));
         }
         return messages;
       } finally {
@@ -365,26 +363,7 @@ public class MessageToUserDAO {
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
-    try {
-      preparedStatement = connection.prepareStatement(getMessages, Statement.RETURN_GENERATED_KEYS);
-      preparedStatement.setString(1, username);
-      try {
-        resultSet = preparedStatement.executeQuery();
-        while (resultSet.next()) {
-          messages.add(resultSet.getString(1) + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5));
-        }
-        return messages;
-      } finally {
-        if (resultSet != null) {
-          resultSet.close();
-        }
-      }
-    } finally {
-      if (preparedStatement != null) {
-        preparedStatement.close();
-      }
-      connection.close();
-    }
+    return getTappedMessageCode(username, getMessages, messages, connection, preparedStatement, resultSet);
   }
 
   public List<String> getMessageThread(int senderID, int receiverID, int chatMsgID) throws SQLException {

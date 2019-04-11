@@ -549,7 +549,6 @@ public class UserDAO {
     String setUserWireTapped = "UPDATE USER SET ISTAPPED = ? WHERE USERNAME = ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(setUserWireTapped, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setBoolean(1,isTapped);
