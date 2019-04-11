@@ -2,6 +2,7 @@ package edu.northeastern.ccs.im.server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -23,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
@@ -48,6 +50,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import sun.nio.ch.Net;
 
 /**
  * Test class for the methods in the Prattle class.
@@ -560,7 +564,7 @@ public class PrattleTest {
   @Test
   public void testPvtMessageDND() throws IOException {
     when(clientRunnable.isInitialized()).thenReturn(false);
-    when(clientRunnable.getName()).thenReturn("abcd");
+    when(clientRunnable.getName()).thenReturn("abc");
     when(clientRunnable.getDNDStatus()).thenReturn(true);
     Message message = Message.makePrivateMessage("abcd", "hello world");
     Prattle.sendPrivateMessage(message, "abc");
@@ -591,6 +595,106 @@ public class PrattleTest {
     assertEquals(false, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
     serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPForUser() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    SocketAddress mockedSocketAddress = mock(SocketAddress.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    when(mockedSocketChannel.getRemoteAddress()).thenReturn(mockedSocketAddress);
+    when(mockedSocketAddress.toString()).thenReturn("192.168.1.1");
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.getIPForUser(clientRunnable);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+
+  @Test
+  public void testGetIPForUserException() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    doThrow(new IOException()).when(mockedSocketChannel).getRemoteAddress();
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.getIPForUser(clientRunnable);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgency() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message,"192.168.1.1","172.1.1.0");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPFromActiveRunnablesFalse() throws IOException {
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    when(clientRunnable.getName()).thenReturn("abc");
+    when(clientRunnable.getDNDStatus()).thenReturn(false);
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(true, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    assertNull(Prattle.getIPFromActiveRunnables("abcd"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPFromActiveRunnablesTrue() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    SocketAddress mockedSocketAddress = mock(SocketAddress.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    when(mockedSocketChannel.getRemoteAddress()).thenReturn(mockedSocketAddress);
+    when(mockedSocketAddress.toString()).thenReturn("192.168.1.1");
+
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    when(clientRunnable.getName()).thenReturn("abcd");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals("192.168.1.1",Prattle.getIPFromActiveRunnables("abcd"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPFromActiveRunnablesException() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    doThrow(new IOException()).when(mockedSocketChannel).getRemoteAddress();
+
+
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    when(clientRunnable.getName()).thenReturn("abcd");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(null,Prattle.getIPFromActiveRunnables("abcd"));
+    this.serverSocketChannel.close();
   }
 
   private static class PrattleThread extends Thread {
