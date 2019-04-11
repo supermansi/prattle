@@ -427,9 +427,16 @@ public class MessageToUserDAOTest {
     assertEquals(1, messageToUserDAO.getTappedMessagesReceiver("user1").size());
   }
 
-//  @Test
-//  public void testGetMessageThread() throws SQLException {
-//    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
-//    assertEquals(1, messageToUserDAO.getMessageThread(1,1,1).size());
-//  }
+  @Test
+  public void testGetMessageThread() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getInt("msgID")).thenReturn(-1);
+    assertEquals(1, messageToUserDAO.getMessageThread(1,1,1).size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetMessageThreadEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertEquals(1, messageToUserDAO.getMessageThread(1,1,1).size());
+  }
 }
