@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,7 +115,7 @@ class GroupMessageCommand implements ICommandMessage {
 
     String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
     String receiverIP = null;
-    Map<IPType, String> ipMap = new HashMap();
+    Map<IPType, String> ipMap = new EnumMap(IPType.class);
     ipMap.put(IPType.SENDERIP, sourceIP);
     ipMap.put(IPType.RECEIVERIP, receiverIP);
     boolean doesGroupMemberHasWireTap = false;
