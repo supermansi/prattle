@@ -58,10 +58,13 @@ public class CommandServiceTest {
     mockStatic(UserServices.class);
     mockStatic(GroupServices.class);
     List<String> wt = new ArrayList<>();
+    List<String> wt2 = new ArrayList<>();
     wt.add("Rohan");
+    wt2.add("tap");
     Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     ConcurrentMap<String, List<String>> tempMap = new ConcurrentHashMap<>();
     tempMap.put("T", wt);
+    tempMap.put("Z", wt2);
     Whitebox.setInternalState(Prattle.class, "userToFollowerMap", tempMap);
     Whitebox.setInternalState(Prattle.class, "groupToUserMapping", tempMap);
   }
@@ -271,5 +274,25 @@ public class CommandServiceTest {
     data.add("data of wiretapped user");
     when(MessageServices.getAllDataForCIA(any())).thenReturn(data);
     getTappedUserData.run(clientRunnable, gwd);
+  }
+
+  @Test
+  public void testGroupMessageWiretap() throws SQLException {
+    ICommandMessage groupMessage = commandServiceMap.get(MessageType.GROUP);
+    Message gm = Message.makeGroupMessage("A", "/grp T hello");
+    when(Prattle.sendGroupMessage(any(),anyString())).thenReturn(true);
+    groupMessage.run(clientRunnable,gm);
+    Message gm2 = Message.makeGroupMessage("T", "/grp T hello");
+    groupMessage.run(clientRunnable,gm2);
+  }
+
+  @Test
+  public void testGroupMessageWiretapSenderNotTapped() throws SQLException {
+    ICommandMessage groupMessage = commandServiceMap.get(MessageType.GROUP);
+    Message gm = Message.makeGroupMessage("Rohan", "/grp T hello");
+    when(Prattle.sendGroupMessage(any(),anyString())).thenReturn(true);
+    groupMessage.run(clientRunnable,gm);
+    Message gm2 = Message.makeGroupMessage("Z", "/grp T hello");
+    groupMessage.run(clientRunnable, gm2);
   }
 }
