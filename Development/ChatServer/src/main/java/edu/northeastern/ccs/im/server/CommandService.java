@@ -33,7 +33,8 @@ public class CommandService {
 
   public static CommandService getInstance() {
     if (commandService == null) {
-      return new CommandService();
+      commandService =  new CommandService();
+      return commandService;
     } else {
       return commandService;
     }
@@ -83,6 +84,8 @@ public class CommandService {
     commandServiceMap.put(MessageType.SET_WIRETAP_MESSAGE, new SetWireTapCommand());
     commandServiceMap.put(MessageType.GET_FOLLOWERS, new GetFollowersCommand());
     commandServiceMap.put(MessageType.GET_FOLLOWING, new GetFollowingCommand());
+    commandServiceMap.put(MessageType.SUBSCRIBE_TO_THREAD, new SubscribeToThreadCommand());
+    commandServiceMap.put(MessageType.GET_REPLY_CHAIN, new GetReplyChainCommand());
   }
 
 }
@@ -95,14 +98,7 @@ class PrivateMessageCommand implements ICommandMessage {
     int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
     Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
-    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
-    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
-    Map<IPType, String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP, sourceIP);
-    ipMap.put(IPType.RECEIVERIP, receiverIP);
-    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
-      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
-    }
+    Map<IPType, String> ipMap = CommandServiceUtils.getIPMapAndSendToAgency(msg,receiverName);
     MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap);
   }
 
@@ -131,7 +127,7 @@ class GroupMessageCommand implements ICommandMessage {
         }
       }
       if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || doesGroupMemberHasWireTap) {
-        Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
+        Prattle.sendMessageToAgency(msg, sourceIP, receiverIP);
       }
       MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(), chatId, ipMap);
     } else {
@@ -231,7 +227,7 @@ class RemoveUserFromGroupCommand implements ICommandMessage {
     GroupServices.removeUserFromGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getText().split(" ")[2]);
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully removed User From group");
-    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Removed user" + msg.getText().split(" ")[2] + "from Group" + cr.getReceiverName(msg.getText()));
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Removed user " + msg.getText().split(" ")[2] + " from Group " + cr.getReceiverName(msg.getText()));
     Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
@@ -243,8 +239,7 @@ class AddUserToGroupCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     GroupServices.addUserToGroup(cr.getReceiverName(msg.getText()), msg.getName(), msg.getText().split(" ")[2]);
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).add(msg.getText().split(" ")[2]);
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully Added User to group");
-    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Added user" + msg.getText().split(" ")[2] + "to Group" + cr.getReceiverName(msg.getText()));
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Added user " + msg.getText().split(" ")[2] + " to Group " + cr.getReceiverName(msg.getText()));
     Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
@@ -419,13 +414,13 @@ class GetMessagesBetweenCommand implements ICommandMessage {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
     Date start = new Date();
     Date end = new Date();
-
     try {
       start = simpleDateFormat.parse(split[2]);
       end = simpleDateFormat.parse(split[3]);
     } catch (ParseException e) {
-      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Date not formatted correctly, please enter date in the form of mm/dd/yyyy");
+      e.printStackTrace();
     }
+
 
     List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.toString(), end.toString());
     StringBuilder sb = new StringBuilder();
@@ -526,16 +521,20 @@ class ForwardMessageCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message msg) throws SQLException {
-    String receiverName = cr.getReceiverName(msg.getText());
+    String receiverName = msg.getText().split(" ")[3];
     int chatID = Integer.parseInt(msg.getText().split(" ")[2]); // /fwd r 2 josh
-    if(!MessageServices.isSecret(msg.getName(),receiverName,chatID)){
+    if(!MessageServices.isSecret(msg.getName(),cr.getReceiverName(msg.getText()),chatID)){
       String fwdMsg;
       if(Prattle.groupToUserMapping.containsKey(receiverName)){
-        fwdMsg = MessageServices.getMessageForForwarding(msg.getName(),receiverName,chatID,MsgType.GRP);
+        fwdMsg = MessageServices.getMessageForForwarding(msg.getName(),cr.getReceiverName(msg.getText()),chatID,MsgType.GRP);
       }else{
-        fwdMsg = MessageServices.getMessageForForwarding(msg.getName(),receiverName,chatID,MsgType.PVT);
+        fwdMsg = MessageServices.getMessageForForwarding(msg.getName(),cr.getReceiverName(msg.getText()),chatID,MsgType.PVT);
       }
-      new PrivateMessageCommand().run(cr,Message.makePrivateMessage(msg.getName(),"/fwd "+receiverName+" "+fwdMsg.split(" ")[2]));
+      if(fwdMsg.contains("/reply")){
+        new PrivateMessageCommand().run(cr,Message.makePrivateMessage(msg.getName(),"/fwd "+receiverName+" "+fwdMsg.split(" ")[3]));
+      }else{
+        new PrivateMessageCommand().run(cr,Message.makePrivateMessage(msg.getName(),"/fwd "+receiverName+" "+fwdMsg.split(" ")[2]));
+      }
     }else{
       cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Cant forward a secret message");
     }
@@ -548,16 +547,9 @@ class SecretMessageCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverName = cr.getReceiverName(msg.getText());
     int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
-    Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
+    Message message = Message.makeSecretMessageMessage(msg.getName(), chatId + " " + msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
-    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
-    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
-    Map<IPType, String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP, sourceIP);
-    ipMap.put(IPType.RECEIVERIP, receiverIP);
-    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
-      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
-    }
+    Map<IPType, String> ipMap = CommandServiceUtils.getIPMapAndSendToAgency(msg,receiverName);
     MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap,true);
   }
 
@@ -569,16 +561,9 @@ class ReplyCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     String receiverName = cr.getReceiverName(msg.getText());
     int chatId = Prattle.updateAndGetChatIDFromUserMap(msg.getName(), receiverName);
-    Message message = Message.makePrivateMessage(msg.getName(), chatId + " " + msg.getText());
+    Message message = Message.makeReplyMessage(msg.getName(), chatId + " " + msg.getText());
     Prattle.sendPrivateMessage(message, receiverName);
-    String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
-    String receiverIP = Prattle.getIPFromActiveRunnables(receiverName);
-    Map<IPType, String> ipMap = new HashMap();
-    ipMap.put(IPType.SENDERIP, sourceIP);
-    ipMap.put(IPType.RECEIVERIP, receiverIP);
-    if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
-      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
-    }
+    Map<IPType, String> ipMap = CommandServiceUtils.getIPMapAndSendToAgency(msg,receiverName);
     MessageServices.addMessage(MsgType.PVT, msg.getName(), receiverName, msg.getText(), chatId, ipMap,Integer.parseInt(msg.getText().split(" ")[2]));
   }
 
@@ -651,4 +636,23 @@ class GetFollowingCommand implements ICommandMessage {
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }
+
+class SubscribeToThreadCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    GroupServices.subscribeToThread(message.getText().split(" ")[1], message.getName());
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Success");
+  }
+}
+
+class GetReplyChainCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo logic for reply chain command
+  }
+}
+
+
 

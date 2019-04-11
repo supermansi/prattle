@@ -371,4 +371,22 @@ public class GroupToUserDAOTest {
     assertEquals(new ConcurrentHashMap<String,List<String>>(),groupToUserDAO.getAllUsersByGroup());
   }
 
+  @Test
+  public void testFollowThreadNotification() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    assertEquals(1, groupToUserDAO.getFollowThreadNotification("admin").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testFollowThreadQueryEx() throws SQLException {
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    assertEquals(1, groupToUserDAO.getFollowThreadNotification("admin").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testFollowThreadQStatementEx() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    assertEquals(1, groupToUserDAO.getFollowThreadNotification("admin").size());
+  }
+
 }

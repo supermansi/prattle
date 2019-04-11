@@ -25,19 +25,19 @@ public class MessageServices {
   private static MessageDAO messageDAO;
   private static MessageToUserDAO messageUserDAO;
 
-  /**
-   * Private constructor for the message service instance.
-   */
-  private MessageServices() {
-    // empty private constructor
-  }
-
   static {
     groupDAO = GroupDAO.getInstance();
     groupUserDAO = GroupToUserDAO.getInstance();
     userDAO = UserDAO.getInstance();
     messageDAO = MessageDAO.getInstance();
     messageUserDAO = MessageToUserDAO.getInstance();
+  }
+
+  /**
+   * Private constructor for the message service instance.
+   */
+  private MessageServices() {
+    // empty private constructor
   }
 
   private static boolean addMessage(Message sendMessage, String receiver, String receiverIP) throws SQLException {
@@ -163,10 +163,6 @@ public class MessageServices {
     } else {
       throw new DatabaseConnectionException("No such thread exists");
     }
-  }
-
-  public static ConcurrentMap<String, Integer> getChatIDForGroups() {
-    return new ConcurrentHashMap<>();
   }
 
   public static MultiKeyMap getChatIDForUsers() throws SQLException {

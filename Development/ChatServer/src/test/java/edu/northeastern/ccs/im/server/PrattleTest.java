@@ -36,6 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +53,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * Test class for the methods in the Prattle class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GroupServices.class,UserServices.class})
+@PrepareForTest({GroupServices.class,UserServices.class,MessageServices.class})
 @PowerMockIgnore("javax.net.ssl.*")
 
 public class PrattleTest {
@@ -275,6 +276,7 @@ public class PrattleTest {
   public void testPvtMessage() throws IOException {
     Message message = Message.makePrivateMessage("abcd", "hello world");
     when(clientRunnable.getName()).thenReturn("abc");
+    when(clientRunnable.getDNDStatus()).thenReturn(false);
     Prattle.sendPrivateMessage(message, "abc");
     assertEquals(true, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
@@ -498,10 +500,15 @@ public class PrattleTest {
   }
 
   @Test
-  public void testInitCacheNonException() throws InvocationTargetException, IllegalAccessException, IOException {
+  public void testInitCacheNonException() throws InvocationTargetException, IllegalAccessException, IOException, SQLException {
     mockStatic(UserServices.class);
     Class<Prattle> clazz = Prattle.class;
     mockStatic(GroupServices.class);
+    mockStatic(MessageServices.class);
+//    when(GroupServices.getAllChatIdsForGroups()).thenReturn(null);
+//    when(MessageServices.getChatIDForUsers()).thenReturn(new MultiKeyMap());
+//    when(UserServices.getListOfTappedUsers()).thenReturn(null);
+//    when(GroupServices.getUserToFollowerMap()).thenReturn(null);
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
     for (Method m : method) {
@@ -544,6 +551,45 @@ public class PrattleTest {
   public void checkIsOnlineFalse() throws IOException {
     when(clientRunnable.getName()).thenReturn("z");
     assertEquals(false,Prattle.isUserOnline("r"));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testPvtMessageDND() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("abcd");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgencyTrue() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("CIA");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgencyFalse() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
 

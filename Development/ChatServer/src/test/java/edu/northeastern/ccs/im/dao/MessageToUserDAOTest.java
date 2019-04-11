@@ -150,10 +150,10 @@ public class MessageToUserDAOTest {
     for (int i = 0; i < chat.size(); i++) {
       result += chat.get(i) + "\n";
     }
-    assertEquals("r Hii\n" +
-            "j Hello\n" +
-            "r bye\n" +
-            "j tadaa\n", result);
+    assertEquals("0 r Hii\n" +
+            "0 j Hello\n" +
+            "0 r bye\n" +
+            "0 j tadaa\n", result);
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -253,10 +253,10 @@ public class MessageToUserDAOTest {
     for (int i = 0; i < chat.size(); i++) {
       result += chat.get(i) + "\n";
     }
-    assertEquals("r Hii\n" +
-            "j Hello\n" +
-            "r bye\n" +
-            "j tadaa\n", result);
+    assertEquals("0 r Hii\n" +
+            "0 j Hello\n" +
+            "0 r bye\n" +
+            "0 j tadaa\n", result);
   }
 
   @Test(expected = DatabaseConnectionException.class)

@@ -1,6 +1,5 @@
 package edu.northeastern.ccs.im.server;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -111,8 +110,6 @@ public class ClientRunnable implements Runnable {
         }
       } catch (SQLException e) {
         ChatLogger.error("Error in connecting to database");
-      } catch (IOException e) {
-        ChatLogger.error("Could not fetch remote ip for user");
       }
     }
   }
@@ -155,7 +152,7 @@ public class ClientRunnable implements Runnable {
     }
   }
 
-  private void processInitialisation(Message msg) throws SQLException, IOException {
+  private void processInitialisation(Message msg) throws SQLException {
     if (setUserName(msg.getName()) && UserServices.login(msg.getName(), msg.getText())) {
       // Update the time until we terminate this client due to inactivity.
       timer.updateAfterInitialization();
@@ -392,7 +389,7 @@ public class ClientRunnable implements Runnable {
     }
   }
 
-  public String filterMessageToHideType(String msg) {
+  protected String filterMessageToHideType(String msg) {
     String [] brokenMsg = msg.split(" ");
     if(msg.contains("/reply")){
       return brokenMsg[0]+" "+brokenMsg[1]+" "+brokenMsg[2]+" "+brokenMsg[3]+" "+brokenMsg[5];

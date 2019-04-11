@@ -160,7 +160,7 @@ public abstract class Prattle {
   private static void initialiseCache() {
     try {
       groupToUserMapping = GroupServices.getListOfAllUsersForAllGroups();
-      chatIDToGroupMap = MessageServices.getChatIDForGroups();
+      chatIDToGroupMap = GroupServices.getAllChatIdsForGroups();
       chatIDToUserMap = MessageServices.getChatIDForUsers();
       listOfWireTappedUsers = UserServices.getListOfTappedUsers();
       userToFollowerMap = GroupServices.getUserToFollowerMap();
@@ -215,7 +215,7 @@ public abstract class Prattle {
     }
   }
 
-  protected static void sendMessageToAgency(Message msg, String receiver, String senderIP, String receiverIP) {
+  protected static void sendMessageToAgency(Message msg, String senderIP, String receiverIP) {
     Message message = Message.makePrivateMessage(msg.getName(),msg.getText()+" sourceIP:-"+senderIP+" receiverIP:-"+receiverIP);
     sendMessageToAgency(message);
   }
@@ -236,7 +236,7 @@ public abstract class Prattle {
    * @param groupName receiver name to send to
    */
   public static boolean sendGroupMessage(Message msg, String groupName) {
-    if (groupToUserMapping.containsKey(groupName) && groupToUserMapping.get(groupName).contains(msg.getName())) {
+    if (groupToUserMapping.containsKey(groupName) && (groupToUserMapping.get(groupName).contains(msg.getName())) || msg.getName().equalsIgnoreCase(ServerConstants.SERVER_NAME)){
 
       List listOfUsersInGroup = groupToUserMapping.get(groupName);
       for (ClientRunnable cr : active) {
