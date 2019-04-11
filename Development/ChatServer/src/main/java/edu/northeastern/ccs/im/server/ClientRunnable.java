@@ -379,14 +379,7 @@ public class ClientRunnable implements Runnable {
    */
   protected void retrieveMessagesForUser(Message msg) throws SQLException {
     List<String> messages = MessageServices.retrieveUserMessages(msg.getName(), getReceiverName(msg.getText()));
-    for (String conv : messages) {
-
-      String messageWithHiddenType = filterMessageToHideType(conv);
-      String[] arr = messageWithHiddenType.split(" ");
-
-      Message sendMessage = Message.makePrivateMessage(arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
-      enqueueMessage(sendMessage);
-    }
+    CommandServiceUtils.getMessageFromStringAndSendToClient(ClientRunnable.this, messages);
   }
 
   protected String filterMessageToHideType(String msg) {

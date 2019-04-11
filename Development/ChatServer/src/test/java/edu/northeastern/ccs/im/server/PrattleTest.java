@@ -397,6 +397,7 @@ public class PrattleTest {
     //Return R, J
     when(clientRunnable.isInitialized()).thenReturn(false);
     when(clientRunnable.getName()).thenReturn("j");
+    when(clientRunnable.getDNDStatus()).thenReturn(false);
     mockStatic(GroupServices.class);
     List<String> list = new ArrayList();
     list.add("r");
@@ -695,6 +696,129 @@ public class PrattleTest {
     Prattle.sendPrivateMessage(message, "abc");
     assertEquals(null,Prattle.getIPFromActiveRunnables("abcd"));
     this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testUpdateAndGetChatIDFromUserMapSenderReceiver() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToUserMap");
+    field.setAccessible(true);
+
+    MultiKeyMap<String,Integer> chatIDToUserMap = new MultiKeyMap<>();
+    chatIDToUserMap.put("Rohan","Josh",1);
+    field.set(null, chatIDToUserMap);
+    assertEquals(2,Prattle.updateAndGetChatIDFromUserMap("Rohan","Josh"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testUpdateAndGetChatIDFromUserMapReceiverSender() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToUserMap");
+    field.setAccessible(true);
+
+    MultiKeyMap<String,Integer> chatIDToUserMap = new MultiKeyMap<>();
+    chatIDToUserMap.put("Rohan","Josh",1);
+    field.set(null, chatIDToUserMap);
+    assertEquals(2,Prattle.updateAndGetChatIDFromUserMap("Josh","Rohan"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testUpdateAndGetChatIDFromUserMapNewUserPair() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToUserMap");
+    field.setAccessible(true);
+
+    MultiKeyMap<String,Integer> chatIDToUserMap = new MultiKeyMap<>();
+    field.set(null, chatIDToUserMap);
+    assertEquals(1,Prattle.updateAndGetChatIDFromUserMap("Josh","Rohan"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void updateAndGetChatIDFromGroupMap() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToGroupMap");
+    field.setAccessible(true);
+
+    ConcurrentMap<String,Integer> chatToGrpMap = new ConcurrentHashMap<>();
+    chatToGrpMap.put("MSD",1);
+    field.set(null, chatToGrpMap);
+    assertEquals(2,Prattle.updateAndGetChatIDFromGroupMap("MSD"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void updateAndGetChatIDFromGroupMapNewGroup() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToGroupMap");
+    field.setAccessible(true);
+
+    ConcurrentMap<String,Integer> chatToGrpMap = new ConcurrentHashMap<>();
+    field.set(null, chatToGrpMap);
+    assertEquals(1,Prattle.updateAndGetChatIDFromGroupMap("MSD"));
+    this.serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testGrpMSGDNDTrue() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp MSD Hello");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testGrpMSGUserPrattle() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("PRATTLE", "/grp MSD Hello");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
   }
 
   private static class PrattleThread extends Thread {
