@@ -651,8 +651,11 @@ class GetReplyChainCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo logic for reply chain command
+
+    List<String> messages = MessageServices.getReplyThread(message.getName(),cr.getReceiverName(message.getText()),Integer.parseInt(message.getText().split(" ")[2]));
+    CommandServiceUtils.getMessageFromStringAndSendToClient(cr, messages);
   }
+
 }
 
 
