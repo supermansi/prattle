@@ -246,12 +246,12 @@ public class MessageDAO {
   }
 
   public Message addMessageToThread(Message message) throws SQLException {
-    String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
+    String insertThreadMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     ResultSet resultSet = null;
     try {
-      preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement = connection.prepareStatement(insertThreadMessage, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, message.getMsgType().name());
       preparedStatement.setInt(2, message.getSenderID());
       preparedStatement.setString(3, message.getMessageText());
