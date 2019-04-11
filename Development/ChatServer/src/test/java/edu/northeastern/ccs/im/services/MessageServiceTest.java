@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -240,5 +241,45 @@ public class MessageServiceTest {
     testThread.setThread(true);
     when(mockGroupDAO.getGroupByGroupName("ThreadTest")).thenReturn(testThread);
     MessageServices.postMessageToThread(Message.MsgType.GRP,"aditi",testThread.getGrpName(),"hello");
+  }
+
+  @Test
+  public void testUpdateReceiverIP() throws SQLException {
+    doNothing().when(mockMessageToUserDAO).updateReceiverIP(22,"172.0.0.1");
+    when(mockUserDAO.getUserByUsername("blah")).thenReturn(new User(22,"blah","blah","blah","blah","blah"));
+    MessageServices.updateReceiverIP("blah","172.0.0.1");
+  }
+
+  @Test
+  public void testGetAllDataForCIA() throws SQLException {
+    when(mockMessageToUserDAO.getGroupMessagesForTappedUser("aditi")).thenReturn(new ArrayList<String>());
+    when(mockMessageToUserDAO.getTappedMessagesReceiver("aditi")).thenReturn(new ArrayList<String>());
+    when(mockMessageToUserDAO.getTappedMessagesSender("aditi")).thenReturn(new ArrayList<String>());
+    assertEquals(new ArrayList<String>(),MessageServices.getAllDataForCIA("aditi"));
+  }
+
+  @Test
+  public void testGetMessageForForwardingGRP() throws SQLException {
+    Groups msd = new Groups(2,"msd","aditi");
+    User testUser = new User(22, "aditi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    when(mockGroupDAO.getGroupByGroupName("msd")).thenReturn(msd);
+    when(mockUserDAO.getUserByUsername("aditi")).thenReturn(testUser);
+    when(mockMessageToUserDAO.getMessageByChatID(22,2,52, Message.MsgType.GRP)).thenReturn("hi");
+    assertEquals("hi",MessageServices.getMessageForForwarding("aditi","msd",52, Message.MsgType.GRP));
+  }
+
+  @Test
+  public void testGetMessageForForwardingPVT() throws SQLException {
+    User testUser = new User(22, "aditi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    User testUser1 = new User(12, "mansi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    when(mockUserDAO.getUserByUsername("aditi")).thenReturn(testUser);
+    when(mockUserDAO.getUserByUsername("mansi")).thenReturn(testUser1);
+    when(mockMessageToUserDAO.getMessageByChatID(22,12,62, Message.MsgType.PVT)).thenReturn("hi");
+    assertEquals("hi",MessageServices.getMessageForForwarding("aditi","mansi",62, Message.MsgType.PVT));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMessageForForwardingTRD() throws SQLException {
+    MessageServices.getMessageForForwarding("aditi","msd",62, Message.MsgType.TRD);
   }
 }
