@@ -62,19 +62,7 @@ public class MessageDAO {
       preparedStatement.setBoolean(7, message.isSecret());
       preparedStatement.setInt(8, message.getReplyID());
       preparedStatement.executeUpdate();
-      try {
-        resultSet = preparedStatement.getGeneratedKeys();
-        if (resultSet.next()) {
-          int msgID = resultSet.getInt(1);
-          message.setMsgID(msgID);
-        }
-        return message;
-
-      } finally {
-        if (resultSet != null) {
-          resultSet.close();
-        }
-      }
+      return setMessageInResult(message, preparedStatement, resultSet);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -269,24 +257,28 @@ public class MessageDAO {
       preparedStatement.setString(3, message.getMessageText());
       preparedStatement.setString(4, message.getTimestamp());
       preparedStatement.executeUpdate();
-      try {
-        resultSet = preparedStatement.getGeneratedKeys();
-        if (resultSet.next()) {
-          int msgID = resultSet.getInt(1);
-          message.setMsgID(msgID);
-        }
-        return message;
-
-      } finally {
-        if (resultSet != null) {
-          resultSet.close();
-        }
-      }
+      return setMessageInResult(message, preparedStatement, resultSet);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
       }
       connection.close();
+    }
+  }
+
+  private Message setMessageInResult(Message message, PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
+    try {
+      resultSet = preparedStatement.getGeneratedKeys();
+      if (resultSet.next()) {
+        int msgID = resultSet.getInt(1);
+        message.setMsgID(msgID);
+      }
+      return message;
+
+    } finally {
+      if (resultSet != null) {
+        resultSet.close();
+      }
     }
   }
 

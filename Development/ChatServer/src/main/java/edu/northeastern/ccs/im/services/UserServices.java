@@ -1,10 +1,11 @@
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.PasswordHash;
 import edu.northeastern.ccs.im.dao.UserDAO;
@@ -132,8 +133,8 @@ public class UserServices {
   }
 
 
-  public static Map<User.UserParams, String> getUserProfile(String username) throws SQLException {
-    Map<User.UserParams, String> userProfile = new HashMap<>();
+  public static ConcurrentMap<User.UserParams, String> getUserProfile(String username) throws SQLException {
+    ConcurrentMap<User.UserParams, String> userProfile = new ConcurrentHashMap<>();
     User user = userDAO.getUserProfile(userDAO.getUserByUsername(username).getUserID());
     userProfile.put(User.UserParams.USERNAME, user.getUsername());
     userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
