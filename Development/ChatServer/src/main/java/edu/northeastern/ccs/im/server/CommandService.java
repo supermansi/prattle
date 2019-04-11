@@ -314,6 +314,8 @@ class LeaveGroupCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     GroupServices.leaveGroup(msg.getName(), cr.getReceiverName(msg.getText()));
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getName());
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Removed user " + msg.getName() + " from Group " + cr.getReceiverName(msg.getText()));
+    Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
 }
@@ -423,12 +425,15 @@ class GetMessagesBetweenCommand implements ICommandMessage {
     }
 
 
-    List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.toString(), end.toString());
-    StringBuilder sb = new StringBuilder();
-    for (String s : messages) {
-      sb.append(s + "\n");
+    List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.getTime()+"", end.getTime()+"");
+    for (String conv : messages) {
+
+      String messageWithHiddenType = cr.filterMessageToHideType(conv);
+      String[] arr = messageWithHiddenType.split(" ");
+
+      Message sendMessage = Message.makePrivateMessage(arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
+      cr.enqueueMessage(sendMessage);
     }
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }
 
@@ -643,7 +648,7 @@ class SubscribeToThreadCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
     GroupServices.subscribeToThread(message.getText().split(" ")[1], message.getName());
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Success");
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully subscribed to thread");
   }
 }
 
@@ -651,7 +656,6 @@ class GetReplyChainCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-
     List<String> messages = MessageServices.getReplyThread(message.getName(),cr.getReceiverName(message.getText()),Integer.parseInt(message.getText().split(" ")[2]));
     CommandServiceUtils.getMessageFromStringAndSendToClient(cr, messages);
   }

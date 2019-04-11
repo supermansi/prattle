@@ -1,7 +1,6 @@
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
-import java.text.ParseException;
 
 import edu.northeastern.ccs.im.Message;
 

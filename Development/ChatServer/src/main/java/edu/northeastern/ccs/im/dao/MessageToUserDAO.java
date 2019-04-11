@@ -22,6 +22,7 @@ public class MessageToUserDAO {
   private static MessageToUserDAO messageToUserDAO;
   private static GroupDAO groupDAO;
   private static final String MSG_FIELD = "message";
+  private static final String CHAT_ID_FIELD = "chatSenderID";
 
   /**
    * Private constructor for the message to user DAO.
@@ -215,7 +216,7 @@ public class MessageToUserDAO {
       while (resultSet.next()) {
         int senderId = resultSet.getInt("senderID");
         String msg = resultSet.getString(MSG_FIELD);
-        int chatID = resultSet.getInt("chatSenderID");
+        int chatID = resultSet.getInt(CHAT_ID_FIELD);
         chat.add(chatID + " " + userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
       }
     } finally {
@@ -382,8 +383,8 @@ public class MessageToUserDAO {
         resultSet = preparedStatement.executeQuery();
         int replyID = -1;
         while (resultSet.next()) {
-          if (resultSet.getInt("chatSenderID") == chatMsgID || resultSet.getInt("msgID") == replyID) {
-            messages.add(resultSet.getInt("chatSenderID") + " " + resultSet.getString("username") + " " + resultSet.getString(MSG_FIELD));
+          if (resultSet.getInt(CHAT_ID_FIELD) == chatMsgID || resultSet.getInt("msgID") == replyID) {
+            messages.add(resultSet.getInt(CHAT_ID_FIELD) + " " + resultSet.getString("username") + " " + resultSet.getString(MSG_FIELD));
             replyID = resultSet.getInt("replyID");
           }
         }
