@@ -15,7 +15,7 @@ public class CommandServiceUtils {
     ipMap.put(edu.northeastern.ccs.im.model.Message.IPType.SENDERIP, sourceIP);
     ipMap.put(edu.northeastern.ccs.im.model.Message.IPType.RECEIVERIP, receiverIP);
     if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || Prattle.listOfWireTappedUsers.contains(receiverName)) {
-      Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
+      Prattle.sendMessageToAgency(msg, sourceIP, receiverIP);
     }
     return ipMap;
   }

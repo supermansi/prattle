@@ -215,7 +215,7 @@ public abstract class Prattle {
     }
   }
 
-  protected static void sendMessageToAgency(Message msg, String receiver, String senderIP, String receiverIP) {
+  protected static void sendMessageToAgency(Message msg, String senderIP, String receiverIP) {
     Message message = Message.makePrivateMessage(msg.getName(),msg.getText()+" sourceIP:-"+senderIP+" receiverIP:-"+receiverIP);
     sendMessageToAgency(message);
   }

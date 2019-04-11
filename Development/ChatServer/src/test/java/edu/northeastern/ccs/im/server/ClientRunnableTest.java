@@ -11,6 +11,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -405,6 +406,39 @@ public class ClientRunnableTest {
     clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
     clientRunnable.terminateClient();
+    verify(connection,times(2)).close();
+  }
+
+  /**
+   * Test method to terminate a ClientRunnable.
+   */
+  @Test
+  public void testTerminateWithDND() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    Class clazz = ClientRunnable.class;
+    clientRunnable.setDNDStatus(true);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
+    when(connection.iterator()).thenReturn(new Iterator<Message>() {
+      @Override
+      public boolean hasNext() {
+        return true;
+      }
+
+      @Override
+      public Message next() {
+        return Message.makeSimpleLoginMessage(null, "Random Text");
+      }
+    });
+    clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
+    clientRunnable.run();
+    clientRunnable.terminateClient();
+    clientRunnable.getConnection();
     verify(connection,times(2)).close();
   }
 
@@ -1070,6 +1104,12 @@ public class ClientRunnableTest {
     when(MessageServices.recallMessage(any(),any())).thenReturn(false);
     Message msg = Message.makeRecallMessage("test", "/recall r ");
     met.invoke(clientRunnable, msg);
+  }
+
+
+  @Test
+  public void testGetFilteredMessage(){
+    assertEquals("/reply 1 2 3 5",clientRunnable.filterMessageToHideType("/reply 1 2 3 4 5"));
   }
   /**
    * Message Iterator for use in testing the ClientRunnable class.
