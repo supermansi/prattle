@@ -383,7 +383,7 @@ public class MessageToUserDAO {
         int replyID = -1;
         while (resultSet.next()) {
           if (resultSet.getInt("chatSenderID") == chatMsgID || resultSet.getInt("msgID") == replyID) {
-            messages.add(resultSet.getString("username") + " " + resultSet.getString(MSG_FIELD));
+            messages.add(resultSet.getInt("chatSenderID") + " " + resultSet.getString("username") + " " + resultSet.getString(MSG_FIELD));
             replyID = resultSet.getInt("replyID");
           }
         }
