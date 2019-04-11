@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import edu.northeastern.ccs.im.ChatLogger;
 import edu.northeastern.ccs.im.Message;
 import edu.northeastern.ccs.im.MessageType;
 import edu.northeastern.ccs.im.model.Message.MsgType;
@@ -76,7 +77,7 @@ public class CommandService {
     commandServiceMap.put(MessageType.GET_ALL_THREADS, new GetAllThreadsCommand());
     commandServiceMap.put(MessageType.GET_THREAD_MESSAGES, new GetThreadMessagesCommand());
     commandServiceMap.put(MessageType.UNFOLLOW_USER, new UnfollowUserCommand());
-    commandServiceMap.put(MessageType.FOWARD_MESSAGE, new ForwardMessageCommand());
+    commandServiceMap.put(MessageType.FORWARD_MESSAGE, new ForwardMessageCommand());
     commandServiceMap.put(MessageType.SECRET_MESSAGE, new SecretMessageCommand());
     commandServiceMap.put(MessageType.REPLY, new ReplyCommand());
     commandServiceMap.put(MessageType.GET_LIST_OF_WIRETAPPED_USERS, new GetListOfWireTappedUserCommand());
@@ -418,7 +419,7 @@ class GetMessagesBetweenCommand implements ICommandMessage {
       start = simpleDateFormat.parse(split[2]);
       end = simpleDateFormat.parse(split[3]);
     } catch (ParseException e) {
-      e.printStackTrace();
+      ChatLogger.error( e.getMessage());
     }
 
 

@@ -390,4 +390,40 @@ public class MessageToUserDAOTest {
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
     messageToUserDAO.updateReceiverIP(1, "123");
   }
+
+  @Test
+  public void testGetTappedMessagesSender() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    assertEquals(1, messageToUserDAO.getTappedMessagesSender("user1").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetTappedMessagesSenderEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertEquals(1, messageToUserDAO.getTappedMessagesSender("user1").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetTappedMessagesSenderEx2() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    assertEquals(1, messageToUserDAO.getTappedMessagesSender("user1").size());
+  }
+
+  @Test
+  public void testGetTappedMessagesReceiver() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    assertEquals(1, messageToUserDAO.getTappedMessagesReceiver("user1").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void getTappedMessagesReceiverEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertEquals(1, messageToUserDAO.getTappedMessagesReceiver("user1").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void getTappedMessagesReceiverEx2() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    assertEquals(1, messageToUserDAO.getTappedMessagesReceiver("user1").size());
+  }
 }

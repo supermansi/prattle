@@ -12,8 +12,6 @@ import java.util.List;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Message;
 
-import static edu.northeastern.ccs.im.model.Message.MsgType.PVT;
-
 /**
  * Class for the message to user DAO.
  */
@@ -23,6 +21,7 @@ public class MessageToUserDAO {
   private static UserDAO userDAO;
   private static MessageToUserDAO messageToUserDAO;
   private static GroupDAO groupDAO;
+  private static final String MSG_FIELD = "message";
 
   /**
    * Private constructor for the message to user DAO.
@@ -215,9 +214,9 @@ public class MessageToUserDAO {
       resultSet = statement.executeQuery();
       while (resultSet.next()) {
         int senderId = resultSet.getInt("senderID");
-        String msg = resultSet.getString("message");
+        String msg = resultSet.getString(MSG_FIELD);
         int chatID = resultSet.getInt("chatSenderID");
-        chat.add(chatID+" "+userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
+        chat.add(chatID + " " + userDAO.getUserByUserID(senderId).getUsername() + " " + msg);
       }
     } finally {
       if (resultSet != null) {
@@ -252,7 +251,7 @@ public class MessageToUserDAO {
       resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
-        String message = resultSet.getString("message");
+        String message = resultSet.getString(MSG_FIELD);
         messages.add(username + " " + message);
       }
     } finally {
@@ -285,7 +284,6 @@ public class MessageToUserDAO {
     String updateIP = "UPDATE MESSAGETOUSERMAP SET RECEIVERIP = ? WHERE RECEIVERIP IS NULL AND RECEIVERID = ? AND msgID IN (SELECT msgID FROM MESSAGE WHERE MSGTYPE = 'PVT');";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(updateIP, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, receiverIP);
@@ -344,14 +342,8 @@ public class MessageToUserDAO {
       preparedStatement.setString(1, username);
       try {
         resultSet = preparedStatement.executeQuery();
-        String receiverUseraName, senderIP, receiverIP, message, timestamp;
         while (resultSet.next()) {
-          receiverUseraName = resultSet.getString("ReceiverName");
-          senderIP = resultSet.getString(2);
-          receiverIP = resultSet.getString(3);
-          message = resultSet.getString(4);
-          timestamp = resultSet.getString(5);
-          messages.add(receiverUseraName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+          messages.add(resultSet.getString("ReceiverName") + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5));
         }
         return messages;
       } finally {
@@ -378,14 +370,8 @@ public class MessageToUserDAO {
       preparedStatement.setString(1, username);
       try {
         resultSet = preparedStatement.executeQuery();
-        String senderUserName, senderIP, receiverIP, message, timestamp;
         while (resultSet.next()) {
-          senderUserName = resultSet.getString(1);
-          senderIP = resultSet.getString(2);
-          receiverIP = resultSet.getString(3);
-          message = resultSet.getString(4);
-          timestamp = resultSet.getString(5);
-          messages.add(senderUserName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+          messages.add(resultSet.getString(1) + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5));
         }
         return messages;
       } finally {
@@ -418,7 +404,7 @@ public class MessageToUserDAO {
         int replyID = -1;
         while (resultSet.next()) {
           if (resultSet.getInt("chatSenderID") == chatMsgID || resultSet.getInt("msgID") == replyID) {
-            messages.add(resultSet.getString("username") + " " + resultSet.getString("message"));
+            messages.add(resultSet.getString("username") + " " + resultSet.getString(MSG_FIELD));
             replyID = resultSet.getInt("replyID");
           }
         }
