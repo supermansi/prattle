@@ -165,7 +165,7 @@ public enum MessageType {
 
   UNFOLLOW_USER("UUS"),
 
-  FOWARD_MESSAGE("FWD"),
+  FORWARD_MESSAGE("FWD"),
 
   SECRET_MESSAGE("SMS"),
 

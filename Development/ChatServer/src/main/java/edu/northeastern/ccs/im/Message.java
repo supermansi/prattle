@@ -167,7 +167,7 @@ public class Message {
       result = makeGetThreadMessagesMessage(srcName,text);
     } else if (handle.compareTo(MessageType.UNFOLLOW_USER.toString()) == 0) {
       result = makeUnfollowUserMessage(srcName,text);
-    } else if (handle.compareTo(MessageType.FOWARD_MESSAGE.toString()) == 0) {
+    } else if (handle.compareTo(MessageType.FORWARD_MESSAGE.toString()) == 0) {
       result = makeForwardMessageMessage(srcName,text);
     } else if (handle.compareTo(MessageType.SECRET_MESSAGE.toString()) == 0) {
       result = makeSecretMessageMessage(srcName,text);
@@ -505,7 +505,7 @@ public class Message {
   }
 
   public static Message makeForwardMessageMessage(String srcName, String text) {
-    return new Message(MessageType.FOWARD_MESSAGE, srcName, text);
+    return new Message(MessageType.FORWARD_MESSAGE, srcName, text);
   }
 
   public static Message makeUnfollowUserMessage(String srcName, String text) {
@@ -847,7 +847,7 @@ public class Message {
   }
 
   public boolean isForwardMessage() {
-    return (msgType == MessageType.FOWARD_MESSAGE);
+    return (msgType == MessageType.FORWARD_MESSAGE);
   }
 
   public boolean isUnfollowUser() {

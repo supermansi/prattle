@@ -1,18 +1,17 @@
 package edu.northeastern.ccs.im.server;
 
-import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.model.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,7 +24,6 @@ import edu.northeastern.ccs.im.services.GroupServices;
 import edu.northeastern.ccs.im.services.MessageServices;
 import edu.northeastern.ccs.im.services.UserServices;
 
-import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -70,7 +68,7 @@ public class CommandServiceTest {
 
 
   @Test
-  public void checkValidReply() throws SQLException, ParseException {
+  public void checkValidReply() throws SQLException {
     when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
     when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any(), any(Integer.class))).thenReturn(true);
 
@@ -80,7 +78,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testDNDcommandTrue() throws SQLException, ParseException {
+  public void testDNDcommandTrue() throws SQLException {
 
     ICommandMessage DNDcommand = commandServiceMap.get(MessageType.DO_NOT_DISTURB);
     Message msg = Message.makeDNDMessage("J", "/DND T");
@@ -89,7 +87,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testDNDcommandFalse() throws SQLException, ParseException {
+  public void testDNDcommandFalse() throws SQLException {
 
     ICommandMessage DNDcommand = commandServiceMap.get(MessageType.DO_NOT_DISTURB);
     Message msg = Message.makeDNDMessage("J", "/DND F");
@@ -98,7 +96,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testFollowUserCommand() throws SQLException, ParseException {
+  public void testFollowUserCommand() throws SQLException {
 
     ICommandMessage followUser = commandServiceMap.get(MessageType.FOLLOW_USER);
     Message msg = Message.makeFollowUserMessage("R", "/follow Rohan");
@@ -108,9 +106,9 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testForwardMessageCommand() throws SQLException, ParseException {
+  public void testForwardMessageCommand() throws SQLException {
 
-    ICommandMessage forwardMessage = commandServiceMap.get(MessageType.FOWARD_MESSAGE);
+    ICommandMessage forwardMessage = commandServiceMap.get(MessageType.FORWARD_MESSAGE);
     Message fwdMsg = Message.makeForwardMessageMessage("J", "/fwd r 2 josh");
     Message fwdMsg2 = Message.makeForwardMessageMessage("J", "/fwd r 2 T");
 
@@ -121,9 +119,9 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testForwardMessageCommandWithSecret() throws SQLException, ParseException {
+  public void testForwardMessageCommandWithSecret() throws SQLException {
 
-    ICommandMessage forwardMessage = commandServiceMap.get(MessageType.FOWARD_MESSAGE);
+    ICommandMessage forwardMessage = commandServiceMap.get(MessageType.FORWARD_MESSAGE);
     Message fwdMsg = Message.makeForwardMessageMessage("J", "/fwd r 2 josh");
 
     when(MessageServices.isSecret(anyString(),anyString(),anyInt())).thenReturn(true);
@@ -135,9 +133,9 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testForwardMessageCommandWithReply() throws SQLException, ParseException {
+  public void testForwardMessageCommandWithReply() throws SQLException {
 
-    ICommandMessage forwardMessage = commandServiceMap.get(MessageType.FOWARD_MESSAGE);
+    ICommandMessage forwardMessage = commandServiceMap.get(MessageType.FORWARD_MESSAGE);
     Message fwdMsg = Message.makeForwardMessageMessage("J", "/fwd r 2 josh");
 
     when(MessageServices.isSecret(anyString(),anyString(),anyInt())).thenReturn(false);
@@ -147,7 +145,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testGetGroupsUserBelongsTo() throws SQLException, ParseException {
+  public void testGetGroupsUserBelongsTo() throws SQLException {
 
     ICommandMessage getGroups = commandServiceMap.get(MessageType.GET_ALL_GROUP_USER_BELONGS);
     Message ggm = Message.makeGetAllGroupsUserBelongsMessage("Z", "/getGrpsUserBelongsTo");
@@ -157,7 +155,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testGetAllThreadsCommand() throws SQLException, ParseException {
+  public void testGetAllThreadsCommand() throws SQLException {
     ICommandMessage getThreads = commandServiceMap.get(MessageType.GET_ALL_THREADS);
     Message gat = Message.makeGetAllThreadsMessage("R", "/getAllThreads");
     List<String> threads = new ArrayList<>();
@@ -167,7 +165,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testGetFollowersCommand() throws SQLException, ParseException {
+  public void testGetFollowersCommand() throws SQLException {
     ICommandMessage getFollowers = commandServiceMap.get(MessageType.GET_FOLLOWERS);
     Message gaf = Message.makeGetFollowersMessage("R", "/followers");
     List<String> followers = new ArrayList<>();
@@ -177,7 +175,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testGetFollowingCommand() throws SQLException, ParseException {
+  public void testGetFollowingCommand() throws SQLException {
     ICommandMessage getFollowing = commandServiceMap.get(MessageType.GET_FOLLOWING);
     Message gfm = Message.makeGetFollowingMessage("R", "/following");
     List<String> following = new ArrayList<>();
@@ -187,7 +185,7 @@ public class CommandServiceTest {
   }
 
   @Test
-  public void testGetMessagesBetween() throws SQLException, ParseException {
+  public void testGetMessagesBetween() throws SQLException {
     ICommandMessage getMessagesBetween = commandServiceMap.get(MessageType.GET_MESSAGES_BETWEEN);
     Message gmb = Message.makeGetMessagesBetweenMessage("M", "/getMessages r 04/08/2019 04/10/2019");
     List<String> messages = new ArrayList<>();
@@ -214,6 +212,13 @@ public class CommandServiceTest {
   }
 
   @Test
+  public void testCreateThreadCommand() throws SQLException {
+    ICommandMessage createThread = commandServiceMap.get(MessageType.CREATE_THREAD);
+    Message ctd = Message.makeCreateThreadMessage("J", "/createThread #newThread");
+    createThread.run(clientRunnable,ctd);
+  }
+
+  @Test
   public void testUnfollowCommand() throws SQLException {
     ICommandMessage unfollow = commandServiceMap.get(MessageType.UNFOLLOW_USER);
     Message ufu = Message.makeUnfollowUserMessage("T", "/unfollow T");
@@ -232,5 +237,39 @@ public class CommandServiceTest {
     setWiretap.run(clientRunnable,swt2);
     Message swt3 = Message.makeSetWiretapMessage("CIA", "/tapUser T F");
     setWiretap.run(clientRunnable,swt3);
+  }
+
+  @Test
+  public void testGetListWireTappedUsers() throws SQLException {
+    ICommandMessage getWiretappedUser = commandServiceMap.get(MessageType.GET_LIST_OF_WIRETAPPED_USERS);
+    Message gwu = Message.makeGetListWiretappedUsers("CIA", "/listWTUsers");
+    List<String> wtUsers = new ArrayList<>();
+    wtUsers.add("Josh");
+    when(UserServices.getListOfTappedUsers()).thenReturn(wtUsers);
+    getWiretappedUser.run(clientRunnable,gwu);
+  }
+
+  @Test
+  public void testGetUserProfileCommand() throws SQLException {
+    ICommandMessage getUserProfile = commandServiceMap.get(MessageType.GET_USER_PROFILE);
+    Message gup = Message.makeGetUserProfileMessage("A", "/getProfile");
+    ConcurrentHashMap<User.UserParams, String> userProfile = new ConcurrentHashMap<>();
+    userProfile.put(User.UserParams.USERNAME, "tu");
+    userProfile.put(User.UserParams.FIRSTNAME, "tu");
+    userProfile.put(User.UserParams.LASTNAME, "tu");
+    userProfile.put(User.UserParams.EMAIL, "tu");
+    when(UserServices.getUserProfile(any())).thenReturn(userProfile);
+    getUserProfile.run(clientRunnable,gup);
+
+  }
+
+  @Test
+  public void testGetTappedUserDataCommand() throws SQLException {
+    ICommandMessage getTappedUserData = commandServiceMap.get(MessageType.GET_DATA_WIRETAPPED_USER);
+    Message gwd = Message.makeGetDataOfWiretappedUser("CIA", "/getWTUserData J");
+    List<String> data = new ArrayList<>();
+    data.add("data of wiretapped user");
+    when(MessageServices.getAllDataForCIA(any())).thenReturn(data);
+    getTappedUserData.run(clientRunnable, gwd);
   }
 }
