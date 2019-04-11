@@ -540,15 +540,15 @@ public class Message {
     return new Message(MessageType.GET_LIST_OF_WIRETAPPED_USERS, srcName, text);
   }
 
-  private static Message makeGetUserProfileMessage(String srcName, String text) {
+  public static Message makeGetUserProfileMessage(String srcName, String text) {
     return new Message(MessageType.GET_USER_PROFILE, srcName, text);
   }
 
-  private static Message makeGetFollowingMessage(String srcName, String text) {
+  public static Message makeGetFollowingMessage(String srcName, String text) {
     return new Message(MessageType.GET_FOLLOWING, srcName, text);
   }
 
-  private static Message makeGetFollowersMessage(String srcName, String text) {
+  public static Message makeGetFollowersMessage(String srcName, String text) {
     return new Message(MessageType.GET_FOLLOWERS, srcName, text);
   }
 
