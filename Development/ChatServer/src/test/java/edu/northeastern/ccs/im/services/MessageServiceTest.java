@@ -245,4 +245,16 @@ public class MessageServiceTest {
     when(mockGroupDAO.getGroupByGroupName("ThreadTest")).thenReturn(testThread);
     MessageServices.postMessageToThread(Message.MsgType.GRP,"aditi",testThread.getGrpName(),"hello");
   }
+
+  @Test
+  public void testSecret() throws SQLException {
+    when(mockMessageDAO.isSecret(any(Integer.class), any(Integer.class), any(Integer.class))).thenReturn(true);
+    assertTrue(MessageServices.isSecret("Daba","Daba",1));
+  }
+
+  @Test
+  public void testSecretFalse() throws SQLException {
+    when(mockMessageDAO.isSecret(any(Integer.class), any(Integer.class), any(Integer.class))).thenReturn(false);
+    assertFalse(MessageServices.isSecret("Daba","Daba",1));
+  }
 }
