@@ -185,8 +185,20 @@ public class Message {
       result = makeGetFollowersMessage(srcName, text);
     } else if (handle.compareTo(MessageType.GET_FOLLOWING.toString()) == 0) {
       result = makeGetFollowingMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.SUBSCRIBE_TO_THREAD.toString()) == 0) {
+      result = makeSubscribeToThreadMessage(srcName, text);
+    } else if (handle.compareTo(MessageType.GET_REPLY_CHAIN.toString()) == 0) {
+      result = makeGetReplyChainMessage(srcName, text);
     }
       return result;
+  }
+
+  private static Message makeGetReplyChainMessage(String srcName, String text) {
+    return new Message(MessageType.GET_REPLY_CHAIN, srcName, text);
+  }
+
+  private static Message makeSubscribeToThreadMessage(String srcName, String text) {
+    return new Message(MessageType.SUBSCRIBE_TO_THREAD, srcName, text);
   }
 
   private static Message makeWireTapMessage(String srcName, String text) {
@@ -540,15 +552,15 @@ public class Message {
     return new Message(MessageType.GET_LIST_OF_WIRETAPPED_USERS, srcName, text);
   }
 
-  private static Message makeGetUserProfileMessage(String srcName, String text) {
+  public static Message makeGetUserProfileMessage(String srcName, String text) {
     return new Message(MessageType.GET_USER_PROFILE, srcName, text);
   }
 
-  private static Message makeGetFollowingMessage(String srcName, String text) {
+  public static Message makeGetFollowingMessage(String srcName, String text) {
     return new Message(MessageType.GET_FOLLOWING, srcName, text);
   }
 
-  private static Message makeGetFollowersMessage(String srcName, String text) {
+  public static Message makeGetFollowersMessage(String srcName, String text) {
     return new Message(MessageType.GET_FOLLOWERS, srcName, text);
   }
 

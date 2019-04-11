@@ -83,6 +83,8 @@ public class CommandService {
     commandServiceMap.put(MessageType.SET_WIRETAP_MESSAGE, new SetWireTapCommand());
     commandServiceMap.put(MessageType.GET_FOLLOWERS, new GetFollowersCommand());
     commandServiceMap.put(MessageType.GET_FOLLOWING, new GetFollowingCommand());
+    commandServiceMap.put(MessageType.SUBSCRIBE_TO_THREAD, new SubscribeToThreadCommand());
+    commandServiceMap.put(MessageType.GET_REPLY_CHAIN, new GetReplyChainCommand());
   }
 
 }
@@ -411,13 +413,13 @@ class GetMessagesBetweenCommand implements ICommandMessage {
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
     Date start = new Date();
     Date end = new Date();
-
     try {
       start = simpleDateFormat.parse(split[2]);
       end = simpleDateFormat.parse(split[3]);
     } catch (ParseException e) {
-      cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Date not formatted correctly, please enter date in the form of mm/dd/yyyy");
+      e.printStackTrace();
     }
+
 
     List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.toString(), end.toString());
     StringBuilder sb = new StringBuilder();
@@ -633,4 +635,23 @@ class GetFollowingCommand implements ICommandMessage {
     cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
   }
 }
+
+class SubscribeToThreadCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    GroupServices.subscribeToThread(message.getText().split(" ")[1], message.getName());
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Success");
+  }
+}
+
+class GetReplyChainCommand implements ICommandMessage {
+
+  @Override
+  public void run(ClientRunnable cr, Message message) throws SQLException {
+    //todo logic for reply chain command
+  }
+}
+
+
 

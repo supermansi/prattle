@@ -1,8 +1,6 @@
 package edu.northeastern.ccs.im.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -247,5 +245,31 @@ public class MessageDAOTest {
   public void testDeleteQueryException() throws SQLException {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     messageDAO.deleteMessageByID("Message", 1);
+  }
+
+  @Test
+  public void testSecret() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true);
+    when(mockResultSet.getBoolean("isSecret")).thenReturn(true);
+    assertTrue(messageDAO.isSecret(1,1,1));
+  }
+
+  @Test
+  public void testSecretFalse() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    when(mockResultSet.getBoolean("isSecret")).thenReturn(true);
+    assertFalse(messageDAO.isSecret(1,1,1));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testSecretQueryEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertTrue(messageDAO.isSecret(1,1,1));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testSecretStatementEx() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    assertTrue(messageDAO.isSecret(1,1,1));
   }
 }

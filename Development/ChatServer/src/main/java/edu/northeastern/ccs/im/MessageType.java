@@ -179,7 +179,11 @@ public enum MessageType {
 
   GET_FOLLOWERS("GFW"),
 
-  GET_FOLLOWING("GFG");
+  GET_FOLLOWING("GFG"),
+
+  SUBSCRIBE_TO_THREAD("STT"),
+
+  GET_REPLY_CHAIN("GRC");
 
 
   /**
