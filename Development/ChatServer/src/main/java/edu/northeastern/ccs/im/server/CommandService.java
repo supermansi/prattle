@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -115,7 +115,7 @@ class GroupMessageCommand implements ICommandMessage {
 
     String sourceIP = Prattle.getIPFromActiveRunnables(msg.getName());
     String receiverIP = null;
-    Map<IPType, String> ipMap = new HashMap();
+    Map<IPType, String> ipMap = new EnumMap(IPType.class);
     ipMap.put(IPType.SENDERIP, sourceIP);
     ipMap.put(IPType.RECEIVERIP, receiverIP);
     boolean doesGroupMemberHasWireTap = false;
@@ -314,6 +314,8 @@ class LeaveGroupCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     GroupServices.leaveGroup(msg.getName(), cr.getReceiverName(msg.getText()));
     Prattle.groupToUserMapping.get(cr.getReceiverName(msg.getText())).remove(msg.getName());
+    Message message = Message.makeGroupMessage(ServerConstants.SERVER_NAME, "Removed user " + msg.getName() + " from Group " + cr.getReceiverName(msg.getText()));
+    Prattle.sendGroupMessage(message, cr.getReceiverName(msg.getText()));
   }
 
 }
@@ -423,12 +425,8 @@ class GetMessagesBetweenCommand implements ICommandMessage {
     }
 
 
-    List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.toString(), end.toString());
-    StringBuilder sb = new StringBuilder();
-    for (String s : messages) {
-      sb.append(s + "\n");
-    }
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME, sb.toString());
+    List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.getTime()+"", end.getTime()+"");
+    CommandServiceUtils.getMessageFromStringAndSendToClient(cr,messages);
   }
 }
 
@@ -643,7 +641,7 @@ class SubscribeToThreadCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
     GroupServices.subscribeToThread(message.getText().split(" ")[1], message.getName());
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Success");
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully subscribed to thread");
   }
 }
 
@@ -651,8 +649,10 @@ class GetReplyChainCommand implements ICommandMessage {
 
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
-    //todo logic for reply chain command
+    List<String> messages = MessageServices.getReplyThread(message.getName(),cr.getReceiverName(message.getText()),Integer.parseInt(message.getText().split(" ")[2]));
+    CommandServiceUtils.getMessageFromStringAndSendToClient(cr, messages);
   }
+
 }
 
 
