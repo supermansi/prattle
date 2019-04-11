@@ -142,19 +142,17 @@ public class UserServices {
   }
 
   public static void followUser(String follower, String following) throws SQLException {
-    try{
+    try {
       userDAO.followUser(follower, following);
-    }
-    catch (SQLException e){
+    } catch (SQLException e) {
       throw new DatabaseConnectionException("Unable to follow user");
     }
   }
 
   public static void unFollowUser(String follower, String following) throws SQLException {
-    try{
+    try {
       userDAO.unfollow(follower, following);
-    }
-    catch (SQLException e){
+    } catch (SQLException e) {
       throw new DatabaseConnectionException("Unable to un-follow user");
     }
   }
@@ -171,12 +169,12 @@ public class UserServices {
     return userDAO.getListOfTappedUsers();
   }
 
-  public static void setWireTapStatus(String username,boolean isTapped) throws SQLException {
-    if(userDAO.isUserExists(username)) {
-      if(isTapped == userDAO.getUserByUsername(username).isTapped()) {
+  public static void setWireTapStatus(String username, boolean isTapped) throws SQLException {
+    if (userDAO.isUserExists(username)) {
+      if (isTapped == userDAO.getUserByUsername(username).isTapped()) {
         throw new IllegalStateException("The current wire tapped status of the user is the same as that trying to be set.");
       } else {
-        userDAO.setWireTappedStatus(username,isTapped);
+        userDAO.setWireTappedStatus(username, isTapped);
       }
     } else {
       throw new DatabaseConnectionException("User not found");
