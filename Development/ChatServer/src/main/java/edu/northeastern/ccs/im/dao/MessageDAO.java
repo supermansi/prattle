@@ -50,7 +50,6 @@ public class MessageDAO {
     String insertMessage = "INSERT INTO Message(msgType, senderID, message, timestamp, senderIP, chatSenderID, isSecret, replyID) VALUES(?,?,?,?,?,?,?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(insertMessage, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, message.getMsgType().name());
@@ -62,7 +61,7 @@ public class MessageDAO {
       preparedStatement.setBoolean(7, message.isSecret());
       preparedStatement.setInt(8, message.getReplyID());
       preparedStatement.executeUpdate();
-      return setMessageInResult(message, preparedStatement, resultSet);
+      return setMessageInResult(message, preparedStatement);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -249,7 +248,6 @@ public class MessageDAO {
     String insertThreadMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
     try {
       preparedStatement = connection.prepareStatement(insertThreadMessage, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, message.getMsgType().name());
@@ -257,7 +255,7 @@ public class MessageDAO {
       preparedStatement.setString(3, message.getMessageText());
       preparedStatement.setString(4, message.getTimestamp());
       preparedStatement.executeUpdate();
-      return setMessageInResult(message, preparedStatement, resultSet);
+      return setMessageInResult(message, preparedStatement);
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();
@@ -266,7 +264,8 @@ public class MessageDAO {
     }
   }
 
-  private Message setMessageInResult(Message message, PreparedStatement preparedStatement, ResultSet resultSet) throws SQLException {
+  private Message setMessageInResult(Message message, PreparedStatement preparedStatement) throws SQLException {
+    ResultSet resultSet = null;
     try {
       resultSet = preparedStatement.getGeneratedKeys();
       if (resultSet.next()) {

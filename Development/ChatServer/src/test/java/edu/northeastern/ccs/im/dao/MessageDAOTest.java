@@ -272,4 +272,35 @@ public class MessageDAOTest {
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
     assertTrue(messageDAO.isSecret(1,1,1));
   }
+
+  @Test
+  public void testCreateThreadMessage() throws SQLException {
+    when(mockResultSet.getInt(1)).thenReturn(22);
+    when(mockResultSet.next()).thenReturn(true);
+    message.setMsgType(Message.MsgType.TRD);
+    Message message1 = messageDAO.addMessageToThread(message);
+    assertEquals(mockResultSet.getInt(1), message1.getMsgID());
+    assertEquals(Message.MsgType.TRD, message1.getMsgType());
+    assertEquals(2, message1.getSenderID());
+    assertEquals("hello there", message1.getMessageText());
+    assertEquals(time, message1.getTimestamp());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testCreateThreadMessageException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    Message message1 = messageDAO.addMessageToThread(message);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testCreateThreadMessageExceptionResultSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    Message message1 = messageDAO.addMessageToThread(message);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testCreateThreadMessageExceptionResultSet1() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).getGeneratedKeys();
+    Message message1 = messageDAO.addMessageToThread(message);
+  }
 }
