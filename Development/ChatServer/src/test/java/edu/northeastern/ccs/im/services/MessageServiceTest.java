@@ -10,6 +10,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import edu.northeastern.ccs.im.dao.*;
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -23,10 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.northeastern.ccs.im.dao.GroupDAO;
-import edu.northeastern.ccs.im.dao.MessageDAO;
-import edu.northeastern.ccs.im.dao.MessageToUserDAO;
-import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
 import edu.northeastern.ccs.im.model.Message;
@@ -39,6 +36,7 @@ public class MessageServiceTest {
   private UserDAO mockUserDAO;
   private MessageDAO mockMessageDAO;
   private GroupDAO mockGroupDAO;
+  private GroupToUserDAO mockGroupUserDAO;
   private MessageServices messageServices;
   private Message msg;
   private Message createdMsg;
@@ -59,6 +57,7 @@ public class MessageServiceTest {
     mockUserDAO = mock(UserDAO.class);
     mockGroupDAO = mock(GroupDAO.class);
     mockMessageDAO = mock(MessageDAO.class);
+    mockGroupUserDAO = mock(GroupToUserDAO.class);
     time = Long.toString(System.currentTimeMillis());
 
     user = new User("Daba", "Daba", "Daba", "daba@gmail.com", "daba");
@@ -114,6 +113,10 @@ public class MessageServiceTest {
     Field groupDAOField = clazz.getDeclaredField("groupDAO");
     groupDAOField.setAccessible(true);
     groupDAOField.set(messageServices, mockGroupDAO);
+
+    Field groupUserDAOField = clazz.getDeclaredField("groupUserDAO");
+    groupUserDAOField.setAccessible(true);
+    groupUserDAOField.set(messageServices, mockGroupUserDAO);
   }
 
   @Test
@@ -188,7 +191,8 @@ public class MessageServiceTest {
     List<String> notifications = new ArrayList<>();
     notifications.add("user1 5");
     when(mockMessageToUserDAO.getNotifications(52)).thenReturn(notifications);
-    assertEquals(1, MessageServices.getPushNotifications("Daba").size());
+    when(mockGroupUserDAO.getFollowThreadNotification("Daba")).thenReturn(notifications);
+    assertEquals(2, MessageServices.getPushNotifications("Daba").size());
   }
 
   @Test
