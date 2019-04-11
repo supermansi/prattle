@@ -276,6 +276,7 @@ public class PrattleTest {
   public void testPvtMessage() throws IOException {
     Message message = Message.makePrivateMessage("abcd", "hello world");
     when(clientRunnable.getName()).thenReturn("abc");
+    when(clientRunnable.getDNDStatus()).thenReturn(false);
     Prattle.sendPrivateMessage(message, "abc");
     assertEquals(true, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
@@ -550,6 +551,45 @@ public class PrattleTest {
   public void checkIsOnlineFalse() throws IOException {
     when(clientRunnable.getName()).thenReturn("z");
     assertEquals(false,Prattle.isUserOnline("r"));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testPvtMessageDND() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("abcd");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgencyTrue() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("CIA");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgencyFalse() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
 

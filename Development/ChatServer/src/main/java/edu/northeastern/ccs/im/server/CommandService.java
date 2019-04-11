@@ -33,7 +33,8 @@ public class CommandService {
 
   public static CommandService getInstance() {
     if (commandService == null) {
-      return new CommandService();
+      commandService =  new CommandService();
+      return commandService;
     } else {
       return commandService;
     }
@@ -126,7 +127,7 @@ class GroupMessageCommand implements ICommandMessage {
         }
       }
       if (Prattle.listOfWireTappedUsers.contains(msg.getName()) || doesGroupMemberHasWireTap) {
-        Prattle.sendMessageToAgency(msg, receiverName, sourceIP, receiverIP);
+        Prattle.sendMessageToAgency(msg, sourceIP, receiverIP);
       }
       MessageServices.addMessage(MsgType.GRP, msg.getName(), receiverName, msg.getText(), chatId, ipMap);
     } else {
