@@ -189,7 +189,7 @@ public class CommandServiceTest {
     ICommandMessage getMessagesBetween = commandServiceMap.get(MessageType.GET_MESSAGES_BETWEEN);
     Message gmb = Message.makeGetMessagesBetweenMessage("M", "/getMessages r 04/08/2019 04/10/2019");
     List<String> messages = new ArrayList<>();
-    messages.add("/pvt r hey");
+    messages.add("1 j /pvt r hey");
     when(MessageServices.getMessagesBetween(any(),any(),any(),any())).thenReturn(messages);
     getMessagesBetween.run(clientRunnable,gmb);
   }

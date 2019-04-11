@@ -426,14 +426,7 @@ class GetMessagesBetweenCommand implements ICommandMessage {
 
 
     List<String> messages = MessageServices.getMessagesBetween(message.getName(), split[1], start.getTime()+"", end.getTime()+"");
-    for (String conv : messages) {
-
-      String messageWithHiddenType = cr.filterMessageToHideType(conv);
-      String[] arr = messageWithHiddenType.split(" ");
-
-      Message sendMessage = Message.makePrivateMessage(arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
-      cr.enqueueMessage(sendMessage);
-    }
+    CommandServiceUtils.getMessageFromStringAndSendToClient(cr,messages);
   }
 }
 
