@@ -296,4 +296,12 @@ public class MessageServiceTest {
     when(mockMessageDAO.isSecret(any(Integer.class), any(Integer.class), any(Integer.class))).thenReturn(false);
     assertFalse(MessageServices.isSecret("Daba","Daba",1));
   }
+
+  @Test
+  public void testGetReplyThread() throws SQLException {
+    List<String> thread = new ArrayList<>();
+    thread.add("hi");
+    when(mockMessageToUserDAO.getMessageThread(any(Integer.class), any(Integer.class), any(Integer.class))).thenReturn(thread);
+    assertEquals(1, MessageServices.getReplyThread("Daba", "Daba", 1).size());
+  }
 }
