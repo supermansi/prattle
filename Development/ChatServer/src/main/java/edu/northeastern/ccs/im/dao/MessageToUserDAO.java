@@ -344,14 +344,8 @@ public class MessageToUserDAO {
       preparedStatement.setString(1, username);
       try {
         resultSet = preparedStatement.executeQuery();
-        String receiverUserName, senderIP, receiverIP, message, timestamp;
         while (resultSet.next()) {
-          receiverUserName = resultSet.getString("ReceiverName");
-          senderIP = resultSet.getString(2);
-          receiverIP = resultSet.getString(3);
-          message = resultSet.getString(4);
-          timestamp = resultSet.getString(5);
-          messages.add(receiverUserName + " " + senderIP + " " + receiverIP + " " + message + " " + timestamp);
+          messages.add(resultSet.getString("ReceiverName") + " " + resultSet.getString(2) + " " + resultSet.getString(3) + " " + resultSet.getString(4) + " " + resultSet.getString(5));
         }
         return messages;
       } finally {
