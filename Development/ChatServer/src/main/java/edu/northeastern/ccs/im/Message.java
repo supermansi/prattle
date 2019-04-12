@@ -117,7 +117,7 @@ public class Message {
     BiFunction<String, String, Message> updateLNFunction = ((src, txt) -> (makeUpdateLastNameMessage(src, txt)));
     BiFunction<String, String, Message> updatePWFunction = ((src, txt) -> (makeUpdatePasswordMessage(src, txt)));
     BiFunction<String, String, Message> updateEMFunction = ((src, txt) -> (makeUpdateEmailMessage(src, txt)));
-    BiFunction<String, String, Message> createGroupFunction = ((src, txt) -> (makeGroupMessage(src, txt)));
+    BiFunction<String, String, Message> createGroupFunction = ((src, txt) -> (createGroupMessage(src, txt)));
     BiFunction<String, String, Message> deleteGroupFunction = ((src, txt) -> (deleteGroupMessage(src, txt)));
     BiFunction<String, String, Message> removeUserFunction = ((src, txt) -> (makeRemoveUserMessage(src, txt)));
     BiFunction<String, String, Message> addUserFunction = ((src, txt) -> (makeAddUserToGroupMessage(src, txt)));
@@ -131,7 +131,7 @@ public class Message {
     BiFunction<String, String, Message> setGroupRestrictionsFunction = ((src, txt) -> (makeSetGroupRestrictionMessage(src, txt)));
     BiFunction<String, String, Message> makeAdminFunction = ((src, txt) -> (makeMakeAdminMessage(src, txt)));
     BiFunction<String, String, Message> recallFunction = ((src, txt) -> (makeRecallMessage(src, txt)));
-    BiFunction<String, String, Message> readAttachmentFunction = ((src, txt) -> (makeSimpleLoginMessage(src, txt)));
+    BiFunction<String, String, Message> readAttachmentFunction = ((src, txt) -> (makeReadAttachmentMessage(src, txt)));
     BiFunction<String, String, Message> getGroupUsersFunctions = ((src, txt) -> (makeGetUsersInGroupMessage(src, txt)));
     BiFunction<String, String, Message> getAllGroupsUserBelongsToFunction = ((src, txt) -> (makeGetAllGroupsUserBelongsMessage(src, txt)));
     BiFunction<String, String, Message> dndFunction = ((src, txt) -> (makeDNDMessage(src, txt)));
@@ -163,7 +163,7 @@ public class Message {
     messageMap.put("PVT", privateFunction);
     messageMap.put("GRP", groupFunction);
     messageMap.put("UFN", updateFNFunction);
-    messageMap.put("ULD", updateLNFunction);
+    messageMap.put("ULN", updateLNFunction);
     messageMap.put("UPW", updatePWFunction);
     messageMap.put("UEM", updateEMFunction);
     messageMap.put("CGR", createGroupFunction);

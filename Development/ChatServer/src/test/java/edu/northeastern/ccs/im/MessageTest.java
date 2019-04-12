@@ -43,10 +43,9 @@ public class MessageTest {
      */
     @Test
     public void makeMessage() {
-        Message m1 = Message.makeMessage("BYE", "user", "goodbye");
+        Message m1 = Message.makeMessage("BYE", "user", null);
         Message m3 = Message.makeMessage("BCT", "user", "how are you?");
         Message m2 = Message.makeMessage("HLO", "user", "Hello World.");
-        Message m4 = Message.makeMessage("hi", null, null);
         assertEquals("BYE 4 user 2 --", m1.toString());
 
         assertEquals("HLO 4 user 12 Hello World.", m2.toString());
@@ -383,13 +382,13 @@ public class MessageTest {
      */
     @Test
     public void toStringTest() {
-        Message qmnn = Message.makeMessage("BYE", "user", "goodbye");
-        Message qmn = Message.makeMessage("BYE", null, "goodbye");
+        Message qmnn = Message.makeMessage("BYE", "rohan", null);
+        Message qmn = Message.makeMessage("BYE", null, null);
         Message hm = Message.makeMessage("HLO", "user", "Hello World.");
         Message bmnn = Message.makeMessage("BCT", "user", "how are you?");
         Message bmn = Message.makeMessage("BCT", "user", null);
 
-        assertEquals("BYE 4 user 2 --", qmnn.toString());
+        assertEquals("BYE 5 rohan 2 --", qmnn.toString());
         assertEquals("BYE 2 -- 2 --", qmn.toString());
 
         assertEquals("HLO 4 user 12 Hello World.", hm.toString());
