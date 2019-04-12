@@ -264,12 +264,12 @@ public class MessageToUserDAO {
   }
 
   public void mapMsgIdToReceiverThreadId(Message message, int receiverId) throws SQLException {
-    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
+    String insertMsgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
     // Check if group exists and user exists
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
     try {
-      statement = connection.prepareStatement(insertMSgToUserMap);
+      statement = connection.prepareStatement(insertMsgToUserMap);
       statement.setInt(1, message.getMsgID());
       statement.setInt(2, receiverId);
       statement.executeUpdate();
