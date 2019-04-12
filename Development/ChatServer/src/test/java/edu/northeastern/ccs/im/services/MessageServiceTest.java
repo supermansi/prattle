@@ -304,4 +304,21 @@ public class MessageServiceTest {
     when(mockMessageToUserDAO.getMessageThread(any(Integer.class), any(Integer.class), any(Integer.class))).thenReturn(thread);
     assertEquals(1, MessageServices.getReplyThread("Daba", "Daba", 1).size());
   }
+
+  @Test
+  public void testAddMessage() throws SQLException {
+    Map<Message.IPType, String> map = new HashMap<>();
+    map.put(Message.IPType.RECEIVERIP, "00000000");
+    map.put(Message.IPType.SENDERIP, "00000000");
+    assertEquals(true, MessageServices.addMessage(msg.getMsgType(), createdUser.getUsername(), createdReceiver.getUsername(), msg.getMessageText(), 0, map));
+  }
+
+  @Test
+  public void testAddReplyMessage() throws SQLException {
+    Map<Message.IPType, String> map = new HashMap<>();
+    map.put(Message.IPType.RECEIVERIP, "00000000");
+    map.put(Message.IPType.SENDERIP, "00000000");
+    when(mockMessageToUserDAO.getMessageIDFromChatID(any(Integer.class), any(Integer.class), any(Integer.class))).thenReturn(1);
+    assertEquals(true, MessageServices.addMessage(msg.getMsgType(), createdUser.getUsername(), createdReceiver.getUsername(), msg.getMessageText(), 0, map, 1));
+  }
 }
