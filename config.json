@@ -4,7 +4,7 @@
    "DNS": "ec2-18-220-207-156.us-east-2.compute.amazonaws.com",
     "user":"ec2-user",
     "directory":"/home/ec2-user",
-    "JARNAME": "Prattle-0.0.1-SNAPSHOT.jar",
+    "JARNAME": "Prattle-0.0.1-SNAPSHOT-jar-with-dependencies.jar",
     "PEM": "CS5500.pem"
  }
 ]
