@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im;
 
 /**
@@ -145,44 +146,104 @@ public enum MessageType {
    */
   GET_GROUP_USERS("GGU"),
 
+  /**
+   * Message to get user profile.
+   */
   GET_USER_PROFILE("GUP"),
 
+  /**
+   * Do not disturb message.
+   */
   DO_NOT_DISTURB("DND"),
 
+  /**
+   * Get all groups user belongs to message.
+   */
   GET_ALL_GROUP_USER_BELONGS("GUG"),
 
+  /**
+   * Get messages between dates message.
+   */
   GET_MESSAGES_BETWEEN("GMB"),
 
+  /**
+   * Create thread message.
+   */
   CREATE_THREAD("TRD"),
 
+  /**
+   * Post on thread message.
+   */
   POST_ON_THREAD("POT"),
 
+  /**
+   * Follow user message.
+   */
   FOLLOW_USER("FUS"),
 
+  /**
+   * Get all threads message.
+   */
   GET_ALL_THREADS("GAT"),
 
+  /**
+   * Get thread messages message.
+   */
   GET_THREAD_MESSAGES("GTM"),
 
+  /**
+   * Unfollow user message.
+   */
   UNFOLLOW_USER("UUS"),
 
+  /**
+   * Forward message message.
+   */
   FORWARD_MESSAGE("FWD"),
 
+  /**
+   * Secret message message.
+   */
   SECRET_MESSAGE("SMS"),
 
+  /**
+   * Get list of wiretapped user messge.
+   */
   GET_LIST_OF_WIRETAPPED_USERS("WTU"),
 
+  /**
+   * Reply message.
+   */
   REPLY("REP"),
 
+  /**
+   * Get data of wiretpped user message.
+   */
   GET_DATA_WIRETAPPED_USER("GWU"),
 
+  /**
+   * Set wiretap message.
+   */
   SET_WIRETAP_MESSAGE("WTM"),
 
+  /**
+   * Get followers message.
+   */
   GET_FOLLOWERS("GFW"),
 
+  /**
+   * Get following message.
+   */
   GET_FOLLOWING("GFG"),
 
+  /**
+   * Subscribe to thread message.
+   */
   SUBSCRIBE_TO_THREAD("STT"),
 
+  /**
+   * Get reply chain message.
+   */
   GET_REPLY_CHAIN("GRC");
 
 

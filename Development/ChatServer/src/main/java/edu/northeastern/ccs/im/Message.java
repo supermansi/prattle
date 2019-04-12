@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,6 +104,10 @@ public class Message {
 
   }
 
+  /**
+   * Method to initialize the message map.
+   */
+
   private static void initialiseMessageMap() {
     isMsgMapInitialised = true;
     BiFunction<String, String, Message> helloFunction = ((src, txt) -> (makeSimpleLoginMessage(src, txt)));
@@ -205,18 +210,46 @@ public class Message {
 
   }
 
+  /**
+   * Method to create a get reply chain message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get reply chain message
+   */
   private static Message makeGetReplyChainMessage(String srcName, String text) {
     return new Message(MessageType.GET_REPLY_CHAIN, srcName, text);
   }
 
+  /**
+   * Method to create a subscribe to thread message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new subscribe to thread message
+   */
   private static Message makeSubscribeToThreadMessage(String srcName, String text) {
     return new Message(MessageType.SUBSCRIBE_TO_THREAD, srcName, text);
   }
 
+  /**
+   * Method to create a dnd message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new dnd message
+   */
   public static Message makeDNDMessage(String srcName, String text) {
     return new Message(MessageType.DO_NOT_DISTURB, srcName, text);
   }
 
+  /**
+   * Method to create a get groups user belongs to message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get groups user belongs to message
+   */
   public static Message makeGetAllGroupsUserBelongsMessage(String srcName, String text) {
     return new Message(MessageType.GET_ALL_GROUP_USER_BELONGS, srcName, text);
   }
@@ -506,67 +539,178 @@ public class Message {
     return new Message(MessageType.GET_GROUP_USERS, srcName, text);
   }
 
-
+  /**
+   * Method to create a secret message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new secret message
+   */
   public static Message makeSecretMessageMessage(String srcName, String text) {
     return new Message(MessageType.SECRET_MESSAGE, srcName, text);
   }
 
+  /**
+   * Method to create a forward message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new forward message
+   */
   public static Message makeForwardMessageMessage(String srcName, String text) {
     return new Message(MessageType.FORWARD_MESSAGE, srcName, text);
   }
 
+  /**
+   * Method to create an unfollow message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new unfollow message
+   */
   public static Message makeUnfollowUserMessage(String srcName, String text) {
     return new Message(MessageType.UNFOLLOW_USER, srcName, text);
   }
 
+  /**
+   * Method to create a get thread messages message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get thread messages message
+   */
   public static Message makeGetThreadMessagesMessage(String srcName, String text) {
     return new Message(MessageType.GET_THREAD_MESSAGES, srcName, text);
   }
 
+  /**
+   * Method to create a get all threads message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get all threads message
+   */
   public static Message makeGetAllThreadsMessage(String srcName, String text) {
     return new Message(MessageType.GET_ALL_THREADS, srcName, text);
   }
 
+  /**
+   * Method to create a follow message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new follow message
+   */
   public static Message makeFollowUserMessage(String srcName, String text) {
     return new Message(MessageType.FOLLOW_USER, srcName, text);
   }
 
+  /**
+   * Method to create a post on thread message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new post on thread message
+   */
   public static Message makePostOnThreadMessage(String srcName, String text) {
     return new Message(MessageType.POST_ON_THREAD, srcName, text);
   }
 
+  /**
+   * Method to create a create thread message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new create thread message
+   */
   public static Message makeCreateThreadMessage(String srcName, String text) {
     return new Message(MessageType.CREATE_THREAD, srcName, text);
   }
 
+  /**
+   * Method to create a get messages between message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get messages between message
+   */
   public static Message makeGetMessagesBetweenMessage(String srcName, String text) {
     return new Message(MessageType.GET_MESSAGES_BETWEEN, srcName, text);
   }
 
+  /**
+   * Method to create a set wiretap message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new set wiretap message
+   */
   public static Message makeSetWiretapMessage(String srcName, String text) {
     return new Message(MessageType.SET_WIRETAP_MESSAGE, srcName, text);
   }
 
+  /**
+   * Method to create a get data of wiretap user message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get data of wiretap user message
+   */
   public static Message makeGetDataOfWiretappedUser(String srcName, String text) {
     return new Message(MessageType.GET_DATA_WIRETAPPED_USER, srcName, text);
   }
 
+  /**
+   * Method to create a reply message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new reply message
+   */
   public static Message makeReplyMessage(String srcName, String text) {
     return new Message(MessageType.REPLY, srcName, text);
   }
 
+  /**
+   * Method to create a get list of wiretap user message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get list of wiretap user message
+   */
   public static Message makeGetListWiretappedUsers(String srcName, String text) {
     return new Message(MessageType.GET_LIST_OF_WIRETAPPED_USERS, srcName, text);
   }
 
+  /**
+   * Method to create a get user profile message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get user profile message
+   */
   public static Message makeGetUserProfileMessage(String srcName, String text) {
     return new Message(MessageType.GET_USER_PROFILE, srcName, text);
   }
 
+  /**
+   * Method to create a get following message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get following message
+   */
   public static Message makeGetFollowingMessage(String srcName, String text) {
     return new Message(MessageType.GET_FOLLOWING, srcName, text);
   }
 
+  /**
+   * Method to create a get followers message.
+   *
+   * @param srcName the sender of the message
+   * @param text    the message text
+   * @return a new get followers message
+   */
   public static Message makeGetFollowersMessage(String srcName, String text) {
     return new Message(MessageType.GET_FOLLOWERS, srcName, text);
   }
@@ -841,70 +985,155 @@ public class Message {
     return (msgType == MessageType.GET_GROUP_USERS);
   }
 
+  /**
+   * Determine if this message is a get all groups user belongs to message.
+   *
+   * @return True if the message is a get all groups user belongs to message; false otherwise
+   */
   public boolean isGetAllGroupsUserBelongsTo() {
     return (msgType == MessageType.GET_ALL_GROUP_USER_BELONGS);
   }
 
+  /**
+   * Determine if this message is a dnd message.
+   *
+   * @return True if the message is a dnd message; false otherwise
+   */
   public boolean isDND() {
     return (msgType == MessageType.DO_NOT_DISTURB);
   }
 
+  /**
+   * Determine if this message is a secret message.
+   *
+   * @return True if the message is a secret message; false otherwise
+   */
   public boolean isSecretMessage() {
     return (msgType == MessageType.SECRET_MESSAGE);
   }
 
+  /**
+   * Determine if this message is a forward message.
+   *
+   * @return True if the message is a forward message; false otherwise
+   */
   public boolean isForwardMessage() {
     return (msgType == MessageType.FORWARD_MESSAGE);
   }
 
+  /**
+   * Determine if this message is a unfollow message.
+   *
+   * @return True if the message is a unfollow message; false otherwise
+   */
   public boolean isUnfollowUser() {
     return (msgType == MessageType.UNFOLLOW_USER);
   }
 
+  /**
+   * Determine if this message is a follow message.
+   *
+   * @return True if the message is a follow message; false otherwise
+   */
   public boolean isFollowUser() {
     return (msgType == MessageType.FOLLOW_USER);
   }
 
+  /**
+   * Determine if this message is a get thread messages message.
+   *
+   * @return True if the message is a get thread messages message; false otherwise
+   */
   public boolean isGetThreadMessages() {
     return (msgType == MessageType.GET_THREAD_MESSAGES);
   }
 
+  /**
+   * Determine if this message is a get all threads message.
+   *
+   * @return True if the message is a get all threads message; false otherwise
+   */
   public boolean isGetAllThreads() {
     return (msgType == MessageType.GET_ALL_THREADS);
   }
 
+  /**
+   * Determine if this message is a post on thread message.
+   *
+   * @return True if the message is a post on thread message; false otherwise
+   */
   public boolean isPostOnThread() {
     return (msgType == MessageType.POST_ON_THREAD);
   }
 
+  /**
+   * Determine if this message is a create thread message.
+   *
+   * @return True if the message is a create thread message; false otherwise
+   */
   public boolean isCreateThread() {
     return (msgType == MessageType.CREATE_THREAD);
   }
 
+  /**
+   * Determine if this message is a get messages between message.
+   *
+   * @return True if the message is a get messages between message; false otherwise
+   */
   public boolean isGetMessagesBetween() {
     return (msgType == MessageType.GET_MESSAGES_BETWEEN);
   }
 
+  /**
+   * Determine if this message is a get list of wiretap user message.
+   *
+   * @return True if the message is a get list of wiretap user message; false otherwise
+   */
   public boolean isGetListOfWiretapUsers() {
     return (msgType == MessageType.GET_LIST_OF_WIRETAPPED_USERS);
   }
 
+  /**
+   * Determine if this message is a reply message.
+   *
+   * @return True if the message is a reply message; false otherwise
+   */
   public boolean isReply() {
     return (msgType == MessageType.REPLY);
   }
 
+  /**
+   * Determine if this message is a get data of wiretap user message.
+   *
+   * @return True if the message is a get data of wiretap user message; false otherwise
+   */
   public boolean isGetDataWiretappedUser() {
     return (msgType == MessageType.GET_DATA_WIRETAPPED_USER);
   }
 
+  /**
+   * Determine if this message is a set wiretap user message.
+   *
+   * @return True if the message is a set wiretap user message; false otherwise
+   */
   public boolean isSetWiretapMessage() {
     return (msgType == MessageType.SET_WIRETAP_MESSAGE);
   }
 
+  /**
+   * Determine if this message is a wiretap status message.
+   *
+   * @return True if the message is a wiretap status message; false otherwise
+   */
   public boolean isWireTapStatusMessage() {
     return (msgType == MessageType.SET_WIRETAP_MESSAGE);
   }
 
+  /**
+   * Determine if this message is a get message type message.
+   *
+   * @return True if the message is a get message type message; false otherwise
+   */
   public MessageType getMessageType() {
     return this.msgType;
   }

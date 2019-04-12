@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
@@ -434,10 +435,20 @@ public class ClientRunnable implements Runnable {
     terminate |= !keepAlive;
   }
 
+  /**
+   * Method to check the do not disturb status of a user.
+   *
+   * @return true if do not disturb is on, false otherwise
+   */
   protected boolean getDNDStatus(){
     return isDND;
   }
 
+  /**
+   * Method to update the dnd status of a user.
+   *
+   * @param status true to turn dnd on, false otherwise
+   */
   protected void setDNDStatus(boolean status){
     isDND = status;
   }

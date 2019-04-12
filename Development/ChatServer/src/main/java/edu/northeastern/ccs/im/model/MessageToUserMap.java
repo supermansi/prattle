@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.model;
 
 /**
@@ -64,10 +65,20 @@ public class MessageToUserMap {
 		this.receiverID = receiverID;
 	}
 
+	/**
+	 * Method to get the receiver ip.
+	 *
+	 * @return the receiver ip as a string
+	 */
 	public String getReceiverIP() {
 		return receiverIP;
 	}
 
+	/**
+	 * Method to set the receiver ip.
+	 *
+	 * @param receiverIP the receiver ip as a string
+	 */
 	public void setReceiverIP(String receiverIP) {
 		this.receiverIP = receiverIP;
 	}

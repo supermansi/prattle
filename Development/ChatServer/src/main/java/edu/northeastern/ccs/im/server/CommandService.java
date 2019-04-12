@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.server;
 
 import java.sql.SQLException;
@@ -41,10 +42,18 @@ public class CommandService {
     }
   }
 
+  /**
+   * Method to get the command service map.
+   *
+   * @return the map with all the command services
+   */
   protected Map<MessageType, ICommandMessage> getCommandServiceMap() {
     return commandServiceMap;
   }
 
+  /**
+   * Method to initialize the command service map.
+   */
   private void initialiseCommandServiceMap() {
     commandServiceMap.put(MessageType.PRIVATE, new PrivateMessageCommand());
     commandServiceMap.put(MessageType.GROUP, new GroupMessageCommand());
@@ -91,6 +100,9 @@ public class CommandService {
 
 }
 
+/**
+ * Method to process a private message.
+ */
 class PrivateMessageCommand implements ICommandMessage {
 
   @Override
@@ -105,6 +117,9 @@ class PrivateMessageCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a group message.
+ */
 class GroupMessageCommand implements ICommandMessage {
 
   @Override
@@ -139,6 +154,9 @@ class GroupMessageCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a create group message.
+ */
 class CreateGroupCommand implements ICommandMessage {
 
   @Override
@@ -152,6 +170,9 @@ class CreateGroupCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a delete group message.
+ */
 class DeleteGroupCommand implements ICommandMessage {
 
   @Override
@@ -163,6 +184,9 @@ class DeleteGroupCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a retrieve group message.
+ */
 class RetrieveGroupMessageCommand implements ICommandMessage {
 
   @Override
@@ -172,6 +196,9 @@ class RetrieveGroupMessageCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a retrieve user message.
+ */
 class RetrieveUserMessageCommand implements ICommandMessage {
 
   @Override
@@ -181,6 +208,9 @@ class RetrieveUserMessageCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process an update first name message.
+ */
 class UpdateFirstNameCommand implements ICommandMessage {
 
   @Override
@@ -191,6 +221,9 @@ class UpdateFirstNameCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process an update last name message.
+ */
 class UpdateLastNameCommand implements ICommandMessage {
 
   @Override
@@ -201,6 +234,9 @@ class UpdateLastNameCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process an update email message.
+ */
 class UpdateEmailCommand implements ICommandMessage {
 
   @Override
@@ -211,6 +247,9 @@ class UpdateEmailCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process an update password message.
+ */
 class UpdatePasswordCommand implements ICommandMessage {
 
   @Override
@@ -221,6 +260,9 @@ class UpdatePasswordCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a remove user form group message.
+ */
 class RemoveUserFromGroupCommand implements ICommandMessage {
 
   @Override
@@ -234,6 +276,9 @@ class RemoveUserFromGroupCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process an add user to group message.
+ */
 class AddUserToGroupCommand implements ICommandMessage {
 
   @Override
@@ -246,6 +291,9 @@ class AddUserToGroupCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a deactivate account message.
+ */
 class DeactivateUserAccountCommand implements ICommandMessage {
 
   @Override
@@ -257,6 +305,9 @@ class DeactivateUserAccountCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a does user exist message.
+ */
 class DoesUserExistCommand implements ICommandMessage {
 
   @Override
@@ -270,6 +321,9 @@ class DoesUserExistCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a attachment message.
+ */
 class AttachmentMessageCommand implements ICommandMessage {
 
   @Override
@@ -280,6 +334,9 @@ class AttachmentMessageCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a get last seen message.
+ */
 class GetLastSeenCommand implements ICommandMessage {
 
   @Override
@@ -295,7 +352,9 @@ class GetLastSeenCommand implements ICommandMessage {
 
 }
 
-
+/**
+ * Method to process an update group restriction message.
+ */
 class UpdateGroupRestrictionsCommand implements ICommandMessage {
 
   @Override
@@ -308,6 +367,9 @@ class UpdateGroupRestrictionsCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a leave group message.
+ */
 class LeaveGroupCommand implements ICommandMessage {
 
   @Override
@@ -320,6 +382,9 @@ class LeaveGroupCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a make admin message.
+ */
 class MakeAdminCommand implements ICommandMessage {
 
   @Override
@@ -331,6 +396,9 @@ class MakeAdminCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a recall message.
+ */
 class RecallCommand implements ICommandMessage {
 
   @Override
@@ -346,6 +414,9 @@ class RecallCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a get all users in group message
+ */
 class GetAllUsersInGroupCommand implements ICommandMessage {
 
   @Override
@@ -359,6 +430,9 @@ class GetAllUsersInGroupCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a get all groups user belongs to message.
+ */
 class GetAllGroupsUserBelongsToCommand implements ICommandMessage {
 
   @Override
@@ -377,6 +451,9 @@ class GetAllGroupsUserBelongsToCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a set dnd message.
+ */
 class DNDCommand implements ICommandMessage {
 
   @Override
@@ -392,6 +469,9 @@ class DNDCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a get user profile message.
+ */
 class GetUserProfileCommand implements ICommandMessage {
 
   @Override
@@ -407,6 +487,9 @@ class GetUserProfileCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a get messages between message.
+ */
 class GetMessagesBetweenCommand implements ICommandMessage {
 
   @Override
@@ -430,6 +513,9 @@ class GetMessagesBetweenCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a create thread message.
+ */
 class CreateThreadCommand implements ICommandMessage {
   @Override
   public void run(ClientRunnable cr, Message message) throws SQLException {
@@ -438,6 +524,9 @@ class CreateThreadCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a post on thread message.
+ */
 class PostOnThreadCommand implements ICommandMessage {
 
   @Override
@@ -453,6 +542,9 @@ class PostOnThreadCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a follow user message.
+ */
 class FollowUserCommand implements ICommandMessage {
 
   @Override
@@ -472,6 +564,9 @@ class FollowUserCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a get all threads message.
+ */
 class GetAllThreadsCommand implements ICommandMessage {
 
   @Override
@@ -486,6 +581,9 @@ class GetAllThreadsCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a get thread messages message.
+ */
 class GetThreadMessagesCommand implements ICommandMessage {
 
   @Override
@@ -501,7 +599,9 @@ class GetThreadMessagesCommand implements ICommandMessage {
 
 }
 
-
+/**
+ * Method to process an unfollow user message.
+ */
 class UnfollowUserCommand implements ICommandMessage {
 
   @Override
@@ -516,6 +616,9 @@ class UnfollowUserCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a forward message message.
+ */
 class ForwardMessageCommand implements ICommandMessage {
 
   @Override
@@ -540,6 +643,9 @@ class ForwardMessageCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a secret message.
+ */
 class SecretMessageCommand implements ICommandMessage {
 
   @Override
@@ -554,6 +660,9 @@ class SecretMessageCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a reply message.
+ */
 class ReplyCommand implements ICommandMessage {
 
   @Override
@@ -568,6 +677,9 @@ class ReplyCommand implements ICommandMessage {
 
 }
 
+/**
+ * Method to process a get list of wiretapped users message.
+ */
 class GetListOfWireTappedUserCommand implements ICommandMessage {
 
   @Override
@@ -577,7 +689,9 @@ class GetListOfWireTappedUserCommand implements ICommandMessage {
   }
 }
 
-
+/**
+ * Method to process a get wiretapped user data message.
+ */
 class GetWiretappedUserDataCommand implements ICommandMessage {
 
   @Override
@@ -587,6 +701,9 @@ class GetWiretappedUserDataCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a set wiretap on user message.
+ */
 class SetWireTapCommand implements ICommandMessage {
 
   @Override
@@ -608,6 +725,9 @@ class SetWireTapCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a get followers message.
+ */
 class GetFollowersCommand implements ICommandMessage {
 
   @Override
@@ -622,6 +742,9 @@ class GetFollowersCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a get following message.
+ */
 class GetFollowingCommand implements ICommandMessage {
 
   @Override
@@ -636,6 +759,9 @@ class GetFollowingCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a subscribe to thread message.
+ */
 class SubscribeToThreadCommand implements ICommandMessage {
 
   @Override
@@ -645,6 +771,9 @@ class SubscribeToThreadCommand implements ICommandMessage {
   }
 }
 
+/**
+ * Method to process a get reply chain message.
+ */
 class GetReplyChainCommand implements ICommandMessage {
 
   @Override
