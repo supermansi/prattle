@@ -325,7 +325,7 @@ public class ClientRunnable implements Runnable {
         // Stop sending the poor client message.
         terminate = true;
         // Reply with a quit message.
-        enqueueMessage(Message.makeQuitMessage(name));
+        enqueueMessage(Message.makeQuitMessage(name,null));
       } else {
         // Check if the message is legal formatted
         processMessage(msg);
@@ -367,7 +367,7 @@ public class ClientRunnable implements Runnable {
       String messageWithHiddenType = filterMessageToHideType(conv);
       String[] arr = messageWithHiddenType.split(" ");
 
-      Message sendMessage = Message.makeGroupMessage("@" + msg.getText() + " " + arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
+      Message sendMessage = Message.makeGroupMessage("@" + msg.getText().split(" ")[1] + " " + arr[1], arr[0]+" "+messageWithHiddenType.substring(arr[0].length() + arr[1].length() + arr[2].length()+arr[3].length() + 4));
       enqueueMessage(sendMessage);
     }
   }

@@ -14,7 +14,7 @@ public class MessageTest {
     @Test
     public void makeQuitMessage() {
 
-        Message q = Message.makeQuitMessage("user");
+        Message q = Message.makeQuitMessage("user",null);
         assertEquals("BYE 4 user 2 --", q.toString());
         assertEquals(true, q.terminate());
         assertEquals("user",q.getName());

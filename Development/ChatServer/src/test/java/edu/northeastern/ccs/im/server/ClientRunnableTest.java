@@ -156,7 +156,7 @@ public class ClientRunnableTest {
 
     Message testMessage1 = Message.makeSimpleLoginMessage("r", "a");
     ;
-    Message testMessage2 = Message.makeQuitMessage("Rohan");
+    Message testMessage2 = Message.makeQuitMessage("Rohan",null);
     nameList.add(testMessage1);
     nameList.add(testMessage2);
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);

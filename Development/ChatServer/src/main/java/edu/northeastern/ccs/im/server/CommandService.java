@@ -158,7 +158,7 @@ class DeleteGroupCommand implements ICommandMessage {
   public void run(ClientRunnable cr, Message msg) throws SQLException {
     GroupServices.deleteGroup(cr.getReceiverName(msg.getText()), msg.getName()); //to do
     Prattle.groupToUserMapping.remove(cr.getReceiverName(msg.getText()));
-    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleated group");
+    cr.sendMessageToClient(ServerConstants.SERVER_NAME, "Successfully deleted group");
   }
 
 }
