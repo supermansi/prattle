@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.model;
 
 /**
@@ -170,10 +171,20 @@ public class User {
     this.lastSeen = lastSeen;
   }
 
+  /**
+   * Method to check if a given user is tapped.
+   *
+   * @return true if the user is tapped, false otherwise
+   */
   public boolean isTapped() {
     return isTapped;
   }
 
+  /**
+   * Method to set a user's status to being tapped.
+   *
+   * @param tapped true to set user to tapped, false otherwise
+   */
   public void setTapped(boolean tapped) {
     isTapped = tapped;
   }

@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
@@ -152,6 +153,12 @@ public class GroupServices {
     return false;
   }
 
+  /**
+   * Method to get a mapping of all the groups that exist and a list of all users for each group.
+   *
+   * @return a mapping of all the groups that exist and a list of all users for each group
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static ConcurrentMap<String, List<String>> getListOfAllUsersForAllGroups() throws SQLException {
     return groupUserDAO.getAllUsersByGroup();
   }
@@ -182,6 +189,13 @@ public class GroupServices {
     return false;
   }
 
+  /**
+   * Method to get a list of all the groups that a user belongs to.
+   *
+   * @param username the user to find groups for
+   * @return a list of groups the user is a part of as strings
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static List<String> getAllGroupsUserBelongsTo(String username) throws SQLException {
     if (userDAO.isUserExists(username)) {
       return groupUserDAO.getAllGroupsUserBelongsTo(userDAO.getUserByUsername(username).getUserID());
@@ -190,25 +204,57 @@ public class GroupServices {
     }
   }
 
+  /**
+   * Method to create a new thread.
+   *
+   * @param username the user who created the thread
+   * @param threadName the new thread name
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static void createThread(String username, String threadName) throws SQLException {
     createGroup(threadName, username);
     groupDAO.setGroupAsThread(threadName);
   }
 
+  /**
+   * Method to subscribe a user to a thread.
+   *
+   * @param threadName the name of the thread to subscribe to
+   * @param username the name of the user subscribing
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static void subscribeToThread(String threadName, String username) throws SQLException {
     int userID = userDAO.getUserByUsername(username).getUserID();
     int groupID = groupDAO.getGroupByGroupName(threadName).getGrpID();
     groupUserDAO.addUserToGroup(userID, groupID);
   }
 
+  /**
+   * Method to get a map of users to followers.
+   *
+   * @return a map of users to followers
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static ConcurrentMap<String, List<String>> getUserToFollowerMap() throws SQLException {
     return groupUserDAO.getMapOfAllUserAndFollowers();
   }
 
+  /**
+   * Method to get a list of all threads that exist.
+   *
+   * @return a list of all threads that exist
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static List<String> retrieveAllThreads() throws  SQLException {
       return groupDAO.getAllThreads();
   }
 
+  /**
+   * Method to get a mapping of the current chat #id for all groups.
+   *
+   * @return a mapping of the current chat #id for all groups
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static ConcurrentMap<String,Integer> getAllChatIdsForGroups() throws SQLException {
     return groupDAO.getAllChatIdsForGroups();
   }

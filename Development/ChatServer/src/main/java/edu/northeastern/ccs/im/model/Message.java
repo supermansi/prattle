@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.model;
 
 /**
@@ -153,32 +154,72 @@ public class Message {
 		this.timestamp = timestamp;
 	}
 
+	/**
+	 * Method to determine if a message is a secret message.
+	 *
+	 * @return true if the message is secret, false otherwise
+	 */
 	public boolean isSecret() {
 		return isSecret;
 	}
 
+	/**
+	 * Method to set the secret status of a message.
+	 *
+	 * @param secret true to set message to secret, false otherwise
+	 */
 	public void setSecret(boolean secret) {
 		isSecret = secret;
 	}
 
+	/**
+	 * Method to get the ip address of the sender.
+	 *
+	 * @return ip address of sender as a string
+	 */
 	public String getSenderIP() {
 		return senderIP;
 	}
 
+	/**
+	 * Method to set the ip address of the sender.
+	 *
+	 * @param senderIP new ip as a string
+	 */
 	public void setSenderIP(String senderIP) {
 		this.senderIP = senderIP;
 	}
 
+	/**
+	 * Method to get the chat sender id.
+	 *
+	 * @return the chat sender #id
+	 */
 	public int getChatSenderID() {
 		return chatSenderID;
 	}
 
+	/**
+	 * Method to set the chat sender #id.
+	 *
+	 * @param chatSenderID the chat sender #id to set
+	 */
 	public void setChatSenderID(int chatSenderID) {
 		this.chatSenderID = chatSenderID;
 	}
 
+	/**
+	 * Method to get the reply #id.
+	 *
+	 * @return the reply #id
+	 */
 	public int getReplyID() {return replyID; }
 
+	/**
+	 * Method to set the reply #id.
+	 *
+	 * @param replyID the reply #id
+	 */
 	public void setReplyID(int replyID) { this.replyID = replyID; }
 
 

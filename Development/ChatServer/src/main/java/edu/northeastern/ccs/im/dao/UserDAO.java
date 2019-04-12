@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.dao;
 
 import java.sql.Connection;
@@ -416,6 +417,13 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to get a user object that contains profile information.
+   *
+   * @param userId the user #id to search for
+   * @return a user object with profile information
+   * @throws SQLException if the database cannot establish a connection
+   */
   public User getUserProfile(int userId) throws SQLException {
     String getUserProfile = GET_USER_QUERY;
     Connection connection = connectionManager.getConnection();
@@ -444,6 +452,13 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to add a user to another user's follower list.
+   *
+   * @param follower the person who wants to follow someone
+   * @param following the person to be followed
+   * @throws SQLException if the database cannot establish a connection
+   */
   public void followUser(String follower, String following) throws SQLException {
     String insertFollow = "INSERT INTO Follow(follower, following) VALUES(?, ?);";
     Connection connection = connectionManager.getConnection();
@@ -461,6 +476,13 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to remove a user to another user's follower list.
+   *
+   * @param follower the person who wants to unfollow someone
+   * @param following the person to be unfollowed
+   * @throws SQLException if the database cannot establish a connection
+   */
   public void unfollow(String follower, String following) throws SQLException {
     String deleteFollow = "DELETE FROM Follow WHERE follower=? AND following=?;";
     Connection connection = connectionManager.getConnection();
@@ -478,16 +500,37 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to get a list of all a user's followers.
+   *
+   * @param user the user to search for
+   * @return a list of usernames who follow the given user
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getFollowers(String user) throws SQLException {
     String getFollowersQuery = "SELECT follower FROM Follow WHERE following = ?;";
     return getFollow(getFollowersQuery, user);
   }
 
+  /**
+   * Method to get a list of all the users a user is following.
+   *
+   * @param user the user to search for
+   * @return a list of usernames who the user is following
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getFollowing(String user) throws SQLException {
     String getFollowingQuery = "SELECT following FROM Follow WHERE follower = ?;";
     return getFollow(getFollowingQuery, user);
   }
 
+  /**
+   * Method to get a list of all the users a user is following.
+   *
+   * @param user the user to search for
+   * @return a list of usernames who the user is following
+   * @throws SQLException if the database cannot establish a connection
+   */
   private List<String> getFollow(String query, String user) throws SQLException {
     List<String> listOfUsers = new ArrayList<>();
     Connection connection = connectionManager.getConnection();
@@ -516,6 +559,12 @@ public class UserDAO {
     return listOfUsers;
   }
 
+  /**
+   * Method to get a list of all currently wiretapped users.
+   *
+   * @return a list of usernames of wire tapped users
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getListOfTappedUsers() throws SQLException {
     String getTappedUsers = "SELECT * FROM USER WHERE ISTAPPED = TRUE;";
     List<String> tappedUsersList = new ArrayList<>();
@@ -545,6 +594,13 @@ public class UserDAO {
     }
   }
 
+  /**
+   * Method to turn on or off wiretapping on a given user.
+   *
+   * @param username the user to be tapped
+   * @param isTapped the state of the tap
+   * @throws SQLException if the database cannot establish a connection
+   */
   public void setWireTappedStatus(String username, boolean isTapped) throws SQLException {
     String setUserWireTapped = "UPDATE USER SET ISTAPPED = ? WHERE USERNAME = ?;";
     Connection connection = connectionManager.getConnection();

@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
@@ -121,16 +122,37 @@ public class UserServices {
     userDAO.updateLastSeen(username, lastSeen);
   }
 
+  /**
+   * Method to get the timestamp of the last message read by a user.
+   *
+   * @param username the user to search for
+   * @return a time of the last message seen by the given user
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static Long getLastSeen(String username) throws SQLException {
     String lastSeen = userDAO.getLastSeen(username);
     return Long.parseLong(lastSeen);
   }
 
+  /**
+   * Method to check if a given user exists.
+   *
+   * @param username the username to search for
+   * @return true if the user exists, false otherwise
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static boolean userExists(String username) throws SQLException {
     return userDAO.isUserExists(username);
   }
 
 
+  /**
+   * Method to get a map of the user's profile attributes.
+   *
+   * @param username the username to search for
+   * @return a map of the user's profile attributes
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static ConcurrentMap<User.UserParams, String> getUserProfile(String username) throws SQLException {
     ConcurrentMap<User.UserParams, String> userProfile = new ConcurrentHashMap<>();
     User user = userDAO.getUserProfile(userDAO.getUserByUsername(username).getUserID());
@@ -141,6 +163,13 @@ public class UserServices {
     return userProfile;
   }
 
+  /**
+   * Method to add a user to another user's list of followers.
+   *
+   * @param follower the person who wants to follow another user
+   * @param following the user to be followed
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static void followUser(String follower, String following) throws SQLException {
     try {
       userDAO.followUser(follower, following);
@@ -149,6 +178,13 @@ public class UserServices {
     }
   }
 
+  /**
+   * Method to remove a user from another user's follower list.
+   *
+   * @param follower the person who wants to unfollow another user
+   * @param following the user to be unfollowed
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static void unFollowUser(String follower, String following) throws SQLException {
     try {
       userDAO.unfollow(follower, following);
@@ -157,18 +193,45 @@ public class UserServices {
     }
   }
 
+  /**
+   * Method to get a list of a user's followers.
+   *
+   * @param username the user to search for
+   * @return a list of a user's followers
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static List<String> getFollowers(String username) throws SQLException {
     return userDAO.getFollowers(username);
   }
 
+  /**
+   * Method to get a list of who a user is following.
+   *
+   * @param username the user to search for
+   * @return a list of who that user is following
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static List<String> getFollowing(String username) throws SQLException {
     return userDAO.getFollowing(username);
   }
 
+  /**
+   * Method to get a list of all the wiretapped users.
+   *
+   * @return a list of all the wiretapped users
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static List<String> getListOfTappedUsers() throws SQLException {
     return userDAO.getListOfTappedUsers();
   }
 
+  /**
+   * Method to turn a wiretap on a user on or off.
+   *
+   * @param username the user to be tapped/ untapped
+   * @param isTapped true to tap the user, false otherwise
+   * @throws SQLException if the database cannot establish a connection
+   */
   public static void setWireTapStatus(String username, boolean isTapped) throws SQLException {
     if (userDAO.isUserExists(username)) {
       if (isTapped == userDAO.getUserByUsername(username).isTapped()) {
