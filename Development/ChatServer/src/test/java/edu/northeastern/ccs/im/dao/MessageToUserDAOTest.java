@@ -450,4 +450,30 @@ public class MessageToUserDAOTest {
     doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
     messageToUserDAO.mapMsgIdToReceiverThreadId(new Message(2, Message.MsgType.PVT,12,"hi",Long.toString(System.currentTimeMillis())),22);
   }
+
+  @Test
+  public void testGetMessageByChatID() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true);
+    when(mockResultSet.getString(1)).thenReturn("hi");
+    assertEquals("hi",messageToUserDAO.getMessageByChatID(2,12,22, Message.MsgType.PVT));
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetMessageByChatIDFalse() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    when(mockResultSet.getString(1)).thenReturn("hi");
+    assertEquals("hi",messageToUserDAO.getMessageByChatID(2,12,22, Message.MsgType.PVT));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetMessageByChatIDException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    messageToUserDAO.getMessageByChatID(2,12,22, Message.MsgType.PVT);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetMessageByChatIDException1() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    messageToUserDAO.getMessageByChatID(2,12,22, Message.MsgType.PVT);
+  }
 }
