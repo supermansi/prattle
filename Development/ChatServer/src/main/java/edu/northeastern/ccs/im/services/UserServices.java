@@ -1,9 +1,13 @@
 package edu.northeastern.ccs.im.services;
 
 import java.sql.SQLException;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.PasswordHash;
 import edu.northeastern.ccs.im.dao.UserDAO;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
 
 /**
@@ -36,9 +40,9 @@ public class UserServices {
    *
    * @param username user's user name
    * @param password user's password
-   * @param userFN user's first name
-   * @param userLN user's last name
-   * @param email user's email
+   * @param userFN   user's first name
+   * @param userLN   user's last name
+   * @param email    user's email
    * @return true if the user has been registered and stored in teh database, false otherwise
    */
   public static boolean register(String username, String password, String userFN,
@@ -56,7 +60,7 @@ public class UserServices {
   /**
    * Method to update a user's first name.
    *
-   * @param username user's username
+   * @param username         user's username
    * @param updatedFirstName new first name
    */
   public static void updateFN(String username, String updatedFirstName) throws SQLException {
@@ -66,7 +70,7 @@ public class UserServices {
   /**
    * Method to update a user's last name.
    *
-   * @param username user's username
+   * @param username        user's username
    * @param updatedLastName new last name
    */
   public static void updateLN(String username, String updatedLastName) throws SQLException {
@@ -76,7 +80,7 @@ public class UserServices {
   /**
    * Method to update a user's password.
    *
-   * @param username user's username
+   * @param username        user's username
    * @param updatedPassword new password
    */
   public static void updatePassword(String username, String updatedPassword) throws SQLException {
@@ -86,7 +90,7 @@ public class UserServices {
   /**
    * Method to update a user's email.
    *
-   * @param username user's username
+   * @param username     user's username
    * @param updatedEmail new email
    */
   public static void updateEmail(String username, String updatedEmail) throws SQLException {
@@ -110,7 +114,7 @@ public class UserServices {
    * Method to update the timestamp stored in the database of a user's last seen message.
    *
    * @param username user's username
-   * @param time string representing time stamp
+   * @param time     string representing time stamp
    */
   public static void updateLastSeen(String username, Long time) throws SQLException {
     String lastSeen = Long.toString(time);
@@ -124,5 +128,56 @@ public class UserServices {
 
   public static boolean userExists(String username) throws SQLException {
     return userDAO.isUserExists(username);
+  }
+
+
+  public static ConcurrentMap<User.UserParams, String> getUserProfile(String username) throws SQLException {
+    ConcurrentMap<User.UserParams, String> userProfile = new ConcurrentHashMap<>();
+    User user = userDAO.getUserProfile(userDAO.getUserByUsername(username).getUserID());
+    userProfile.put(User.UserParams.USERNAME, user.getUsername());
+    userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
+    userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
+    userProfile.put(User.UserParams.EMAIL, user.getEmail());
+    return userProfile;
+  }
+
+  public static void followUser(String follower, String following) throws SQLException {
+    try {
+      userDAO.followUser(follower, following);
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException("Unable to follow user");
+    }
+  }
+
+  public static void unFollowUser(String follower, String following) throws SQLException {
+    try {
+      userDAO.unfollow(follower, following);
+    } catch (SQLException e) {
+      throw new DatabaseConnectionException("Unable to un-follow user");
+    }
+  }
+
+  public static List<String> getFollowers(String username) throws SQLException {
+    return userDAO.getFollowers(username);
+  }
+
+  public static List<String> getFollowing(String username) throws SQLException {
+    return userDAO.getFollowing(username);
+  }
+
+  public static List<String> getListOfTappedUsers() throws SQLException {
+    return userDAO.getListOfTappedUsers();
+  }
+
+  public static void setWireTapStatus(String username, boolean isTapped) throws SQLException {
+    if (userDAO.isUserExists(username)) {
+      if (isTapped == userDAO.getUserByUsername(username).isTapped()) {
+        throw new IllegalStateException("The current wire tapped status of the user is the same as that trying to be set.");
+      } else {
+        userDAO.setWireTappedStatus(username, isTapped);
+      }
+    } else {
+      throw new DatabaseConnectionException("User not found");
+    }
   }
 }

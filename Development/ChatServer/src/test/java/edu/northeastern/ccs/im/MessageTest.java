@@ -14,7 +14,7 @@ public class MessageTest {
     @Test
     public void makeQuitMessage() {
 
-        Message q = Message.makeQuitMessage("user");
+        Message q = Message.makeQuitMessage("user",null);
         assertEquals("BYE 4 user 2 --", q.toString());
         assertEquals(true, q.terminate());
         assertEquals("user",q.getName());
@@ -43,10 +43,9 @@ public class MessageTest {
      */
     @Test
     public void makeMessage() {
-        Message m1 = Message.makeMessage("BYE", "user", "goodbye");
+        Message m1 = Message.makeMessage("BYE", "user", null);
         Message m3 = Message.makeMessage("BCT", "user", "how are you?");
         Message m2 = Message.makeMessage("HLO", "user", "Hello World.");
-        Message m4 = Message.makeMessage("hi", null, null);
         assertEquals("BYE 4 user 2 --", m1.toString());
 
         assertEquals("HLO 4 user 12 Hello World.", m2.toString());
@@ -171,6 +170,7 @@ public class MessageTest {
         Message uex = Message.makeMessage("UEX", "M", "M");
         assertEquals(true, uex.isUserExists());
         assertEquals(false, uex.isRegistration());
+        assertEquals(false, uex.isDeactivateUser());
     }
 
     @Test
@@ -178,6 +178,7 @@ public class MessageTest {
         Message lsn = Message.makeMessage("LSN", "J", "/getLastSeen J");
         assertEquals(true, lsn.isLastSeen());
         assertEquals(false, lsn.isCreateGroup());
+        assertEquals(false, lsn.isUserExists());
     }
 
 
@@ -186,6 +187,7 @@ public class MessageTest {
         Message mam = Message.makeMessage("MAD", "A", "/makeAdmin MSD R");
         assertEquals(true, mam.isMakeAdmin());
         assertEquals(false, mam.isLastSeen());
+        assertEquals(false, mam.isLeaveGroup());
     }
 
     @Test
@@ -193,6 +195,7 @@ public class MessageTest {
         Message lgm = Message.makeMessage("LGR", "A", "/leaveGroup MSD");
         assertEquals(true, lgm.isLeaveGroup());
         assertEquals(false, lgm.isLastSeen());
+        assertEquals(false, lgm.isMakeAdmin());
     }
 
     @Test
@@ -214,6 +217,7 @@ public class MessageTest {
         Message ram = Message.makeMessage("RAM","R", "filepath.txt");
         assertEquals(true, ram.isReadAttachmentMessage());
         assertEquals(false, ram.isLastSeen());
+        assertEquals(false, ram.isRecall());
     }
 
     @Test
@@ -227,7 +231,8 @@ public class MessageTest {
     public void testAttachmentMessage() {
         Message am = Message.makeMessage("ATT","R", "filepath.txt");
         assertEquals(true, am.isAttachmentMessage());
-        assertEquals(false, am. isCreateGroup());
+        assertEquals(false, am.isCreateGroup());
+        assertEquals(false, am.isGetUsersInGroup());
     }
 
     /**
@@ -238,6 +243,88 @@ public class MessageTest {
         Message lm = Message.makeSimpleLoginMessage("New User","Hello");
         assertEquals("HLO 8 New User 5 Hello", lm.toString());
     }
+
+    @Test
+    public void testGetGroupsUserBelongsTo() {
+        Message gag = Message.makeMessage("GUG", "J", "/getMyGroups");
+        assertEquals(true, gag.isGetAllGroupsUserBelongsTo());
+        assertEquals(false, gag.isDND());
+        assertEquals(false, gag.isAttachmentMessage());
+    }
+
+    @Test
+    public void testDND() {
+        Message dnd = Message.makeMessage("DND", "A", "/dnd t");
+        assertEquals(true, dnd.isDND());
+        assertEquals(false, dnd.isGetAllGroupsUserBelongsTo());
+        assertEquals(false, dnd.isChangeGroupRestriction());
+    }
+
+    @Test
+    public void testGetMessagesBetween() {
+        Message gmb = Message.makeMessage("GMB", "M", "/getMessagesBetween 01/10/2019 02/01/2019");
+        assertEquals(true, gmb.isGetMessagesBetween());
+        assertEquals(false, gmb.isCreateThread());
+    }
+
+    @Test
+    public void testCreateThread() {
+        Message ctd = Message.makeMessage("TRD", "A", "/createThread #MSD");
+        assertEquals(true, ctd.isCreateThread());
+        assertEquals(false, ctd.isGetMessagesBetween());
+    }
+
+    @Test
+    public void testPostOnThread() {
+        Message pot = Message.makeMessage("POT", "M", "/postToThread #MSD hey all");
+        assertEquals(true, pot.isPostOnThread());
+        assertEquals(false, pot.isFollowUser());
+
+    }
+
+    @Test
+    public void testFollowUser() {
+        Message fus = Message.makeMessage("FUS", "Z", "/follow tttt");
+        assertEquals(true, fus.isFollowUser());
+        assertEquals(false, fus.isPostOnThread());
+    }
+
+    @Test
+    public void testGetAllThreads() {
+        Message gat = Message.makeMessage("GAT", "S", "/getAllThreads");
+        assertEquals(true, gat.isGetAllThreads());
+        assertEquals(false, gat.isGetThreadMessages());
+    }
+
+    @Test
+    public void testGetThreadMessages() {
+        Message gtm = Message.makeMessage("GTM", "D", "/getThreadMessages");
+        assertEquals(true, gtm.isGetThreadMessages());
+        assertEquals(false, gtm.isGetAllThreads());
+    }
+
+    @Test
+    public void testUnfollowUser() {
+        Message uus = Message.makeMessage("UUS", "X", "/unfollow tttt");
+        assertEquals(true, uus.isUnfollowUser());
+        assertEquals(false, uus.isForwardMessage());
+        assertEquals(false, uus.isSecretMessage());
+    }
+
+    @Test
+    public void testForwardMessage() {
+        Message fwd = Message.makeMessage("FWD", "H", "/fwd 3 A qqqq");
+        assertEquals(true, fwd.isForwardMessage());
+        assertEquals(false, fwd.isUnfollowUser());
+    }
+
+    @Test
+    public void testSecretMessage() {
+        Message sms = Message.makeMessage("SMS", "z", "/secretMessage R hey");
+        assertEquals(true, sms.isSecretMessage());
+        assertEquals(false, sms.isForwardMessage());
+    }
+
 
     /**
      * Test for the getName method.
@@ -295,13 +382,13 @@ public class MessageTest {
      */
     @Test
     public void toStringTest() {
-        Message qmnn = Message.makeMessage("BYE", "user", "goodbye");
-        Message qmn = Message.makeMessage("BYE", null, "goodbye");
+        Message qmnn = Message.makeMessage("BYE", "rohan", null);
+        Message qmn = Message.makeMessage("BYE", null, null);
         Message hm = Message.makeMessage("HLO", "user", "Hello World.");
         Message bmnn = Message.makeMessage("BCT", "user", "how are you?");
         Message bmn = Message.makeMessage("BCT", "user", null);
 
-        assertEquals("BYE 4 user 2 --", qmnn.toString());
+        assertEquals("BYE 5 rohan 2 --", qmnn.toString());
         assertEquals("BYE 2 -- 2 --", qmn.toString());
 
         assertEquals("HLO 4 user 12 Hello World.", hm.toString());

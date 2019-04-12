@@ -143,7 +143,48 @@ public enum MessageType {
   /**
    * Message to get all the users in a group.
    */
-  GET_GROUP_USERS("GGU");
+  GET_GROUP_USERS("GGU"),
+
+  GET_USER_PROFILE("GUP"),
+
+  DO_NOT_DISTURB("DND"),
+
+  GET_ALL_GROUP_USER_BELONGS("GUG"),
+
+  GET_MESSAGES_BETWEEN("GMB"),
+
+  CREATE_THREAD("TRD"),
+
+  POST_ON_THREAD("POT"),
+
+  FOLLOW_USER("FUS"),
+
+  GET_ALL_THREADS("GAT"),
+
+  GET_THREAD_MESSAGES("GTM"),
+
+  UNFOLLOW_USER("UUS"),
+
+  FORWARD_MESSAGE("FWD"),
+
+  SECRET_MESSAGE("SMS"),
+
+  GET_LIST_OF_WIRETAPPED_USERS("WTU"),
+
+  REPLY("REP"),
+
+  GET_DATA_WIRETAPPED_USER("GWU"),
+
+  SET_WIRETAP_MESSAGE("WTM"),
+
+  GET_FOLLOWERS("GFW"),
+
+  GET_FOLLOWING("GFG"),
+
+  SUBSCRIBE_TO_THREAD("STT"),
+
+  GET_REPLY_CHAIN("GRC");
+
 
   /**
    * Store the short name of this message type.

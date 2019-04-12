@@ -11,6 +11,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.User;
@@ -404,5 +406,134 @@ public class UserDAOTest {
   public void testGetLastSeenFalse() throws SQLException{
     when(mockResultSet.next()).thenReturn(false);
     userDAO.getLastSeen("admin");
+  }
+
+  @Test
+  public void testFollow() throws SQLException {
+    userDAO.followUser("r", "j");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testFollowException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    userDAO.followUser("r", "j");
+  }
+
+  @Test
+  public void testUnFollow() throws SQLException {
+    userDAO.unfollow("r", "j");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testUnFollowException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    userDAO.unfollow("r", "j");
+  }
+
+  @Test
+  public void testGetFollowers() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(1)).thenReturn("j");
+    assertEquals(1, userDAO.getFollowers("r").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowersConnection() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    userDAO.getFollowers("r");
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowersSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    userDAO.getFollowers("r");
+  }
+
+  @Test
+  public void testGetFollowing() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(1)).thenReturn("j");
+    assertEquals(1, userDAO.getFollowing("r").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowingConnection() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
+    assertEquals(1, userDAO.getFollowing("r").size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetFollowingSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertEquals(1, userDAO.getFollowing("r").size());
+  }
+
+  @Test
+  public void testGetUserProfile() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(any())).thenReturn("a");
+    when(mockResultSet.getInt(any())).thenReturn(2);
+    when(mockResultSet.getBoolean(any())).thenReturn(true);
+    User testUser = new User(2,"a","a","a","a","a");
+    testUser.setTapped(true);
+    assertEquals("a",userDAO.getUserProfile(2).getUsername());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetUserProfileException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    userDAO.getUserProfile(2);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetUserProfileException1() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class),any(Integer.class));
+    userDAO.getUserProfile(2);
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testGetUserProfileResultSetFalse() throws SQLException {
+    when(mockResultSet.next()).thenReturn(false);
+    userDAO.getUserProfile(2);
+  }
+
+  @Test
+  public void testGetListOfTappedUsers() throws SQLException {
+    List<String> tappedUsers = new ArrayList<>();
+    tappedUsers.add("aditi");
+    tappedUsers.add("mansi");
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString("username")).thenReturn("aditi").thenReturn("mansi");
+    assertEquals(tappedUsers,userDAO.getListOfTappedUsers());
+  }
+
+  @Test
+  public void testGetListOfTappedUsersNone() throws SQLException {
+    List<String> tappedUsers = new ArrayList<>();
+    when(mockResultSet.next()).thenReturn(false);
+    assertEquals(tappedUsers,userDAO.getListOfTappedUsers());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetListOfTappedUsersException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    userDAO.getListOfTappedUsers();
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetListOfTappedUsersException1() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class),any(Integer.class));
+    userDAO.getListOfTappedUsers();
+  }
+
+  @Test
+  public void testSetWireTappedStatus() throws SQLException {
+    userDAO.setWireTappedStatus("aditi",true);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testSetWireTappedStatusException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    userDAO.setWireTappedStatus("aditi",true);
   }
 }

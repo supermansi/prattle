@@ -10,9 +10,17 @@ public class Message {
 	private int senderID;
 	private String messageText;
 	private String timestamp;
+	private boolean isSecret;
+	private String senderIP;
+	private int chatSenderID;
+	private int replyID;
 
 	public enum MsgType {
-		PVT, GRP, BCT;
+		PVT, GRP, BCT, TRD;
+	}
+
+	public enum IPType {
+		SENDERIP,RECEIVERIP;
 	}
 
 	/**
@@ -144,5 +152,34 @@ public class Message {
 	public void setTimestamp(String timestamp) {
 		this.timestamp = timestamp;
 	}
+
+	public boolean isSecret() {
+		return isSecret;
+	}
+
+	public void setSecret(boolean secret) {
+		isSecret = secret;
+	}
+
+	public String getSenderIP() {
+		return senderIP;
+	}
+
+	public void setSenderIP(String senderIP) {
+		this.senderIP = senderIP;
+	}
+
+	public int getChatSenderID() {
+		return chatSenderID;
+	}
+
+	public void setChatSenderID(int chatSenderID) {
+		this.chatSenderID = chatSenderID;
+	}
+
+	public int getReplyID() {return replyID; }
+
+	public void setReplyID(int replyID) { this.replyID = replyID; }
+
 
 }

@@ -11,6 +11,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
- * This is a test class for the ClientRunnable class.
+ * This is a test class for all methods of the ClientRunnable class.
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({UserServices.class, MessageServices.class, GroupServices.class,Prattle.class})
@@ -72,6 +73,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testGetUserId() throws SQLException {
+    mockStatic(Prattle.class);
     List<Message> nameList = new ArrayList();
     mockStatic(UserServices.class);
     List<String> pushMsgs = new ArrayList<>();
@@ -141,6 +143,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testTerminateMessage() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -153,7 +156,7 @@ public class ClientRunnableTest {
 
     Message testMessage1 = Message.makeSimpleLoginMessage("r", "a");
     ;
-    Message testMessage2 = Message.makeQuitMessage("Rohan");
+    Message testMessage2 = Message.makeQuitMessage("Rohan",null);
     nameList.add(testMessage1);
     nameList.add(testMessage2);
     GenericMessageIterator<Message> itr = new GenericMessageIterator(nameList);
@@ -178,6 +181,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testDualHelloMessage() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -218,6 +222,7 @@ public class ClientRunnableTest {
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
+    mockStatic(Prattle.class);
     when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
 
     ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -270,6 +275,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRunForDifferentNames() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -309,6 +315,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testRunForNullMessageName() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -341,6 +348,7 @@ public class ClientRunnableTest {
    */
   @Test
   public void testBasicRunMethod() throws SQLException {
+    mockStatic(Prattle.class);
     List<String> pushMsgs = new ArrayList<>();
     pushMsgs.add("ABC 1");
     mockStatic(MessageServices.class);
@@ -398,6 +406,39 @@ public class ClientRunnableTest {
     clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
     clientRunnable.run();
     clientRunnable.terminateClient();
+    verify(connection,times(2)).close();
+  }
+
+  /**
+   * Test method to terminate a ClientRunnable.
+   */
+  @Test
+  public void testTerminateWithDND() throws SQLException {
+    List<String> pushMsgs = new ArrayList<>();
+    pushMsgs.add("ABC 1");
+    mockStatic(MessageServices.class);
+    Class clazz = ClientRunnable.class;
+    clientRunnable.setDNDStatus(true);
+    when(MessageServices.getPushNotifications(any())).thenReturn(pushMsgs);
+
+    mockStatic(UserServices.class);
+    when(UserServices.login("r", "a")).thenReturn(true);
+
+    when(connection.iterator()).thenReturn(new Iterator<Message>() {
+      @Override
+      public boolean hasNext() {
+        return true;
+      }
+
+      @Override
+      public Message next() {
+        return Message.makeSimpleLoginMessage(null, "Random Text");
+      }
+    });
+    clientRunnable.setFuture(Mockito.mock(ScheduledFuture.class));
+    clientRunnable.run();
+    clientRunnable.terminateClient();
+    clientRunnable.getConnection();
     verify(connection,times(2)).close();
   }
 
@@ -469,8 +510,8 @@ public class ClientRunnableTest {
   @Test
   public void testRetrieveMessageForUser() throws InvocationTargetException, IllegalAccessException, SQLException {
     List<String> msgList = new ArrayList<>();
-    msgList.add("r /pvt j Hii");
-    msgList.add("j /pvt r hello back");
+    msgList.add("r 1 /pvt j Hii");
+    msgList.add("j 1 /pvt r hello back");
     mockStatic(MessageServices.class);
     when(MessageServices.retrieveUserMessages("r", "j")).thenReturn(msgList);
 
@@ -492,8 +533,8 @@ public class ClientRunnableTest {
   public void testRetrieveMessageForGRP() throws InvocationTargetException, IllegalAccessException, SQLException {
 
     List<String> msgList = new ArrayList<>();
-    msgList.add("r /grp MSD Hello");
-    msgList.add("j /grp MSD hello to the group");
+    msgList.add("r 1 /grp MSD Hello");
+    msgList.add("j 1 /grp MSD hello to the group");
     mockStatic(MessageServices.class);
     when(MessageServices.retrieveGroupMessages("MSD")).thenReturn(msgList);
 
@@ -665,7 +706,12 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessagePVT() throws InvocationTargetException, IllegalAccessException, NoSuchFieldException, SQLException {
     mockStatic(MessageServices.class);
-    when(MessageServices.addMessage(any(),any(),any(),any())).thenReturn(true);
+    mockStatic(Prattle.class);
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
+    when(MessageServices.addMessage(any(),any(),any(),any(),any(Integer.class), any())).thenReturn(true);
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -684,7 +730,12 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessagePVTDBException() throws Exception {
     mockStatic(MessageServices.class);
-    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
+    mockStatic(Prattle.class);
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
+    PowerMockito.doThrow(new DatabaseConnectionException("Custom DB Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class), any());
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -703,7 +754,12 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessagePVTSQLException() throws Exception {
     mockStatic(MessageServices.class);
-    PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any());
+    mockStatic(Prattle.class);
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
+    when(Prattle.updateAndGetChatIDFromUserMap(any(),any())).thenReturn(1);
+    PowerMockito.doThrow(new SQLException("Custom SQL Exception")).when(MessageServices.class,"addMessage",any(),any(),any(),any(),any(Integer.class),any());
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -722,6 +778,16 @@ public class ClientRunnableTest {
   @Test
   public void testProcessMessageGrpFalse() throws Exception {
 
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Whitebox.setInternalState(Prattle.class,"groupToUserMapping",hm);
     clientRunnable.setName("test");
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
@@ -741,10 +807,14 @@ public class ClientRunnableTest {
 
   @Test
   public void testProcessMessageGRP() throws Exception {
+    List<String> wt = new ArrayList<>();
+    wt.add("r");
+    Whitebox.setInternalState(Prattle.class,"listOfWireTappedUsers",wt);
     clientRunnable.setName("test");
     mockStatic(MessageServices.class);
     mockStatic(GroupServices.class);
     mockStatic(Prattle.class);
+    when(Prattle.updateAndGetChatIDFromGroupMap(any())).thenReturn(1);
     List<String> list = new ArrayList();
     list.add("r");
     list.add("j");
@@ -806,6 +876,8 @@ public class ClientRunnableTest {
   public void testUserFunctions() throws InvocationTargetException, IllegalAccessException {
     clientRunnable.setName("test");
     mockStatic(UserServices.class);
+    mockStatic(Prattle.class);
+    when(Prattle.updateAndGetChatIDFromGroupMap(any())).thenReturn(1);
     Class<ClientRunnable> clazz = ClientRunnable.class;
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -1032,6 +1104,12 @@ public class ClientRunnableTest {
     when(MessageServices.recallMessage(any(),any())).thenReturn(false);
     Message msg = Message.makeRecallMessage("test", "/recall r ");
     met.invoke(clientRunnable, msg);
+  }
+
+
+  @Test
+  public void testGetFilteredMessage(){
+    assertEquals("/reply 1 2 3 5",clientRunnable.filterMessageToHideType("/reply 1 2 3 4 5"));
   }
   /**
    * Message Iterator for use in testing the ClientRunnable class.

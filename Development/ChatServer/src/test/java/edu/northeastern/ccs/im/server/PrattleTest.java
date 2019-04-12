@@ -2,6 +2,7 @@ package edu.northeastern.ccs.im.server;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -23,6 +24,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.sql.SQLException;
@@ -36,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,11 +51,13 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import sun.nio.ch.Net;
+
 /**
  * Test class for the methods in the Prattle class.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({GroupServices.class})
+@PrepareForTest({GroupServices.class,UserServices.class,MessageServices.class})
 @PowerMockIgnore("javax.net.ssl.*")
 
 public class PrattleTest {
@@ -275,6 +280,7 @@ public class PrattleTest {
   public void testPvtMessage() throws IOException {
     Message message = Message.makePrivateMessage("abcd", "hello world");
     when(clientRunnable.getName()).thenReturn("abc");
+    when(clientRunnable.getDNDStatus()).thenReturn(false);
     Prattle.sendPrivateMessage(message, "abc");
     assertEquals(true, clientRunnable.isInitialized());
     assertTrue(!message.equals(null));
@@ -391,6 +397,7 @@ public class PrattleTest {
     //Return R, J
     when(clientRunnable.isInitialized()).thenReturn(false);
     when(clientRunnable.getName()).thenReturn("j");
+    when(clientRunnable.getDNDStatus()).thenReturn(false);
     mockStatic(GroupServices.class);
     List<String> list = new ArrayList();
     list.add("r");
@@ -498,9 +505,15 @@ public class PrattleTest {
   }
 
   @Test
-  public void testInitCacheNonException() throws InvocationTargetException, IllegalAccessException, IOException {
+  public void testInitCacheNonException() throws InvocationTargetException, IllegalAccessException, IOException, SQLException {
+    mockStatic(UserServices.class);
     Class<Prattle> clazz = Prattle.class;
     mockStatic(GroupServices.class);
+    mockStatic(MessageServices.class);
+//    when(GroupServices.getAllChatIdsForGroups()).thenReturn(null);
+//    when(MessageServices.getChatIDForUsers()).thenReturn(new MultiKeyMap());
+//    when(UserServices.getListOfTappedUsers()).thenReturn(null);
+//    when(GroupServices.getUserToFollowerMap()).thenReturn(null);
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
     for (Method m : method) {
@@ -517,6 +530,7 @@ public class PrattleTest {
   @Test
   public void testInitCacheException() throws Exception {
     Class<Prattle> clazz = Prattle.class;
+    mockStatic(UserServices.class);
     mockStatic(GroupServices.class);
     Method method[] = clazz.getDeclaredMethods();
     Method met = null;
@@ -542,6 +556,268 @@ public class PrattleTest {
   public void checkIsOnlineFalse() throws IOException {
     when(clientRunnable.getName()).thenReturn("z");
     assertEquals(false,Prattle.isUserOnline("r"));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testPvtMessageDND() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("abc");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgencyTrue() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("CIA");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgencyFalse() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPForUser() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    SocketAddress mockedSocketAddress = mock(SocketAddress.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    when(mockedSocketChannel.getRemoteAddress()).thenReturn(mockedSocketAddress);
+    when(mockedSocketAddress.toString()).thenReturn("192.168.1.1");
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.getIPForUser(clientRunnable);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+
+  @Test
+  public void testGetIPForUserException() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    doThrow(new IOException()).when(mockedSocketChannel).getRemoteAddress();
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.getIPForUser(clientRunnable);
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testSendMessageToAgency() throws IOException {
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    Prattle.sendMessageToAgency(message,"192.168.1.1","172.1.1.0");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPFromActiveRunnablesFalse() throws IOException {
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    when(clientRunnable.getName()).thenReturn("abc");
+    when(clientRunnable.getDNDStatus()).thenReturn(false);
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(true, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    assertNull(Prattle.getIPFromActiveRunnables("abcd"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPFromActiveRunnablesTrue() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    SocketAddress mockedSocketAddress = mock(SocketAddress.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    when(mockedSocketChannel.getRemoteAddress()).thenReturn(mockedSocketAddress);
+    when(mockedSocketAddress.toString()).thenReturn("192.168.1.1");
+
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    when(clientRunnable.getName()).thenReturn("abcd");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals("192.168.1.1",Prattle.getIPFromActiveRunnables("abcd"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testGetIPFromActiveRunnablesException() throws IOException {
+    NetworkConnection networkConnectionMocked = mock(NetworkConnection.class);
+    SocketChannel mockedSocketChannel = mock(SocketChannel.class);
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("RAW");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    when(clientRunnable.getConnection()).thenReturn(networkConnectionMocked);
+    when(networkConnectionMocked.getChannel()).thenReturn(mockedSocketChannel);
+    doThrow(new IOException()).when(mockedSocketChannel).getRemoteAddress();
+
+
+    Message message = Message.makePrivateMessage("abcd", "hello world");
+    when(clientRunnable.getName()).thenReturn("abcd");
+    Prattle.sendPrivateMessage(message, "abc");
+    assertEquals(null,Prattle.getIPFromActiveRunnables("abcd"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testUpdateAndGetChatIDFromUserMapSenderReceiver() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToUserMap");
+    field.setAccessible(true);
+
+    MultiKeyMap<String,Integer> chatIDToUserMap = new MultiKeyMap<>();
+    chatIDToUserMap.put("Rohan","Josh",1);
+    field.set(null, chatIDToUserMap);
+    assertEquals(2,Prattle.updateAndGetChatIDFromUserMap("Rohan","Josh"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testUpdateAndGetChatIDFromUserMapReceiverSender() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToUserMap");
+    field.setAccessible(true);
+
+    MultiKeyMap<String,Integer> chatIDToUserMap = new MultiKeyMap<>();
+    chatIDToUserMap.put("Rohan","Josh",1);
+    field.set(null, chatIDToUserMap);
+    assertEquals(2,Prattle.updateAndGetChatIDFromUserMap("Josh","Rohan"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void testUpdateAndGetChatIDFromUserMapNewUserPair() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToUserMap");
+    field.setAccessible(true);
+
+    MultiKeyMap<String,Integer> chatIDToUserMap = new MultiKeyMap<>();
+    field.set(null, chatIDToUserMap);
+    assertEquals(1,Prattle.updateAndGetChatIDFromUserMap("Josh","Rohan"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void updateAndGetChatIDFromGroupMap() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToGroupMap");
+    field.setAccessible(true);
+
+    ConcurrentMap<String,Integer> chatToGrpMap = new ConcurrentHashMap<>();
+    chatToGrpMap.put("MSD",1);
+    field.set(null, chatToGrpMap);
+    assertEquals(2,Prattle.updateAndGetChatIDFromGroupMap("MSD"));
+    this.serverSocketChannel.close();
+  }
+
+  @Test
+  public void updateAndGetChatIDFromGroupMapNewGroup() throws NoSuchFieldException, IllegalAccessException, IOException {
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("chatIDToGroupMap");
+    field.setAccessible(true);
+
+    ConcurrentMap<String,Integer> chatToGrpMap = new ConcurrentHashMap<>();
+    field.set(null, chatToGrpMap);
+    assertEquals(1,Prattle.updateAndGetChatIDFromGroupMap("MSD"));
+    this.serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testGrpMSGDNDTrue() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("r", "/grp MSD Hello");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
+    serverSocketChannel.close();
+  }
+
+  /**
+   * Test for broadcastMessage method failure.
+   */
+  @Test
+  public void testGrpMSGUserPrattle() throws IOException, SQLException, NoSuchFieldException, IllegalAccessException {
+    //Return R, J
+    when(clientRunnable.isInitialized()).thenReturn(false);
+    when(clientRunnable.getName()).thenReturn("j");
+    when(clientRunnable.getDNDStatus()).thenReturn(true);
+    mockStatic(GroupServices.class);
+    List<String> list = new ArrayList();
+    list.add("r");
+    list.add("j");
+    ConcurrentMap<String,List<String>> hm = new ConcurrentHashMap<>();
+    hm.put("MSD",list);
+
+    Class clazz = Prattle.class;
+    Field field = clazz.getDeclaredField("groupToUserMapping");
+
+    field.setAccessible(true);
+    field.set(null, hm);
+
+
+    Message message = Message.makeGroupMessage("PRATTLE", "/grp MSD Hello");
+    Prattle.sendGroupMessage(message, "MSD");
+    assertEquals(false, clientRunnable.isInitialized());
+    assertTrue(!message.equals(null));
     serverSocketChannel.close();
   }
 

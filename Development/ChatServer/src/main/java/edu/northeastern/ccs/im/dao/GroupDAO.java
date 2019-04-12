@@ -5,6 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import edu.northeastern.ccs.im.model.Groups;
@@ -131,7 +135,7 @@ public class GroupDAO {
    * Method to check if a group exists based on prepared statment.
    *
    * @param statement statement containing either group name or group id
-   * @param result result set from another query
+   * @param result    result set from another query
    * @return true if the group is found, false otherwise
    * @throws SQLException if the queries cant be found
    */
@@ -185,7 +189,7 @@ public class GroupDAO {
     try {
       preparedStatement = connection.prepareStatement(validate, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, groupName);
-      preparedStatement.setString(2, "%"+adminName+"%");
+      preparedStatement.setString(2, "%" + adminName + "%");
       return checkGroup(preparedStatement, result);
     } finally {
       if (preparedStatement != null) {
@@ -256,6 +260,7 @@ public class GroupDAO {
         String grpName = resultSet.getString("grpName");
         String admins = resultSet.getString("admins");
         group = new Groups(grpID, grpName, admins);
+        group.setThread(resultSet.getBoolean("isThread"));
         return group;
       } else {
         throw new SQLException("Group not found.");
@@ -307,14 +312,13 @@ public class GroupDAO {
     try {
       preparedStatement = connection.prepareStatement(getRestriction, Statement.RETURN_GENERATED_KEYS);
       preparedStatement.setString(1, grpName);
-      try{
+      try {
         resultSet = preparedStatement.executeQuery();
-        if(resultSet.next()) {
+        if (resultSet.next()) {
           restriction = resultSet.getString(1);
         }
-      }
-      finally {
-        if(resultSet != null) {
+      } finally {
+        if (resultSet != null) {
           resultSet.close();
         }
       }
@@ -331,7 +335,7 @@ public class GroupDAO {
   /**
    * Method to change the restriction level of a group.
    *
-   * @param grpName the name of the group to change the restriction of
+   * @param grpName     the name of the group to change the restriction of
    * @param restriction string representing the restriction level, either H or L
    * @throws SQLException if the group cannot be found
    */
@@ -367,6 +371,76 @@ public class GroupDAO {
       preparedStatement.setInt(1, groupId);
       preparedStatement.setInt(2, groupId);
       preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public void setGroupAsThread(String groupName) throws SQLException {
+    String setThread = "UPDATE Groups SET isThread = True WHERE grpName = ?;";
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    try {
+      preparedStatement = connection.prepareStatement(setThread, Statement.RETURN_GENERATED_KEYS);
+      preparedStatement.setString(1, groupName);
+      preparedStatement.executeUpdate();
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public List<String> getAllThreads() throws SQLException {
+    String getThreads = "SELECT grpName FROM Groups WHERE isThread = True;";
+    List<String> listOfThreads = new ArrayList<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getThreads, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          listOfThreads.add(resultSet.getString(1));
+        }
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
+      return listOfThreads;
+    } finally {
+      if (preparedStatement != null) {
+        preparedStatement.close();
+      }
+      connection.close();
+    }
+  }
+
+  public ConcurrentMap<String, Integer> getAllChatIdsForGroups() throws SQLException {
+    String getGroupChatIds = "SELECT G.GRPNAME, MAX(M.CHATSENDERID) FROM GROUPS G JOIN MESSAGETOUSERMAP MAP ON MAP.RECEIVERID = G.GRPID JOIN MESSAGE M ON M.MSGID = MAP.MSGID WHERE M.MSGTYPE != 'TRD' GROUP BY G.GRPNAME;";
+    ConcurrentMap<String, Integer> groupChatIds = new ConcurrentHashMap<>();
+    Connection connection = connectionManager.getConnection();
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      preparedStatement = connection.prepareStatement(getGroupChatIds, Statement.RETURN_GENERATED_KEYS);
+      try {
+        resultSet = preparedStatement.executeQuery();
+        while (resultSet.next()) {
+          groupChatIds.put(resultSet.getString(1), resultSet.getInt(2));
+        }
+        return groupChatIds;
+      } finally {
+        if (resultSet != null) {
+          resultSet.close();
+        }
+      }
     } finally {
       if (preparedStatement != null) {
         preparedStatement.close();

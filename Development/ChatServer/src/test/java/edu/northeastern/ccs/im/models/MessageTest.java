@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.models;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.sql.Timestamp;
 
@@ -48,5 +49,29 @@ public class MessageTest {
 		String time = new Timestamp(System.currentTimeMillis()).toString();
 		message.setTimestamp(time);
 		assertEquals(time, message.getTimestamp());
+	}
+
+	@Test
+	public void testSecret() {
+		message.setSecret(true);
+		assertTrue(message.isSecret());
+	}
+
+	@Test
+	public void testSenderIP() {
+		message.setSenderIP("11111111");
+		assertEquals("11111111", message.getSenderIP());
+	}
+
+	@Test
+	public void testChatSenderID() {
+		message.setChatSenderID(1);
+		assertEquals(1, message.getChatSenderID());
+	}
+
+	@Test
+	public void testReplyID() {
+		message.setReplyID(1);
+		assertEquals(1, message.getReplyID());
 	}
 }

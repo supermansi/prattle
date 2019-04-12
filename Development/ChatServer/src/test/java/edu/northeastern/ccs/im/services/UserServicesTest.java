@@ -1,6 +1,7 @@
 package edu.northeastern.ccs.im.services;
 
 import edu.northeastern.ccs.im.PasswordHash;
+import edu.northeastern.ccs.im.exceptions.DatabaseConnectionException;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -8,15 +9,20 @@ import org.junit.runners.MethodSorters;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import edu.northeastern.ccs.im.dao.UserDAO;
 import edu.northeastern.ccs.im.model.User;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+/**
+ * Tests for User Service Class.
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class UserServicesTest {
 
@@ -130,4 +136,105 @@ public class UserServicesTest {
     assertEquals(Long.parseLong("00000000"), (long)UserServices.getLastSeen("Daba"));
   }
 
+  @Test
+  public void testGetUserProfile() throws SQLException {
+    User user = new User(52, "test", "test", "test", "test@gmail.com", "test");
+    when(mockUserDAO.getUserByUsername("test")).thenReturn(user);
+    Map<User.UserParams, String> userProfile = new HashMap<>();
+    userProfile.put(User.UserParams.USERNAME, user.getUsername());
+    userProfile.put(User.UserParams.FIRSTNAME, user.getUserFN());
+    userProfile.put(User.UserParams.LASTNAME, user.getUserLN());
+    userProfile.put(User.UserParams.EMAIL, user.getEmail());
+    when(mockUserDAO.getUserProfile(52)).thenReturn(user);
+    assertEquals(userProfile, UserServices.getUserProfile("test"));
+  }
+
+  @Test
+  public void testFollow() throws SQLException {
+    doNothing().when(mockUserDAO).followUser("r", "j");
+    UserServices.followUser("r", "j");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testFollowException() throws SQLException {
+    doThrow(new SQLException("error")).when(mockUserDAO).followUser("r", "j");
+    UserServices.followUser("r", "j");
+  }
+
+  @Test
+  public void testUnFollow() throws SQLException {
+    doNothing().when(mockUserDAO).unfollow("r","j");
+    UserServices.unFollowUser("r", "j");
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testUnFollowException() throws SQLException {
+    doThrow(new SQLException("error")).when(mockUserDAO).unfollow("r", "j");
+    UserServices.unFollowUser("r", "j");
+  }
+
+  @Test
+  public void testGetFollowers() throws SQLException {
+    UserServices.getFollowers("x");
+  }
+
+  @Test
+  public void testGetFollowing() throws SQLException {
+    UserServices.getFollowing("x");
+  }
+
+  @Test
+  public void testGetListOfTappedUsers() throws SQLException {
+    List<String> users = new ArrayList<>();
+    users.add("aditi");
+    users.add("mansi");
+    when(mockUserDAO.getListOfTappedUsers()).thenReturn(users);
+    assertEquals(users,UserServices.getListOfTappedUsers());
+  }
+
+  @Test
+  public void testSetWireTapStatusTrue() throws SQLException {
+    User testUser = new User(22, "aditi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    testUser.setTapped(false);
+    when(mockUserDAO.isUserExists("aditi")).thenReturn(true);
+    when(mockUserDAO.getUserByUsername("aditi")).thenReturn(testUser);
+    doNothing().when(mockUserDAO).setWireTappedStatus("aditi",true);
+    UserServices.setWireTapStatus("aditi",true);
+  }
+
+  @Test
+  public void testSetWireTapStatusFalse() throws SQLException {
+    User testUser = new User(22, "aditi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    testUser.setTapped(true);
+    when(mockUserDAO.isUserExists("aditi")).thenReturn(true);
+    when(mockUserDAO.getUserByUsername("aditi")).thenReturn(testUser);
+    doNothing().when(mockUserDAO).setWireTappedStatus("aditi",false);
+    UserServices.setWireTapStatus("aditi",false);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testSetWireTapStatusTrueTrue() throws SQLException {
+    User testUser = new User(22, "aditi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    testUser.setTapped(true);
+    when(mockUserDAO.isUserExists("aditi")).thenReturn(true);
+    when(mockUserDAO.getUserByUsername("aditi")).thenReturn(testUser);
+    doThrow(IllegalStateException.class).when(mockUserDAO).setWireTappedStatus("aditi",true);
+    UserServices.setWireTapStatus("aditi",true);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testSetWireTapStatusFalseFalse() throws SQLException {
+    User testUser = new User(22, "aditi", "aditi", "kacheria", "ak@hotmail.com", "kakakak");
+    testUser.setTapped(false);
+    when(mockUserDAO.isUserExists("aditi")).thenReturn(true);
+    when(mockUserDAO.getUserByUsername("aditi")).thenReturn(testUser);
+    doThrow(IllegalStateException.class).when(mockUserDAO).setWireTappedStatus("aditi",false);
+    UserServices.setWireTapStatus("aditi",false);
+  }
+
+  @Test(expected = DatabaseConnectionException.class)
+  public void testSetWireTapStatusException() throws SQLException {
+    when(mockUserDAO.isUserExists("aditi")).thenReturn(false);
+    UserServices.setWireTapStatus("aditi",true);
+  }
 }

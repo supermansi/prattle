@@ -1,5 +1,9 @@
 package edu.northeastern.ccs.im;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiFunction;
+
 /**
  * Each instance of this class represents a single transmission by our IM clients.
  *
@@ -16,17 +20,16 @@ public class Message {
    * The string sent when a field is null.
    */
   private static final String NULL_OUTPUT = "--";
-
+  private static boolean isMsgMapInitialised = false;
+  private static ConcurrentMap<String, BiFunction<String, String, Message>> messageMap = new ConcurrentHashMap<>();
   /**
    * The handle of the message.
    */
   private MessageType msgType;
-
   /**
    * The first argument used in the message. This will be the sender's identifier.
    */
   private String msgSender;
-
   /**
    * The second argument used in the message.
    */
@@ -56,8 +59,8 @@ public class Message {
    * @param myName The name of the client that sent the quit message.
    * @return Instance of Message that specifies the process is logging out.
    */
-  public static Message makeQuitMessage(String myName) {
-    return new Message(MessageType.QUIT, myName, null);
+  public static Message makeQuitMessage(String myName, String msgText) {
+    return new Message(MessageType.QUIT, myName, msgText);
   }
 
 
@@ -92,72 +95,137 @@ public class Message {
    * @return Instance of Message (or its subclasses) representing the handle, name, & text.
    */
   protected static Message makeMessage(String handle, String srcName, String text) {
-    Message result = null;
-    if (handle.compareTo(MessageType.QUIT.toString()) == 0) {
-      result = makeQuitMessage(srcName);
-    } else if (handle.compareTo(MessageType.HELLO.toString()) == 0) {
-      result = makeSimpleLoginMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.BROADCAST.toString()) == 0) {
-      result = makeBroadcastMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.ACKNOWLEDGEMENT.toString()) == 0) {
-      result = makeAckMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.NO_ACKNOWLEDGEMENT.toString()) == 0) {
-      result = makeNackMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.PRIVATE.toString()) == 0) {
-      result = makePrivateMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.GROUP.toString()) == 0) {
-      result = makeGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.REGISTRATION.toString()) == 0) {
-      result = makeRegisterationMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_FN.toString()) == 0) {
-      result = makeUpdateFirstNameMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_LN.toString()) == 0) {
-      result = makeUpdateLastNameMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_PW.toString()) == 0) {
-      result = makeUpdatePasswordMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.UPDATE_EM.toString()) == 0) {
-      result = makeUpdateEmailMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.CREATE_GROUP.toString()) == 0) {
-      result = createGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.DELETE_GROUP.toString()) == 0) {
-      result = deleteGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.REMOVE_USER.toString()) == 0) {
-      result = makeRemoveUserMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.RETRIEVE_USER.toString()) == 0) {
-      result = makeRetrieveUserMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.RETRIEVE_GROUP.toString()) == 0) {
-      result = makeRetrieveGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.ADD_USER_TO_GRP.toString()) == 0) {
-      result = makeAddUserToGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.DEACTIVATE_USER.toString()) == 0) {
-      result = makeDeactivateUserMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.USER_EXISTS.toString()) == 0) {
-      result = makeUserExistsMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.ATTACHMENT.toString()) == 0) {
-      result = makeAttachmentMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.LAST_SEEN.toString()) == 0) {
-      result = makeLastSeenMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.LEAVE_GROUP.toString()) == 0) {
-      result = makeLeaveGroupMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.SET_GROUP_RESTRICTION.toString()) == 0) {
-      result = makeSetGroupRestrictionMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.MAKE_ADMIN.toString()) == 0) {
-      result = makeMakeAdminMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.RECALL.toString()) == 0) {
-      result = makeRecallMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.READ_ATTACHMENT_MESSAGE.toString()) == 0) {
-      result = makeReadAttachmentMessage(srcName, text);
-    } else if (handle.compareTo(MessageType.GET_GROUP_USERS.toString()) == 0) {
-      result = makeGetUsersInGroupMessage(srcName, text);
+
+    if (!isMsgMapInitialised) {
+      initialiseMessageMap();
     }
-    return result;
+    return messageMap.get(handle).apply(srcName, text);
+
+  }
+
+  private static void initialiseMessageMap() {
+    isMsgMapInitialised = true;
+    BiFunction<String, String, Message> helloFunction = ((src, txt) -> (makeSimpleLoginMessage(src, txt)));
+    BiFunction<String, String, Message> quitFunction = ((src, txt) -> (makeQuitMessage(src, txt)));
+    BiFunction<String, String, Message> broadcastFunction = ((src, txt) -> (makeBroadcastMessage(src, txt)));
+    BiFunction<String, String, Message> acknowledgeFunction = ((src, txt) -> (makeAckMessage(src, txt)));
+    BiFunction<String, String, Message> negativeAckFunction = ((src, txt) -> (makeNackMessage(src, txt)));
+    BiFunction<String, String, Message> privateFunction = ((src, txt) -> (makePrivateMessage(src, txt)));
+    BiFunction<String, String, Message> groupFunction = ((src, txt) -> (makeGroupMessage(src, txt)));
+    BiFunction<String, String, Message> registrationFunction = ((src, txt) -> (makeRegisterationMessage(src, txt)));
+    BiFunction<String, String, Message> updateFNFunction = ((src, txt) -> (makeUpdateFirstNameMessage(src, txt)));
+    BiFunction<String, String, Message> updateLNFunction = ((src, txt) -> (makeUpdateLastNameMessage(src, txt)));
+    BiFunction<String, String, Message> updatePWFunction = ((src, txt) -> (makeUpdatePasswordMessage(src, txt)));
+    BiFunction<String, String, Message> updateEMFunction = ((src, txt) -> (makeUpdateEmailMessage(src, txt)));
+    BiFunction<String, String, Message> createGroupFunction = ((src, txt) -> (createGroupMessage(src, txt)));
+    BiFunction<String, String, Message> deleteGroupFunction = ((src, txt) -> (deleteGroupMessage(src, txt)));
+    BiFunction<String, String, Message> removeUserFunction = ((src, txt) -> (makeRemoveUserMessage(src, txt)));
+    BiFunction<String, String, Message> addUserFunction = ((src, txt) -> (makeAddUserToGroupMessage(src, txt)));
+    BiFunction<String, String, Message> retrieveUserFunction = ((src, txt) -> (makeRetrieveUserMessage(src, txt)));
+    BiFunction<String, String, Message> retrieveGroupFunction = ((src, txt) -> (makeRetrieveGroupMessage(src, txt)));
+    BiFunction<String, String, Message> deactivateAccountFunction = ((src, txt) -> (makeDeactivateUserMessage(src, txt)));
+    BiFunction<String, String, Message> userExistsFunction = ((src, txt) -> (makeUserExistsMessage(src, txt)));
+    BiFunction<String, String, Message> attachmentFunction = ((src, txt) -> (makeAttachmentMessage(src, txt)));
+    BiFunction<String, String, Message> lastSeenFunction = ((src, txt) -> (makeLastSeenMessage(src, txt)));
+    BiFunction<String, String, Message> leaveGroupFunction = ((src, txt) -> (makeLeaveGroupMessage(src, txt)));
+    BiFunction<String, String, Message> setGroupRestrictionsFunction = ((src, txt) -> (makeSetGroupRestrictionMessage(src, txt)));
+    BiFunction<String, String, Message> makeAdminFunction = ((src, txt) -> (makeMakeAdminMessage(src, txt)));
+    BiFunction<String, String, Message> recallFunction = ((src, txt) -> (makeRecallMessage(src, txt)));
+    BiFunction<String, String, Message> readAttachmentFunction = ((src, txt) -> (makeReadAttachmentMessage(src, txt)));
+    BiFunction<String, String, Message> getGroupUsersFunctions = ((src, txt) -> (makeGetUsersInGroupMessage(src, txt)));
+    BiFunction<String, String, Message> getAllGroupsUserBelongsToFunction = ((src, txt) -> (makeGetAllGroupsUserBelongsMessage(src, txt)));
+    BiFunction<String, String, Message> dndFunction = ((src, txt) -> (makeDNDMessage(src, txt)));
+    BiFunction<String, String, Message> getMessagesBetweenFunction = ((src, txt) -> (makeGetMessagesBetweenMessage(src, txt)));
+    BiFunction<String, String, Message> createThreadMessageFunction = ((src, txt) -> (makeCreateThreadMessage(src, txt)));
+    BiFunction<String, String, Message> postOnThreadFunction = ((src, txt) -> (makePostOnThreadMessage(src, txt)));
+    BiFunction<String, String, Message> followUserFunction = ((src, txt) -> (makeFollowUserMessage(src, txt)));
+    BiFunction<String, String, Message> getAllThreadsFunction = ((src, txt) -> (makeGetAllThreadsMessage(src, txt)));
+    BiFunction<String, String, Message> getThreadMessagesFunction = ((src, txt) -> (makeGetThreadMessagesMessage(src, txt)));
+    BiFunction<String, String, Message> unFollowUserFunction = ((src, txt) -> (makeUnfollowUserMessage(src, txt)));
+    BiFunction<String, String, Message> forwardFunction = ((src, txt) -> (makeForwardMessageMessage(src, txt)));
+    BiFunction<String, String, Message> secretFunction = ((src, txt) -> (makeSecretMessageMessage(src, txt)));
+    BiFunction<String, String, Message> setWireTapFunction = ((src, txt) -> (makeSetWiretapMessage(src, txt)));
+    BiFunction<String, String, Message> getListOfWireTappedUsersFunction = ((src, txt) -> (makeGetListWiretappedUsers(src, txt)));
+    BiFunction<String, String, Message> replyFunction = ((src, txt) -> (makeReplyMessage(src, txt)));
+    BiFunction<String, String, Message> getDataForWireTappedUserFunction = ((src, txt) -> (makeGetDataOfWiretappedUser(src, txt)));
+    BiFunction<String, String, Message> getUserProfileFunction = ((src, txt) -> (makeRecallMessage(src, txt)));
+    BiFunction<String, String, Message> getFollowersFunction = ((src, txt) -> (makeGetFollowersMessage(src, txt)));
+    BiFunction<String, String, Message> getFollowingFunction = ((src, txt) -> (makeGetFollowingMessage(src, txt)));
+    BiFunction<String, String, Message> subscribeToThreadFunction = ((src, txt) -> (makeSubscribeToThreadMessage(src, txt)));
+    BiFunction<String, String, Message> getReplyChainFunction = ((src, txt) -> (makeGetReplyChainMessage(src, txt)));
+
+    messageMap.put("HLO", helloFunction);
+    messageMap.put("BYE", quitFunction);
+    messageMap.put("BCT", broadcastFunction);
+    messageMap.put("ACK", acknowledgeFunction);
+    messageMap.put("NAK", negativeAckFunction);
+    messageMap.put("REG", registrationFunction);
+    messageMap.put("PVT", privateFunction);
+    messageMap.put("GRP", groupFunction);
+    messageMap.put("UFN", updateFNFunction);
+    messageMap.put("ULN", updateLNFunction);
+    messageMap.put("UPW", updatePWFunction);
+    messageMap.put("UEM", updateEMFunction);
+    messageMap.put("CGR", createGroupFunction);
+    messageMap.put("DGR", deleteGroupFunction);
+    messageMap.put("RMU", removeUserFunction);
+    messageMap.put("RTU", retrieveUserFunction);
+    messageMap.put("RTG", retrieveGroupFunction);
+    messageMap.put("AUG", addUserFunction);
+    messageMap.put("DUS", deactivateAccountFunction);
+    messageMap.put("UEX", userExistsFunction);
+    messageMap.put("ATT", attachmentFunction);
+    messageMap.put("LSN", lastSeenFunction);
+    messageMap.put("SGR", setGroupRestrictionsFunction);
+    messageMap.put("LGR", leaveGroupFunction);
+    messageMap.put("MAD", makeAdminFunction);
+    messageMap.put("RCL", recallFunction);
+    messageMap.put("RAM", readAttachmentFunction);
+    messageMap.put("GGU", getGroupUsersFunctions);
+    messageMap.put("GUP", getUserProfileFunction);
+    messageMap.put("DND", dndFunction);
+    messageMap.put("GUG", getAllGroupsUserBelongsToFunction);
+    messageMap.put("GMB", getMessagesBetweenFunction);
+    messageMap.put("TRD", createThreadMessageFunction);
+    messageMap.put("POT", postOnThreadFunction);
+    messageMap.put("FUS", followUserFunction);
+    messageMap.put("GAT", getAllThreadsFunction);
+    messageMap.put("GTM", getThreadMessagesFunction);
+    messageMap.put("UUS", unFollowUserFunction);
+    messageMap.put("FWD", forwardFunction);
+    messageMap.put("SMS", secretFunction);
+    messageMap.put("WTU", getListOfWireTappedUsersFunction);
+    messageMap.put("REP", replyFunction);
+    messageMap.put("GWU", getDataForWireTappedUserFunction);
+    messageMap.put("WTM", setWireTapFunction);
+    messageMap.put("GFW", getFollowersFunction);
+    messageMap.put("GFG", getFollowingFunction);
+    messageMap.put("STT", subscribeToThreadFunction);
+    messageMap.put("GRC", getReplyChainFunction);
+
+  }
+
+  private static Message makeGetReplyChainMessage(String srcName, String text) {
+    return new Message(MessageType.GET_REPLY_CHAIN, srcName, text);
+  }
+
+  private static Message makeSubscribeToThreadMessage(String srcName, String text) {
+    return new Message(MessageType.SUBSCRIBE_TO_THREAD, srcName, text);
+  }
+
+  public static Message makeDNDMessage(String srcName, String text) {
+    return new Message(MessageType.DO_NOT_DISTURB, srcName, text);
+  }
+
+  public static Message makeGetAllGroupsUserBelongsMessage(String srcName, String text) {
+    return new Message(MessageType.GET_ALL_GROUP_USER_BELONGS, srcName, text);
   }
 
   /**
    * Method to create a read attachment message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new read attachment message
    */
   public static Message makeReadAttachmentMessage(String srcName, String text) {
@@ -168,7 +236,7 @@ public class Message {
    * Method to create a recall message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new recall message
    */
   public static Message makeRecallMessage(String srcName, String text) {
@@ -179,7 +247,7 @@ public class Message {
    * Method to create an attachment message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new attachment message
    */
   public static Message makeAttachmentMessage(String srcName, String text) {
@@ -365,7 +433,7 @@ public class Message {
    * Method to create a deactivate user  message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new deactivate user message
    */
   public static Message makeDeactivateUserMessage(String srcName, String text) {
@@ -376,7 +444,7 @@ public class Message {
    * Method to create a user exists message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new user exists message
    */
   public static Message makeUserExistsMessage(String srcName, String text) {
@@ -387,7 +455,7 @@ public class Message {
    * Method to create a last seen message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new last seen message
    */
   public static Message makeLastSeenMessage(String srcName, String text) {
@@ -398,7 +466,7 @@ public class Message {
    * Method to create a leave group message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new leave group message
    */
   public static Message makeLeaveGroupMessage(String srcName, String text) {
@@ -409,7 +477,7 @@ public class Message {
    * Method to create a set group restriction message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new set group restriction message
    */
   public static Message makeSetGroupRestrictionMessage(String srcName, String text) {
@@ -420,7 +488,7 @@ public class Message {
    * Method to create make admin message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new make admin message
    */
   public static Message makeMakeAdminMessage(String srcName, String text) {
@@ -431,13 +499,77 @@ public class Message {
    * Method to create a get users in group message.
    *
    * @param srcName the sender of the message
-   * @param text the message text
+   * @param text    the message text
    * @return a new get users in group message
    */
   public static Message makeGetUsersInGroupMessage(String srcName, String text) {
-    return new Message(MessageType.GET_GROUP_USERS,srcName,text);
+    return new Message(MessageType.GET_GROUP_USERS, srcName, text);
   }
 
+
+  public static Message makeSecretMessageMessage(String srcName, String text) {
+    return new Message(MessageType.SECRET_MESSAGE, srcName, text);
+  }
+
+  public static Message makeForwardMessageMessage(String srcName, String text) {
+    return new Message(MessageType.FORWARD_MESSAGE, srcName, text);
+  }
+
+  public static Message makeUnfollowUserMessage(String srcName, String text) {
+    return new Message(MessageType.UNFOLLOW_USER, srcName, text);
+  }
+
+  public static Message makeGetThreadMessagesMessage(String srcName, String text) {
+    return new Message(MessageType.GET_THREAD_MESSAGES, srcName, text);
+  }
+
+  public static Message makeGetAllThreadsMessage(String srcName, String text) {
+    return new Message(MessageType.GET_ALL_THREADS, srcName, text);
+  }
+
+  public static Message makeFollowUserMessage(String srcName, String text) {
+    return new Message(MessageType.FOLLOW_USER, srcName, text);
+  }
+
+  public static Message makePostOnThreadMessage(String srcName, String text) {
+    return new Message(MessageType.POST_ON_THREAD, srcName, text);
+  }
+
+  public static Message makeCreateThreadMessage(String srcName, String text) {
+    return new Message(MessageType.CREATE_THREAD, srcName, text);
+  }
+
+  public static Message makeGetMessagesBetweenMessage(String srcName, String text) {
+    return new Message(MessageType.GET_MESSAGES_BETWEEN, srcName, text);
+  }
+
+  public static Message makeSetWiretapMessage(String srcName, String text) {
+    return new Message(MessageType.SET_WIRETAP_MESSAGE, srcName, text);
+  }
+
+  public static Message makeGetDataOfWiretappedUser(String srcName, String text) {
+    return new Message(MessageType.GET_DATA_WIRETAPPED_USER, srcName, text);
+  }
+
+  public static Message makeReplyMessage(String srcName, String text) {
+    return new Message(MessageType.REPLY, srcName, text);
+  }
+
+  public static Message makeGetListWiretappedUsers(String srcName, String text) {
+    return new Message(MessageType.GET_LIST_OF_WIRETAPPED_USERS, srcName, text);
+  }
+
+  public static Message makeGetUserProfileMessage(String srcName, String text) {
+    return new Message(MessageType.GET_USER_PROFILE, srcName, text);
+  }
+
+  public static Message makeGetFollowingMessage(String srcName, String text) {
+    return new Message(MessageType.GET_FOLLOWING, srcName, text);
+  }
+
+  public static Message makeGetFollowersMessage(String srcName, String text) {
+    return new Message(MessageType.GET_FOLLOWERS, srcName, text);
+  }
 
   /**
    * Return the name of the sender of this message.
@@ -705,7 +837,77 @@ public class Message {
    *
    * @return True if the message is a get users in group message; false otherwise
    */
-  public boolean isGetUsersInGroup() { return (msgType == MessageType.GET_GROUP_USERS); }
+  public boolean isGetUsersInGroup() {
+    return (msgType == MessageType.GET_GROUP_USERS);
+  }
+
+  public boolean isGetAllGroupsUserBelongsTo() {
+    return (msgType == MessageType.GET_ALL_GROUP_USER_BELONGS);
+  }
+
+  public boolean isDND() {
+    return (msgType == MessageType.DO_NOT_DISTURB);
+  }
+
+  public boolean isSecretMessage() {
+    return (msgType == MessageType.SECRET_MESSAGE);
+  }
+
+  public boolean isForwardMessage() {
+    return (msgType == MessageType.FORWARD_MESSAGE);
+  }
+
+  public boolean isUnfollowUser() {
+    return (msgType == MessageType.UNFOLLOW_USER);
+  }
+
+  public boolean isFollowUser() {
+    return (msgType == MessageType.FOLLOW_USER);
+  }
+
+  public boolean isGetThreadMessages() {
+    return (msgType == MessageType.GET_THREAD_MESSAGES);
+  }
+
+  public boolean isGetAllThreads() {
+    return (msgType == MessageType.GET_ALL_THREADS);
+  }
+
+  public boolean isPostOnThread() {
+    return (msgType == MessageType.POST_ON_THREAD);
+  }
+
+  public boolean isCreateThread() {
+    return (msgType == MessageType.CREATE_THREAD);
+  }
+
+  public boolean isGetMessagesBetween() {
+    return (msgType == MessageType.GET_MESSAGES_BETWEEN);
+  }
+
+  public boolean isGetListOfWiretapUsers() {
+    return (msgType == MessageType.GET_LIST_OF_WIRETAPPED_USERS);
+  }
+
+  public boolean isReply() {
+    return (msgType == MessageType.REPLY);
+  }
+
+  public boolean isGetDataWiretappedUser() {
+    return (msgType == MessageType.GET_DATA_WIRETAPPED_USER);
+  }
+
+  public boolean isSetWiretapMessage() {
+    return (msgType == MessageType.SET_WIRETAP_MESSAGE);
+  }
+
+  public boolean isWireTapStatusMessage() {
+    return (msgType == MessageType.SET_WIRETAP_MESSAGE);
+  }
+
+  public MessageType getMessageType() {
+    return this.msgType;
+  }
 
   /**
    * Representation of this message as a String. This begins with the message handle and then
