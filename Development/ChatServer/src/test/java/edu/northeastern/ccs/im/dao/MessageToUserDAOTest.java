@@ -439,4 +439,15 @@ public class MessageToUserDAOTest {
     doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
     assertEquals(1, messageToUserDAO.getMessageThread(1,1,1).size());
   }
+
+  @Test
+  public void testMapMsgIdToReceiverThreadId() throws SQLException {
+    messageToUserDAO.mapMsgIdToReceiverThreadId(new Message(2, Message.MsgType.PVT,12,"hi",Long.toString(System.currentTimeMillis())),22);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testMapMsgIdToReceiverThreadIdException() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    messageToUserDAO.mapMsgIdToReceiverThreadId(new Message(2, Message.MsgType.PVT,12,"hi",Long.toString(System.currentTimeMillis())),22);
+  }
 }

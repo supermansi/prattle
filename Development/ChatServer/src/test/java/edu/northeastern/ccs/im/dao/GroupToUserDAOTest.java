@@ -389,4 +389,87 @@ public class GroupToUserDAOTest {
     assertEquals(1, groupToUserDAO.getFollowThreadNotification("admin").size());
   }
 
+  @Test
+  public void testGetAllGroupsUserBelongsTo() throws SQLException, NoSuchFieldException, IllegalAccessException {
+    List<String> groups = new ArrayList<>();
+    groups.add("msd");
+    groups.add("test");
+    groups.add("sprint4");
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getInt("groupID")).thenReturn(2).thenReturn(12).thenReturn(22);
+    Groups group1 = new Groups(2,"msd","aditi");
+    Groups group2 = new Groups(12,"test","mansi");
+    Groups group3 = new Groups(22,"sprint4","rohan");
+    GroupDAO mockGroupDAO = mock(GroupDAO.class);
+    Class clazz = GroupToUserDAO.class;
+    Field grpDao = clazz.getDeclaredField("groupDAO");
+    grpDao.setAccessible(true);
+    grpDao.set(groupToUserDAO, mockGroupDAO);
+
+    when(mockGroupDAO.getGroupByGroupID(2)).thenReturn(group1);
+    when(mockGroupDAO.getGroupByGroupID(12)).thenReturn(group2);
+    when(mockGroupDAO.getGroupByGroupID(22)).thenReturn(group3);
+
+    assertEquals(groups,groupToUserDAO.getAllGroupsUserBelongsTo(52));
+  }
+
+  @Test
+  public void testGetAllGroupsUserBelongsToFalse() throws SQLException {
+    List<String> groups = new ArrayList<>();
+    when(mockResultSet.next()).thenReturn(false);
+    assertEquals(groups,groupToUserDAO.getAllGroupsUserBelongsTo(52));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetAllGroupsUserBelongsToException() throws SQLException {
+    List<String> groups = new ArrayList<>();
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    assertEquals(groups,groupToUserDAO.getAllGroupsUserBelongsTo(52));
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetAllGroupsUserBelongsToException1() throws SQLException {
+    List<String> groups = new ArrayList<>();
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    assertEquals(groups,groupToUserDAO.getAllGroupsUserBelongsTo(52));
+  }
+
+  @Test
+  public void testGetMapOfAllUserAndFollowers() throws SQLException {
+    ConcurrentMap<String, List<String>> hashTagMap = new ConcurrentHashMap<>();
+    List<String> followers = new ArrayList<>();
+    followers.add("abc");
+    followers.add("pqr");
+    hashTagMap.put("xyz",followers);
+    followers = new ArrayList<>();
+    followers.add("blah");
+    hashTagMap.put("bll",followers);
+
+    when(mockResultSet.next()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(3)).thenReturn("xyz").thenReturn("xyz").thenReturn("xyz").thenReturn("bll").thenReturn("bll");
+    when(mockResultSet.getString(2)).thenReturn("abc").thenReturn("pqr").thenReturn("blah");
+
+    assertEquals(hashTagMap,groupToUserDAO.getMapOfAllUserAndFollowers());
+  }
+
+  @Test
+  public void testGetMapOfAllUserAndFollowersFalse() throws SQLException {
+    ConcurrentMap<String, List<String>> hashTagMap = new ConcurrentHashMap<>();
+    List<String> followers = new ArrayList<>();
+    when(mockResultSet.next()).thenReturn(false);
+    assertEquals(hashTagMap,groupToUserDAO.getMapOfAllUserAndFollowers());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetMapOfAllUserAndFollowersException() throws SQLException {
+    doThrow(new SQLException()).when(mockStatement).executeQuery();
+    groupToUserDAO.getMapOfAllUserAndFollowers();
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetMapOfAllUserAndFollowersException1() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    groupToUserDAO.getMapOfAllUserAndFollowers();
+  }
+
 }

@@ -149,6 +149,7 @@ public class UserServicesTest {
     assertEquals(userProfile, UserServices.getUserProfile("test"));
   }
 
+  @Test
   public void testFollow() throws SQLException {
     doNothing().when(mockUserDAO).followUser("r", "j");
     UserServices.followUser("r", "j");
@@ -162,13 +163,13 @@ public class UserServicesTest {
 
   @Test
   public void testUnFollow() throws SQLException {
-    doNothing().when(mockUserDAO).followUser("r", "j");
+    doNothing().when(mockUserDAO).unfollow("r","j");
     UserServices.unFollowUser("r", "j");
   }
 
   @Test(expected = DatabaseConnectionException.class)
   public void testUnFollowException() throws SQLException {
-    doThrow(new DatabaseConnectionException("error")).when(mockUserDAO).unfollow("r", "j");
+    doThrow(new SQLException("error")).when(mockUserDAO).unfollow("r", "j");
     UserServices.unFollowUser("r", "j");
   }
 

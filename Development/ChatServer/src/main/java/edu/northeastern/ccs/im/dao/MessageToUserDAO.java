@@ -78,7 +78,7 @@ public class MessageToUserDAO {
    * @return a list of strings that contain the messages sent to a group
    */
   public List<String> getMessagesFromGroup(String groupName) throws SQLException {
-    String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
+    String retrieveQuery = "SELECT message, senderID, chatSenderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
@@ -228,7 +228,7 @@ public class MessageToUserDAO {
   }
 
   public List<String> getMessagesFromGroupBetween(String groupName, String start, String end) throws SQLException {
-    String retrieveQuery = "SELECT message, senderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?) AND timestamp >= ? AND timestamp <= ?;";
+    String retrieveQuery = "SELECT message, senderID, chatSenderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?) AND timestamp >= ? AND timestamp <= ?;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
@@ -253,7 +253,7 @@ public class MessageToUserDAO {
       while (resultSet.next()) {
         String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
         String message = resultSet.getString(MSG_FIELD);
-        messages.add(username + " " + message);
+        messages.add(resultSet.getInt("chatSenderID") + " " + username + " " + message);
       }
     } finally {
       if (resultSet != null) {
@@ -264,12 +264,12 @@ public class MessageToUserDAO {
   }
 
   public void mapMsgIdToReceiverThreadId(Message message, int receiverId) throws SQLException {
-    String insertMSgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
+    String insertMsgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
     // Check if group exists and user exists
     Connection connection = connectionManager.getConnection();
     PreparedStatement statement = null;
     try {
-      statement = connection.prepareStatement(insertMSgToUserMap);
+      statement = connection.prepareStatement(insertMsgToUserMap);
       statement.setInt(1, message.getMsgID());
       statement.setInt(2, receiverId);
       statement.executeUpdate();

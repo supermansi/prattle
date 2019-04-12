@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -272,4 +274,55 @@ public class MessageDAOTest {
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
     assertTrue(messageDAO.isSecret(1,1,1));
   }
+
+  @Test
+  public void testCreateThreadMessage() throws SQLException {
+    when(mockResultSet.getInt(1)).thenReturn(22);
+    when(mockResultSet.next()).thenReturn(true);
+    message.setMsgType(Message.MsgType.TRD);
+    Message message1 = messageDAO.addMessageToThread(message);
+    assertEquals(mockResultSet.getInt(1), message1.getMsgID());
+    assertEquals(Message.MsgType.TRD, message1.getMsgType());
+    assertEquals(2, message1.getSenderID());
+    assertEquals("hello there", message1.getMessageText());
+    assertEquals(time, message1.getTimestamp());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testCreateThreadMessageException() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(), any(Integer.class));
+    Message message1 = messageDAO.addMessageToThread(message);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testCreateThreadMessageExceptionResultSet() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeUpdate();
+    Message message1 = messageDAO.addMessageToThread(message);
+  }
+
+  @Test(expected = SQLException.class)
+  public void testCreateThreadMessageExceptionResultSet1() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).getGeneratedKeys();
+    Message message1 = messageDAO.addMessageToThread(message);
+  }
+
+  @Test
+  public void testGetChatIDUsers() throws SQLException {
+    when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+    when(mockResultSet.getString(any(String.class))).thenReturn("user").thenReturn("user2");
+    assertEquals(1, messageDAO.getChatIDForUsers().size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetChatIDUsersStatementEx() throws SQLException {
+    doThrow(new SQLException()).when(mockPreparedStatement).executeQuery();
+    assertEquals(1, messageDAO.getChatIDForUsers().size());
+  }
+
+  @Test(expected = SQLException.class)
+  public void testGetChatIDUsersConnectionEx() throws SQLException {
+    doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class), any(Integer.class));
+    assertEquals(1, messageDAO.getChatIDForUsers().size());
+  }
+
 }
