@@ -17,12 +17,12 @@ import edu.northeastern.ccs.im.model.Message;
  */
 public class MessageToUserDAO {
 
+  private static final String MSG_FIELD = "message";
+  private static final String CHAT_ID_FIELD = "chatSenderID";
   protected static IConnectionManager connectionManager;
   private static UserDAO userDAO;
   private static MessageToUserDAO messageToUserDAO;
   private static GroupDAO groupDAO;
-  private static final String MSG_FIELD = "message";
-  private static final String CHAT_ID_FIELD = "chatSenderID";
 
   /**
    * Private constructor for the message to user DAO.
@@ -130,7 +130,7 @@ public class MessageToUserDAO {
    */
   public List<String> getNotifications(int userID) throws SQLException {
     String getNotifs = "SELECT User.username, A.C FROM User JOIN (SELECT M.senderID, COUNT(M.senderID) AS C FROM (SELECT Message.senderID FROM Message JOIN MessageToUserMap ON Message.msgID = MessageToUserMap.msgID WHERE MessageToUserMap.receiverID = ? AND Message.timestamp > (SELECT lastSeen FROM User WHERE userID=?)) M GROUP BY M.senderID) A ON User.userID = A.senderID;";
-    String getGroupNotifs = "SELECT T1.Grpname, T1.C From ((SELECT M.MSGID,G.GRPNAME,Count(*) C FROM MESSAGETOUSERMAP M join Groups G on G.GRPID = M.RECEIVERID WHERE RECEIVERID = (SELECT GROUPID FROM GROUPTOUSERMAP GM WHERE USERID = ?) Group By G.GRPNAME) As T1 Join (SELECT M.msgID FROM Message M WHERE M.timestamp > (SELECT lastSeen FROM User WHERE userID = ?)) AS T2 ON T1.msgID = T2.msgID );";
+    String getGroupNotifs = "SELECT T1.Grpname, COUNT(*) C FROM ((SELECT M.MSGID, G.GRPNAME FROM MESSAGETOUSERMAP M JOIN Groups G ON G.GRPID = M.RECEIVERID WHERE M.RECEIVERID IN (SELECT GROUPID FROM GROUPTOUSERMAP GM WHERE USERID = ?)) AS T1 JOIN (SELECT M.msgID FROM Message M WHERE M.timestamp > (SELECT lastSeen FROM User WHERE userID = ?)) AS T2 ON T2.msgID=T1.msgID) GROUP BY T1.GRPNAME;";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     PreparedStatement preparedStatement2 = null;
