@@ -114,7 +114,7 @@ public class ChatLogger {
   private static void switchToFile() {
     try {
       Formatter simpleFormatter = new SimpleFormatter();
-      Handler fileHandler = new FileHandler(PATH,32256,3);
+      Handler fileHandler = new FileHandler(PATH);
       fileHandler.setFormatter(simpleFormatter);
       fileHandler.setLevel(Level.ALL);
       LOGGER.addHandler(fileHandler);
