@@ -421,13 +421,13 @@ public class UserDAOTest {
 
   @Test
   public void testUnFollow() throws SQLException {
-    userDAO.followUser("r", "j");
+    userDAO.unfollow("r", "j");
   }
 
   @Test(expected = SQLException.class)
   public void testUnFollowException() throws SQLException {
     doThrow(new SQLException()).when(mockConnection).prepareStatement(any(String.class));
-    userDAO.followUser("r", "j");
+    userDAO.unfollow("r", "j");
   }
 
   @Test
