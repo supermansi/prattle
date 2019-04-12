@@ -253,7 +253,7 @@ public class MessageToUserDAO {
       while (resultSet.next()) {
         String username = userDAO.getUserByUserID(resultSet.getInt("senderID")).getUsername();
         String message = resultSet.getString(MSG_FIELD);
-        messages.add(resultSet.getInt("chatSenderID") + " " + username + " " + message);
+        messages.add(resultSet.getInt(CHAT_ID_FIELD) + " " + username + " " + message);
       }
     } finally {
       if (resultSet != null) {
