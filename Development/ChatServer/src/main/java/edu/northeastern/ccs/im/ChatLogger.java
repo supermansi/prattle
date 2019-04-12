@@ -109,7 +109,7 @@ public class ChatLogger {
   }
 
   /**
-   * Creates file Handler for the logger to use.
+   * Creates file Handler for the logger.
    */
   private static void switchToFile() {
     try {
