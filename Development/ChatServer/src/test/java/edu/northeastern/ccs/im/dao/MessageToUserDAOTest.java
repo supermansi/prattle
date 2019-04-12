@@ -96,7 +96,7 @@ public class MessageToUserDAOTest {
 
     List<String> testList = messageToUserDAO.getMessagesFromGroup("Group 123");
 
-    assertEquals("r Test GRP MSG", testList.get(0));
+    assertEquals("0 r Test GRP MSG", testList.get(0));
   }
 
   @Test(expected = DatabaseConnectionException.class)
@@ -300,7 +300,7 @@ public class MessageToUserDAOTest {
 
     List<String> testList = messageToUserDAO.getMessagesFromGroupBetween("Group 123", "00000000", "11111111");
 
-    assertEquals("r Test GRP MSG", testList.get(0));
+    assertEquals("0 r Test GRP MSG", testList.get(0));
   }
 
   @Test(expected = DatabaseConnectionException.class)
