@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.dao;
 
 import java.sql.Connection;
@@ -244,6 +245,13 @@ public class MessageDAO {
     }
   }
 
+  /**
+   * Method to add a message onto a thread.
+   *
+   * @param message the message to be added
+   * @return Messgae to be added to thread
+   * @throws SQLException if the database cannot establish a connection
+   */
   public Message addMessageToThread(Message message) throws SQLException {
     String insertThreadMessage = "INSERT INTO Message(msgType, senderID, message, timestamp) VALUES(?,?,?,?);";
     Connection connection = connectionManager.getConnection();
@@ -264,6 +272,14 @@ public class MessageDAO {
     }
   }
 
+  /**
+   * Method to send a message generated from db data.
+   *
+   * @param message message to get from database
+   * @param preparedStatement prepared query to search database
+   * @return Message to send
+   * @throws SQLException if the database cannot establish a connection
+   */
   private Message setMessageInResult(Message message, PreparedStatement preparedStatement) throws SQLException {
     ResultSet resultSet = null;
     try {
@@ -281,6 +297,15 @@ public class MessageDAO {
     }
   }
 
+  /**
+   * Method to determine if a message in the database is a secret message.
+   *
+   * @param senderID the #id of the message sender
+   * @param receiverID the #id of the massage receiver
+   * @param chatID the chat #id of the last message sent between sender and receiver
+   * @return
+   * @throws SQLException
+   */
   public boolean isSecret(int senderID, int receiverID, int chatID) throws SQLException {
     String isSecretQuery = "SELECT isSecret FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE ((M.senderID=? AND MAP.receiverID=?) OR (M.senderID=? AND MAP.receiverID=?)) AND M.chatSenderID=?;";
     Connection connection = connectionManager.getConnection();
@@ -313,6 +338,12 @@ public class MessageDAO {
     return false;
   }
 
+  /**
+   * Method to get a multikey map, mapping two user names to the last chat #id of their conversation.
+   *
+   * @return Multikey map of two users to a chat #id
+   * @throws SQLException if the database cannot establish a connection
+   */
   public MultiKeyMap getChatIDForUsers() throws SQLException {
     String getChatID = "SELECT T2.Sender, U.username Receiver, T2.chatSenderID FROM User U JOIN (SELECT User.username Sender, T.chatSenderID, T.receiverID FROM User JOIN (SELECT M.senderID, MAP.receiverID, M.chatSenderID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID ORDER BY chatSenderID DESC) AS T ON User.userID = T.senderID) AS T2 ON U.userID = T2.receiverID;";
     MultiKeyMap<String, Integer> chatIDForUsers = new MultiKeyMap<>();

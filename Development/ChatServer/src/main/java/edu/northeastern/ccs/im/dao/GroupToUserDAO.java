@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.dao;
 
 import java.sql.Connection;
@@ -198,7 +199,7 @@ public class GroupToUserDAO {
    * Method to get a mapping of all the group names to users that belong to each group.
    *
    * @return a map of all group names and corresponding lists of each groups users
-   * @throws SQLException if no groups exist
+   * @throws SQLException if the database cannot establish a connection
    */
   public ConcurrentMap<String, List<String>> getAllUsersByGroup() throws SQLException {
     ConcurrentMap<String, List<String>> map = new ConcurrentHashMap<>();
@@ -244,7 +245,7 @@ public class GroupToUserDAO {
    *
    * @param groupId int representing the group #id
    * @return an int representing the number of group members
-   * @throws SQLException when the group #id is not in the database
+   * @throws SQLException if the database cannot establish a connection
    */
   public int getGroupMemberCount(int groupId) throws SQLException {
     String getCount = "SELECT count(*) FROM grouptousermap where groupID = ?;";
@@ -276,6 +277,13 @@ public class GroupToUserDAO {
     }
   }
 
+  /**
+   * Method to get a list of all the groups a user belongs to as a list of strings.
+   *
+   * @param userId the #id of the user to search for
+   * @return a list of all the names of groups the user belongs to
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getAllGroupsUserBelongsTo(int userId) throws SQLException {
     String getUserProfile = "SELECT * FROM GROUPTOUSERMAP WHERE USERID = ?  AND groupID IN (SELECT grpID FROM Groups WHERE isThread=0);";
     List<String> userGroups = new ArrayList<>();
@@ -304,6 +312,12 @@ public class GroupToUserDAO {
     }
   }
 
+  /**
+   * Method to return a map of each username to the list of users following them.
+   *
+   * @return map of user names to list of followers for each username.
+   * @throws SQLException if the database cannot establish a connection
+   */
   public ConcurrentMap<String, List<String>> getMapOfAllUserAndFollowers() throws SQLException {
     String getUsersAndFollowers = "SELECT * FROM FOLLOW ORDER BY FOLLOWING;";
     ConcurrentMap<String, List<String>> hashTagMap = new ConcurrentHashMap<>();
@@ -344,6 +358,13 @@ public class GroupToUserDAO {
     }
   }
 
+  /**
+   * Method to get a list of users who are following a user.
+   *
+   * @param username user to search for
+   * @return a list of followers
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getFollowThreadNotification(String username) throws SQLException {
     String getFollowQuery = "SELECT DISTINCT U.username, T1.grpName FROM User U JOIN (SELECT * FROM Groups G JOIN (SELECT receiverID, T.* FROM MessageToUserMap M2 JOIN (SELECT * FROM Message WHERE msgType = 'TRD' AND timestamp > (SELECT lastSeen FROM User WHERE username = ?)) T ON M2.msgID = T.msgID) T2 ON G.grpID = T2.receiverID) T1 ON T1.senderID = U.userID AND U.username IN (SELECT following FROM Follow WHERE follower = ?);";
     List<String> notifications = new ArrayList<>();

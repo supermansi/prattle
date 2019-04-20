@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.server;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
@@ -268,6 +269,12 @@ public abstract class Prattle {
     return flag;
   }
 
+  /**
+   * Method to update and get a chat #id from the map.
+   *
+   * @param groupName group to update the chat id
+   * @return the updated chat id
+   */
   protected static int updateAndGetChatIDFromGroupMap(String groupName) {
     if (chatIDToGroupMap.containsKey(groupName)) {
       //Increment chat id if group exists in the map
@@ -278,6 +285,13 @@ public abstract class Prattle {
     return chatIDToGroupMap.get(groupName);
   }
 
+  /**
+   * Method to update and get a chat #id from the map.
+   *
+   * @param sender the sender of the message
+   * @param receiver the receiver of the message
+   * @return the updated chat id
+   */
   protected static synchronized int updateAndGetChatIDFromUserMap(String sender, String receiver) {
     if (chatIDToUserMap.containsKey(sender, receiver)) {
       chatIDToUserMap.put(sender, receiver, chatIDToUserMap.get(sender, receiver) + 1);
@@ -291,6 +305,12 @@ public abstract class Prattle {
     }
   }
 
+  /**
+   * Method to get the ip address from a given client if they are currently active
+   *
+   * @param name the name of the user to find
+   * @return the ip address of the user as a string
+   */
   protected static String getIPFromActiveRunnables(String name) {
     String ip = null;
     for (ClientRunnable tt : active) {
@@ -306,6 +326,12 @@ public abstract class Prattle {
     return ip;
   }
 
+  /**
+   * Method to get an ip address from a client runnable.
+   *
+   * @param clientRunnable the client runnable to get the ip from
+   * @return the ip address as a a string
+   */
   protected static String getIPForUser(ClientRunnable clientRunnable){
     String ipAddress = null;
     try {
