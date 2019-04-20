@@ -79,7 +79,7 @@ public class MessageToUserDAO {
    * @return a list of strings that contain the messages sent to a group
    */
   public List<String> getMessagesFromGroup(String groupName) throws SQLException {
-    String retrieveQuery = "SELECT message, senderID, chatSenderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
+    String retrieveQuery = "SELECT message, senderID, chatSenderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?) AND (msgType='GRP' OR msgType='TRD');";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {

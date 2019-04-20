@@ -153,7 +153,7 @@ public class Message {
     BiFunction<String, String, Message> getListOfWireTappedUsersFunction = ((src, txt) -> (makeGetListWiretappedUsers(src, txt)));
     BiFunction<String, String, Message> replyFunction = ((src, txt) -> (makeReplyMessage(src, txt)));
     BiFunction<String, String, Message> getDataForWireTappedUserFunction = ((src, txt) -> (makeGetDataOfWiretappedUser(src, txt)));
-    BiFunction<String, String, Message> getUserProfileFunction = ((src, txt) -> (makeRecallMessage(src, txt)));
+    BiFunction<String, String, Message> getUserProfileFunction = ((src, txt) -> (makeGetUserProfileMessage(src, txt)));
     BiFunction<String, String, Message> getFollowersFunction = ((src, txt) -> (makeGetFollowersMessage(src, txt)));
     BiFunction<String, String, Message> getFollowingFunction = ((src, txt) -> (makeGetFollowingMessage(src, txt)));
     BiFunction<String, String, Message> subscribeToThreadFunction = ((src, txt) -> (makeSubscribeToThreadMessage(src, txt)));
