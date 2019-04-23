@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.dao;
 
 import java.sql.Connection;
@@ -379,6 +380,12 @@ public class GroupDAO {
     }
   }
 
+  /**
+   * Method to mark a group as a thread in the database.
+   *
+   * @param groupName group to be marked as a thread
+   * @throws SQLException if the group cannot be found in the database
+   */
   public void setGroupAsThread(String groupName) throws SQLException {
     String setThread = "UPDATE Groups SET isThread = True WHERE grpName = ?;";
     Connection connection = connectionManager.getConnection();
@@ -395,6 +402,12 @@ public class GroupDAO {
     }
   }
 
+  /**
+   * Method to return a list of all threads that exist as strings.
+   *
+   * @return a list of strings with the name of all the threads that exist
+   * @throws SQLException if the list of threads cannot be found in the database
+   */
   public List<String> getAllThreads() throws SQLException {
     String getThreads = "SELECT grpName FROM Groups WHERE isThread = True;";
     List<String> listOfThreads = new ArrayList<>();
@@ -422,6 +435,12 @@ public class GroupDAO {
     }
   }
 
+  /**
+   * Method to return a map of the last chat #id number for the last message sent in each group.
+   *
+   * @return map of the group name to the last chat #id sent
+   * @throws SQLException if the map cannot be loaded from the database
+   */
   public ConcurrentMap<String, Integer> getAllChatIdsForGroups() throws SQLException {
     String getGroupChatIds = "SELECT G.GRPNAME, MAX(M.CHATSENDERID) FROM GROUPS G JOIN MESSAGETOUSERMAP MAP ON MAP.RECEIVERID = G.GRPID JOIN MESSAGE M ON M.MSGID = MAP.MSGID WHERE M.MSGTYPE != 'TRD' GROUP BY G.GRPNAME;";
     ConcurrentMap<String, Integer> groupChatIds = new ConcurrentHashMap<>();

@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im;
 
 import java.io.IOException;
@@ -108,7 +109,7 @@ public class ChatLogger {
   }
 
   /**
-   * Creates file Handler for the logger to use.
+   * Creates file Handler for the logger.
    */
   private static void switchToFile() {
     try {

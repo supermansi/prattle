@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.dao;
 
 import java.sql.Connection;
@@ -78,7 +79,7 @@ public class MessageToUserDAO {
    * @return a list of strings that contain the messages sent to a group
    */
   public List<String> getMessagesFromGroup(String groupName) throws SQLException {
-    String retrieveQuery = "SELECT message, senderID, chatSenderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?);";
+    String retrieveQuery = "SELECT message, senderID, chatSenderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?) AND (msgType='GRP' OR msgType='TRD');";
     Connection connection = connectionManager.getConnection();
     PreparedStatement preparedStatement = null;
     try {
@@ -185,6 +186,16 @@ public class MessageToUserDAO {
     return notifs;
   }
 
+  /**
+   * Method to get a list of messages between two specified dates in the form of mm/dd/yyyy.
+   *
+   * @param sender sender username
+   * @param receiver receiver username
+   * @param start start date range to search for
+   * @param end end date range to search for
+   * @return a list of messages between the two users between the two dates
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getMessagesBetween(String sender, String receiver, String start, String end) throws SQLException {
     String getMessages = "SELECT message.chatSenderID, message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? union SELECT message.chatSenderID, message.senderID, message.message, message.timestamp FROM message JOIN messageToUserMap ON message.msgID = messageToUserMap.msgID WHERE message.senderID = ? AND messageToUserMap.receiverID = ? AND message.msgType = 'PVT' AND message.timestamp >= ? AND message.timestamp <= ? order by timestamp;";
     Connection connection = connectionManager.getConnection();
@@ -208,6 +219,13 @@ public class MessageToUserDAO {
     }
   }
 
+  /**
+   * Method to get a list of messages from a prepared query.
+   *
+   * @param statement the query to execute
+   * @return the list of messages returned as strings
+   * @throws SQLException if the database cannot establish a connection
+   */
   private List<String> getMessages(PreparedStatement statement) throws SQLException {
     List<String> chat = new ArrayList<>();
     ResultSet resultSet = null;
@@ -227,6 +245,15 @@ public class MessageToUserDAO {
     return chat;
   }
 
+  /**
+   * Method to get a list of messages between two specified dates in the form of mm/dd/yyyy.
+   *
+   * @param groupName name of the group to search for
+   * @param start start date range to search for
+   * @param end end date range to search for
+   * @return a list of messages between the a user and the group between the two dates
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getMessagesFromGroupBetween(String groupName, String start, String end) throws SQLException {
     String retrieveQuery = "SELECT message, senderID, chatSenderID FROM message WHERE msgID in (SELECT msgID FROM messageToUserMap WHERE receiverID=?) AND timestamp >= ? AND timestamp <= ?;";
     Connection connection = connectionManager.getConnection();
@@ -245,6 +272,13 @@ public class MessageToUserDAO {
     }
   }
 
+  /**
+   * Method to get a list of group messages from a prepared query.
+   *
+   * @param preparedStatement the prepared query to execute
+   * @return a list of messages as strings
+   * @throws SQLException if the database cannot establish a connection
+   */
   private List<String> getGroupMessages(PreparedStatement preparedStatement) throws SQLException {
     List<String> messages = new ArrayList<>();
     ResultSet resultSet = null;
@@ -263,6 +297,13 @@ public class MessageToUserDAO {
     return messages;
   }
 
+  /**
+   * Method to update the mapping of receiver thread #id to message #id.
+   *
+   * @param message the message to map
+   * @param receiverId the receiver to map
+   * @throws SQLException if the database cannot establish a connection
+   */
   public void mapMsgIdToReceiverThreadId(Message message, int receiverId) throws SQLException {
     String insertMsgToUserMap = "INSERT INTO MESSAGETOUSERMAP(MSGID, RECEIVERID) VALUES(?,?);";
     // Check if group exists and user exists
@@ -281,6 +322,13 @@ public class MessageToUserDAO {
     }
   }
 
+  /**
+   * Method to update the user's ip when they log in again.
+   *
+   * @param receiverID the receiver to update
+   * @param receiverIP teh new ip address
+   * @throws SQLException if the database cannot establish a connection
+   */
   public void updateReceiverIP(int receiverID, String receiverIP) throws SQLException {
     String updateIP = "UPDATE MESSAGETOUSERMAP SET RECEIVERIP = ? WHERE RECEIVERIP IS NULL AND RECEIVERID = ? AND msgID IN (SELECT msgID FROM MESSAGE WHERE MSGTYPE = 'PVT');";
     Connection connection = connectionManager.getConnection();
@@ -298,6 +346,13 @@ public class MessageToUserDAO {
     }
   }
 
+  /**
+   * Method to get a list of messages sent to a group from a tapped user.
+   *
+   * @param username the user to get messages from
+   * @return a list of messages as strings
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getGroupMessagesForTappedUser(String username) throws SQLException {
     String getGroupMsges = "SELECT U.USERNAME SenderName, M.SENDERIP, G.grpName ReceiverName, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN Groups G ON G.grpID = MAP.receiverID JOIN USER U ON U.userID = M.senderID WHERE M.msgType = 'GRP' AND MAP.receiverID IN (SELECT groupID FROM GroupToUserMAP WHERE userID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE)) ORDER BY MAP.RECEIVERID;;";
     Connection connection = connectionManager.getConnection();
@@ -326,6 +381,13 @@ public class MessageToUserDAO {
     }
   }
 
+  /**
+   * Method to get a list of messages that a tapped user sent.
+   *
+   * @param username user to search for
+   * @return list of messages as strings
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getTappedMessagesSender(String username) throws SQLException {
     String getMessages = "SELECT U.USERNAME ReceiverName, M.SENDERIP, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN USER U ON U.USERID = MAP.receiverID WHERE M.senderID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE) ORDER BY MAP.RECEIVERID;";
     List<String> messages = new ArrayList<>();
@@ -358,6 +420,13 @@ public class MessageToUserDAO {
     }
   }
 
+  /**
+   * Method to get a list of receivers that a tapped user sent a message to.
+   *
+   * @param username user to search for
+   * @return list of strings as messages
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getTappedMessagesReceiver(String username) throws SQLException {
     String getMessages = "SELECT U.USERNAME SenderName, M.SENDERIP, MAP.RECEIVERIP, M.MESSAGE, M.TIMESTAMP FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID JOIN USER U ON U.USERID = M.senderID WHERE MAP.receiverID = (SELECT userID FROM User WHERE username = ? AND isTapped = TRUE) ORDER BY M.SENDERID;";
     List<String> messages = new ArrayList<>();
@@ -367,6 +436,15 @@ public class MessageToUserDAO {
     return getTappedMessageCode(username, getMessages, messages, connection, preparedStatement, resultSet);
   }
 
+  /**
+   * Method to get a list of messages in a reply chain.
+   *
+   * @param senderID the sender of the messages
+   * @param receiverID the receiver of the messages
+   * @param chatMsgID the chat message #id
+   * @return a list of messages as strings
+   * @throws SQLException if the database cannot establish a connection
+   */
   public List<String> getMessageThread(int senderID, int receiverID, int chatMsgID) throws SQLException {
     String getChat = "SELECT User.username, T.* FROM User JOIN (SELECT M.msgID, M.senderID, M.message, M.chatSenderID, M.replyID, MAP.receiverID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE (senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?) ORDER BY chatSenderID DESC) AS T  ON T.senderID = User.userID;";
     List<String> messages = new ArrayList<>();
@@ -403,6 +481,15 @@ public class MessageToUserDAO {
     }
   }
 
+  /**
+   * Method to return a message #id from a chat #id.
+   *
+   * @param senderID sender of the message id
+   * @param receiverID receiver of the message id
+   * @param chatMsgID chat message id
+   * @return an int representing the message id
+   * @throws SQLException if the database cannot establish a connection
+   */
   public int getMessageIDFromChatID(int senderID, int receiverID, int chatMsgID) throws SQLException {
     String getMessageID = "SELECT M.msgID FROM Message M JOIN MessageToUserMap MAP ON M.msgID = MAP.msgID WHERE ((senderID = ? AND receiverID = ?) OR (senderID = ? AND receiverID = ?)) AND chatSenderID = ?;";
     Connection connection = connectionManager.getConnection();
@@ -435,6 +522,16 @@ public class MessageToUserDAO {
     return messageID;
   }
 
+  /**
+   * Method to get a message by it's given message #id.
+   *
+   * @param senderID the sender of the message
+   * @param receiverID the receiver of the message
+   * @param chatID the chat #id of the message
+   * @param msgType the message type
+   * @return a message as a string
+   * @throws SQLException if the database cannot establish a connection
+   */
   public String getMessageByChatID(int senderID, int receiverID, int chatID, Message.MsgType msgType) throws SQLException {
     String getMessage = "SELECT M.MESSAGE FROM MESSAGE M JOIN MESSAGETOUSERMAP MAP ON M.MSGID = MAP.MSGID WHERE ((M.SENDERID = ? AND MAP.RECEIVERID = ?) OR (MAP.RECEIVERID = ? AND M.SENDERID = ?)) AND M.MSGTYPE = ? AND M.CHATSENDERID = ?;";
     Connection connection = connectionManager.getConnection();

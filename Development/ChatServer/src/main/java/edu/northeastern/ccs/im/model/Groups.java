@@ -1,3 +1,4 @@
+/** Copyright (c) 2019 Rohan Gori, Aditi Kacheria, Mansi Jain, Joshua Dick. All rights reserved.*/
 package edu.northeastern.ccs.im.model;
 
 /**
@@ -93,18 +94,38 @@ public class Groups {
     this.admins = admins;
   }
 
+  /**
+   * Method to get the restricted status.
+   *
+   * @return the restricted status
+   */
   public Restricted getRestricted() {
     return restricted;
   }
 
+  /**
+   * Method to set the restricted status.
+   *
+   * @param restricted the restricted status
+   */
   public void setRestricted(Restricted restricted) {
     this.restricted = restricted;
   }
 
+  /**
+   * Method to determine if the group is a thread or not.
+   *
+   * @return true if the group is a thread, false otherwise
+   */
   public boolean isThread() {
     return isThread;
   }
 
+  /**
+   * Method to set a group as a thread.
+   *
+   * @param thread true to set as thread, false otherwise
+   */
   public void setThread(boolean thread) {
     isThread = thread;
   }
