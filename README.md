@@ -22,3 +22,5 @@ Link to System Setup: https://youtu.be/KFiRyANMZdU
 Link to Final Presentation: https://youtu.be/Wu7iC39e4rg
 
 The documents are present in the Presentation folder.
+
+The jar for client code (Chatter) is in the root folder.
